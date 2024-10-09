@@ -53,32 +53,32 @@ class _MyHomePageState extends State<MyHomePage> {
         items: [
           BottomNavigationBarItem(
             icon: _currentIndex == 0
-                ? _buildSelectedIcon("images/pengaduan.png", "Pengaduan")
-                :_buildUnselectedIcon("images/pengaduan.png", "Pengaduan"),
+                ? _buildSelectedIcon("../images/pengaduan.png", "Pengaduan")
+                :_buildUnselectedIcon("../images/pengaduan.png", "Pengaduan"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 1
-                ? _buildSelectedIcon("images/Rating.png", "Rating")
-                :_buildUnselectedIcon("images/Rating.png", "Rating"),
+                ? _buildSelectedIcon("../images/Rating.png", "Rating")
+                :_buildUnselectedIcon("../images/Rating.png", "Rating"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 2
-                ? _buildSelectedIcon("images/Beranda.png", "Beranda")
-                :_buildUnselectedIcon("images/Beranda.png", "Beranda"),
+                ? _buildSelectedIcon("../images/Beranda.png", "Beranda")
+                :_buildUnselectedIcon("../images/Beranda.png", "Beranda"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 3
-                ? _buildSelectedIcon("images/Kehilangan.png", "Kehilangan")
-                :_buildUnselectedIcon("images/Kehilangan.png", "Kehilangan"),
+                ? _buildSelectedIcon("../images/Kehilangan.png", "Kehilangan")
+                :_buildUnselectedIcon("../images/Kehilangan.png", "Kehilangan"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 4
-                ? _buildSelectedIcon("images/Profile.png", "Profile")
-                :_buildUnselectedIcon("images/Profile.png", "Profile"),
+                ? _buildSelectedIcon("../images/Profile.png", "Profile")
+                :_buildUnselectedIcon("../images/Profile.png", "Profile"),
             label: '',
           ),
         ],
@@ -344,21 +344,21 @@ class RatingScreen extends StatelessWidget {
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: 'images/poliklinik_image.png',
+      imageUrl: '../images/poliklinik_image.png',
     ),
     Service(
       name: 'Radiologi',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: 'images/poliklinik_image.png',
+      imageUrl: '../images/poliklinik_image.png',
     ),
     Service(
       name: 'Makanan',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: 'images/poliklinik_image.png',
+      imageUrl: '../images/poliklinik_image.png',
     ),
   ];
 
@@ -442,7 +442,7 @@ class RatingScreen extends StatelessWidget {
                   Row(
                     children: [
                       Image.asset(
-                        'images/Kalender.png',
+                        '../images/Kalender.png',
                         ),
                         const SizedBox(height: 4),
                         const Text(
