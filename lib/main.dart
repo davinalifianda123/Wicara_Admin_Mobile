@@ -211,13 +211,44 @@ class PengaduanScreen extends StatelessWidget {
               ),
             ),
           ),
-          const TabBarContainer(), // Tab untuk kategori
           Expanded(
-            child: ListView.builder(
-              itemCount: 3, // Misalnya ada 3 pengaduan
-              itemBuilder: (context, index) {
-                return const PengaduanCard();
-              },
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Pengaduan',
+                    style: TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        '../images/Kalender.png',
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                        '  Terakhir Update : 1 September 2024',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20), // Menambahkan jarak sebelum TabBarContainer
+                  const TabBarContainer(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: 5, // Misalnya ada 3 pengaduan
+                      itemBuilder: (context, index) {
+                        return const PengaduanCard();
+                      },
+                    ),
+                  ), 
+                ],
+              ),
             ),
           ),
         ],
@@ -272,8 +303,8 @@ class PengaduanCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: Colors.grey[300],
-                  child: Icon(Icons.person, color: Colors.blue[900]),
+                  backgroundColor: Colors.grey,
+                  child: Image.asset("../images/Foto_profile.png"),
                 ),
                 const SizedBox(width: 10),
                 const Column(
@@ -430,7 +461,7 @@ class RatingScreen extends StatelessWidget {
           // Body content
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -482,8 +513,8 @@ class ServiceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -491,7 +522,7 @@ class ServiceCard extends StatelessWidget {
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
                 child: Image.asset(
                   service.imageUrl,
                   width: double.infinity,
