@@ -753,24 +753,410 @@ class BerandaScreen extends StatelessWidget {
   }
 }
 
-class KehilanganScreen extends StatelessWidget {
+class KehilanganScreen extends StatefulWidget {
   const KehilanganScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
+  _KehilanganScreenState createState() => _KehilanganScreenState();
+}
+
+class _KehilanganScreenState extends State<KehilanganScreen> {
+  final List<Report> _reports = [
+    Report(
+      user: "Ahmad Farkhani",
+      date: "15/9/2024 20:00",
+      description:
+          "Kepada warga solime, tolong laptop saya hilang disekitaran muh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga.",
+      imageUrl: "../images/laptop.png",
+      status: "Diajukan",
+      contact: "08972617722819",
+    ),
+    Report(
+      user: "Ahmad Farkhani",
+      date: "15/9/2024 20:00",
+      description:
+          "Kepada warga solime, tolong laptop saya hilang disekitaran muh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga.",
+      imageUrl: "../images/laptop.png",
+      status: "Dalam Proses",
+      contact: "08972617722819",
+    ),
+  ];
+
+  @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Layar Kehilangan'),
+    return Scaffold(
+      body: Column(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF060A47),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Spacer(
+                    flex: 2,
+                  ),
+                  const Text(
+                    'Kehilangan',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Spacer(),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.search,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {},
+                      ),
+                      Stack(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.notifications,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {},
+                          ),
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ], //halo
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Kehilangan',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        '../images/Kalender.png',
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        '  Terakhir Update : 1 September 2024',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const TabBarContainer(),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: _reports.length, // Menyesuaikan jumlah laporan
+                      itemBuilder: (context, index) {
+                        final report = _reports[index]; // Mengambil data laporan
+                        return Card(
+                          margin: const EdgeInsets.all(8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ListTile(
+                                leading: CircleAvatar(
+                                  backgroundImage: AssetImage(report.imageUrl),
+                                ),
+                                title: Text(report.user),
+                                subtitle: Text(report.date),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(report.description),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text('Kontak: ${report.contact}'),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-class ProfileScreen extends StatelessWidget {
+class Report {
+  final String user;
+  final String date;
+  final String description;
+  final String imageUrl;
+  final String status;
+  final String contact;
+
+  Report({
+    required this.user,
+    required this.date,
+    required this.description,
+    required this.imageUrl,
+    required this.status,
+    required this.contact,
+  });
+}
+
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  // Controllers to get the input values
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Layar Profile'),
+    return Scaffold(
+      body: SingleChildScrollView( // Membungkus body dalam SingleChildScrollView
+        child: Column(
+          children: [
+            // Custom Header
+            Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF060A47),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: SafeArea(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Spacer(flex: 2),
+                    const Text(
+                      'Profile',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.search,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            // Aksi pencarian
+                          },
+                        ),
+                        Stack(
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.notifications,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                // Aksi notifikasi
+                              },
+                            ),
+                            Positioned(
+                              right: 8,
+                              top: 8,
+                              child: Container(
+                                width: 8,
+                                height: 8,
+                                decoration: const BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Body Section
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Avatar
+                  const CircleAvatar(
+                    radius: 50,
+                    backgroundColor: Colors.grey,
+                    child: Icon(
+                      Icons.person,
+                      size: 50,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Button to change avatar
+                  TextButton(
+                    onPressed: () {
+                      // Aksi untuk ubah avatar
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text("Ubah Avatar ditekan!")),
+                      );
+                    },
+                    child: const Text(
+                      "Ubah Avatar",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Form container
+                  Container(
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        // Email input field
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Email",
+                            style: TextStyle(fontSize: 16, color: Colors.black54),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            hintText: "Masukkan email",
+                          ),
+                        ),
+                        const Divider(),
+                        // Phone input field
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "No Telp",
+                            style: TextStyle(fontSize: 16, color: Colors.black54),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: _phoneController,
+                          decoration: const InputDecoration(
+                            hintText: "Masukkan nomor telepon",
+                          ),
+                        ),
+                        const Divider(),
+                        // Password input field
+                        const Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "Password",
+                            style: TextStyle(fontSize: 16, color: Colors.black54),
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        TextField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            hintText: "Masukkan password",
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  // Logout button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Aksi logout
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Logout ditekan!")),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.all(15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
