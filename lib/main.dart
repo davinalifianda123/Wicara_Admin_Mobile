@@ -53,32 +53,32 @@ class _MyHomePageState extends State<MyHomePage> {
         items: [
           BottomNavigationBarItem(
             icon: _currentIndex == 0
-                ? _buildSelectedIcon("../images/pengaduan.png", "Pengaduan")
-                :_buildUnselectedIcon("../images/pengaduan.png", "Pengaduan"),
+                ? _buildSelectedIcon("images/pengaduan.png", "Pengaduan")
+                :_buildUnselectedIcon("images/pengaduan.png", "Pengaduan"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 1
-                ? _buildSelectedIcon("../images/Rating.png", "Rating")
-                :_buildUnselectedIcon("../images/Rating.png", "Rating"),
+                ? _buildSelectedIcon("images/Rating.png", "Rating")
+                :_buildUnselectedIcon("images/Rating.png", "Rating"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 2
-                ? _buildSelectedIcon("../images/Beranda.png", "Beranda")
-                :_buildUnselectedIcon("../images/Beranda.png", "Beranda"),
+                ? _buildSelectedIcon("images/Beranda.png", "Beranda")
+                :_buildUnselectedIcon("images/Beranda.png", "Beranda"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 3
-                ? _buildSelectedIcon("../images/Kehilangan.png", "Kehilangan")
-                :_buildUnselectedIcon("../images/Kehilangan.png", "Kehilangan"),
+                ? _buildSelectedIcon("images/Kehilangan.png", "Kehilangan")
+                :_buildUnselectedIcon("images/Kehilangan.png", "Kehilangan"),
             label: '',
           ),
           BottomNavigationBarItem(
             icon: _currentIndex == 4
-                ? _buildSelectedIcon("../images/Profile.png", "Profile")
-                :_buildUnselectedIcon("../images/Profile.png", "Profile"),
+                ? _buildSelectedIcon("images/Profile.png", "Profile")
+                :_buildUnselectedIcon("images/Profile.png", "Profile"),
             label: '',
           ),
         ],
@@ -225,7 +225,7 @@ class PengaduanScreen extends StatelessWidget {
                   Row(
                     children: [
                       Image.asset(
-                        '../images/Kalender.png',
+                        'images/Kalender.png',
                         ),
                         const SizedBox(height: 4),
                         const Text(
@@ -304,18 +304,22 @@ class PengaduanCard extends StatelessWidget {
               children: [
                 CircleAvatar(
                   backgroundColor: Colors.grey,
-                  child: Image.asset("../images/Foto_profile.png"),
+                  child: Image.asset("images/Foto_profile.png"),
                 ),
                 const SizedBox(width: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Dibully sama teman',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text('15/9/2024 20:00'),
-                  ],
+                // Wrap Column dengan Flexible agar tidak overflow
+                const Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Dibully sama teman',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        overflow: TextOverflow.ellipsis, // Tambahkan overflow handling
+                      ),
+                      Text('15/9/2024 20:00'),
+                    ],
+                  ),
                 ),
                 const Spacer(),
                 Container(
@@ -332,8 +336,10 @@ class PengaduanCard extends StatelessWidget {
                 const SizedBox(width: 10),
                 const Text(
                   'Diajukan',
-                  style: TextStyle(color: Colors.grey),
-                ),
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
+                )
               ],
             ),
             const SizedBox(height: 10),
@@ -375,21 +381,21 @@ class RatingScreen extends StatelessWidget {
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
     Service(
       name: 'Radiologi',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
     Service(
       name: 'Makanan',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
   ];
 
@@ -473,7 +479,7 @@ class RatingScreen extends StatelessWidget {
                   Row(
                     children: [
                       Image.asset(
-                        '../images/Kalender.png',
+                        'images/Kalender.png',
                         ),
                         const SizedBox(height: 4),
                         const Text(
@@ -810,7 +816,7 @@ class BerandaScreen extends StatelessWidget {
           top: 10,
           right: 10,
           child: Image.asset(
-            '../images/Pengaduan1.png', // Gambar dummy (ubah sesuai path Anda)
+            'images/Pengaduan1.png', // Gambar dummy (ubah sesuai path Anda)
             height: 160,
           ),
         ),
@@ -849,12 +855,17 @@ class BerandaScreen extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 30,
-          backgroundColor:
-              const Color.fromARGB(255, 6, 10, 71), // Sesuaikan warna
+          backgroundColor: const Color.fromARGB(255, 6, 10, 71), // Sesuaikan warna
           child: Icon(icon, color: Colors.white),
         ),
         const SizedBox(height: 8),
-        Text(title, style: const TextStyle(fontSize: 12)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 12),
+          overflow: TextOverflow.ellipsis, // Tambahkan ini
+          maxLines: 1, // Maksimal 1 baris
+          textAlign: TextAlign.center, // Agar teks di tengah
+        ),
       ],
     );
   }
@@ -994,7 +1005,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
       date: "15/9/2024 20:00",
       description:
           "Kepada warga solime, tolong laptop saya hilang disekitaran muh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga.",
-      imageUrl: "../images/laptop.png",
+      imageUrl: "images/laptop.png",
       status: "Diajukan",
       contact: "08972617722819",
     ),
@@ -1003,7 +1014,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
       date: "15/9/2024 20:00",
       description:
           "Kepada warga solime, tolong laptop saya hilang disekitaran muh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga.",
-      imageUrl: "../images/laptop.png",
+      imageUrl: "images/laptop.png",
       status: "Dalam Proses",
       contact: "08972617722819",
     ),
@@ -1090,7 +1101,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                   Row(
                     children: [
                       Image.asset(
-                        '../images/Kalender.png',
+                        'images/Kalender.png',
                       ),
                       const SizedBox(height: 4),
                       const Text(
