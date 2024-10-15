@@ -1563,6 +1563,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text(
           'Notifikasi',
           style: TextStyle(
@@ -1571,6 +1572,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
         ),
         backgroundColor: const Color(0xFF060A47),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),
