@@ -27,9 +27,6 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-void _navigateToScreen(int index) {
-  
-}
 
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 2; // Default tampilan awal di Beranda
@@ -41,6 +38,12 @@ class _MyHomePageState extends State<MyHomePage> {
     const KehilanganScreen(),
     const ProfileScreen(),
   ];
+
+  void _navigateToScreen(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
