@@ -1292,19 +1292,17 @@ class BerandaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Beranda'),
-      ),
+      appBar: null,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(), // Header untuk desain di atas
             _buildMenu(), // Grid menu
-            _buildActivitySection(), // Aktivitas bagian
+            _buildActivitySection(context), // Aktivitas bagian
           ],
         ),
-      ),// Navigasi bawah (opsional)
+      ),
     );
   }
 
@@ -1313,47 +1311,69 @@ class BerandaScreen extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          height: 200, // Tinggi sesuai dengan desain
+          height: 240, // Adjust height as per the first image
           decoration: const BoxDecoration(
-            color: Color(0xFF060A47), // Sesuaikan warna
+            color: Color(0xFF060A47), // Dark blue color
             borderRadius: BorderRadius.only(
               bottomLeft: Radius.circular(30),
               bottomRight: Radius.circular(30),
             ),
           ),
         ),
-        const Positioned(
-          top: 30,
+        Positioned(
+          top: 16,
           left: 20,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              // Logo di atas tulisan WICARA
+              Image.asset(
+                'images/Logo.png', // Path ke logo PNG Anda
+                height: 56, // Adjust size
+              ),
+              const Text(
                 "WICARA",
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 24,
+                  fontSize: 48,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 10),
-              Text(
-                "Wadah Informasi Catatan Aspirasi & Rating Akademik.",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
+              const SizedBox(height: 3),
+              const SizedBox(
+                width: 200, // Sesuaikan dengan lebar maksimal teks
+                child: Text(
+                  "Wadah Informasi Catatan Aspirasi & Rating Akademik.",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white,
+                  ),
+                  maxLines: 3, // Memaksa jadi 3 baris
+                  softWrap: true, // Memungkinkan teks untuk membungkus
                 ),
               ),
             ],
           ),
         ),
         Positioned(
-          top: 10,
-          right: 10,
+          top: 32,
+          right: 28,
           child: Image.asset(
-            'images/Pengaduan1.png', // Gambar dummy (ubah sesuai path Anda)
-            height: 160,
+            'images/Pengaduan1.png', // Character image
+            height: 320,
+          ),
+        ),
+        // Notification Icon
+        Positioned(
+          top: 10,
+          right: 20,
+          child: IconButton(
+            icon:
+                const Icon(Icons.notifications, color: Colors.white, size: 36),
+            onPressed: () {
+              // Action for notification icon
+            },
           ),
         ),
       ],
@@ -1387,23 +1407,18 @@ class BerandaScreen extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 30,
-          backgroundColor: const Color.fromARGB(255, 6, 10, 71), // Sesuaikan warna
+          backgroundColor:
+              const Color.fromARGB(255, 6, 10, 71), // Sesuaikan warna
           child: Icon(icon, color: Colors.white),
         ),
         const SizedBox(height: 8),
-        Text(
-          title,
-          style: const TextStyle(fontSize: 12),
-          overflow: TextOverflow.ellipsis, // Tambahkan ini
-          maxLines: 1, // Maksimal 1 baris
-          textAlign: TextAlign.center, // Agar teks di tengah
-        ),
+        Text(title, style: const TextStyle(fontSize: 12)),
       ],
     );
   }
 
   // Fungsi _buildActivitySection untuk bagian aktivitas
-  Widget _buildActivitySection() {
+  Widget _buildActivitySection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -1417,19 +1432,21 @@ class BerandaScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildActivityCard('Pengaduan', 150, Icons.report), // Menggunakan ikon baru
+          _buildActivityCard('Pengaduan', 150, Icons.report, 0,
+              context), // Menggunakan ikon baru
           const SizedBox(height: 8),
-          _buildActivityCard('Laporan Kehilangan', 150, Icons.search),
+          _buildActivityCard(
+              'Laporan Kehilangan', 150, Icons.search, 3, context),
           const SizedBox(height: 8),
-          _buildActivityCard('Rating', 150, Icons.star),
+          _buildActivityCard('Rating', 150, Icons.star, 1, context),
         ],
       ),
     );
   }
-  
 
   // Fungsi untuk membuat kartu aktivitas
-  Widget _buildActivityCard(String title, int jumlah, IconData icon) {
+  Widget _buildActivityCard(String title, int jumlah, IconData icon,
+      int navigationIndex, BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -1437,7 +1454,12 @@ class BerandaScreen extends StatelessWidget {
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF060A47), Color.fromARGB(255, 8, 14, 97), Color.fromARGB(255, 4, 80, 181), Color.fromARGB(255, 84, 115, 254)], // Gradient biru
+            colors: [
+              Color(0xFF060A47),
+              Color.fromARGB(255, 8, 14, 97),
+              Color.fromARGB(255, 4, 80, 181),
+              Color.fromARGB(255, 84, 115, 254)
+            ], // Gradient biru
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -1482,7 +1504,13 @@ class BerandaScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  final homeState =
+                      context.findAncestorStateOfType<_MyHomePageState>();
+                  if (homeState != null) {
+                    homeState._navigateToScreen(navigationIndex);
+                  }
+                },
                 child: const Text('Detail'),
               )
             ],
