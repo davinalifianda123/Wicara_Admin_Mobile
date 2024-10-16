@@ -27,6 +27,10 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+void _navigateToScreen(int index) {
+  
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 2; // Default tampilan awal di Beranda
 
@@ -45,11 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: _navigateToScreen,
         items: [
           BottomNavigationBarItem(
             icon: _currentIndex == 0
