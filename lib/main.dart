@@ -1558,3 +1558,219 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+
+class NotificationScreen extends StatefulWidget {
+  const NotificationScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _NotificationScreenState createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
+  String filter = 'Semua';
+
+  void _showDeleteConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Hapus Notifikasi'),
+          content:
+              const Text('Apakah Anda yakin ingin menghapus notifikasi ini?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Batal', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Hapus', style: TextStyle(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Logika penghapusan notifikasi di sini
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // ignore: unused_element
+  void _showActionConfirmation(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Konfirmasi Aksi'),
+          content: const Text('Apakah Anda yakin?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Tidak', style: TextStyle(color: Colors.red)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Ya', style: TextStyle(color: Colors.green)),
+              onPressed: () {
+                Navigator.of(context).pop();
+                // Logika aksi di sini
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  List<Map<String, dynamic>> notifications = [
+    {
+      'title': 'Kamar mandi Kotor',
+      'category': 'Pengaduan',
+      'time': '2h ago',
+      'description': 'Pengaduan',
+    },
+    {
+      'title': 'Admin PBM Judes',
+      'category': 'Pengaduan',
+      'time': '2h ago',
+      'description': 'Pengaduan',
+    },
+    {
+      'title': 'Dosen suka bolos',
+      'category': 'Pengaduan',
+      'time': '2h ago',
+      'description': 'Pengaduan',
+    },
+    {
+      'title': 'Poliklinik',
+      'category': 'Rating',
+      'time': '2h ago',
+      'description': 'Rating',
+      'rating': 4 // Rating dari 5
+    },
+    {
+      'title': 'Pacar ku Hilang',
+      'category': 'Kehilangan',
+      'time': '2h ago',
+      'description': 'Kehilangan',
+    },
+  ];
+
+  List<Map<String, dynamic>> getFilteredNotifications() {
+    if (filter == 'Semua') {
+      return notifications;
+    } else {
+      return notifications
+          .where((notif) => notif['category'] == filter)
+          .toList();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: const Text(
+          'Notifikasi',
+          style: TextStyle(
+            color: Color.fromARGB(255, 253, 253, 255),
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: const Color(0xFF060A47),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+      ),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            alignment: Alignment.centerLeft,
+            child: const Text(
+              '📅 Terakhir Update: 1 September 2024',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: ['Semua', 'Pengaduan', 'Kehilangan', 'Rating']
+                  .map((category) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: ChoiceChip(
+                          label: Text(category),
+                          selected: filter == category,
+                          onSelected: (bool selected) {
+                            setState(() {
+                              filter = category;
+                            });
+                          },
+                        ),
+                      ))
+                  .toList(),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: getFilteredNotifications().length,
+              itemBuilder: (context, index) {
+                var notif = getFilteredNotifications()[index];
+                return Card(
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.blueAccent,
+                      child: Text(
+                        notif['title'][0],
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    title: Text(notif['title']),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${notif['time']} - ${notif['category']}'),
+                        if (notif['category'] == 'Rating')
+                          Row(
+                            children: List.generate(5, (starIndex) {
+                              return Icon(
+                                starIndex < notif['rating']
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.amber,
+                                size: 16,
+                              );
+                            }),
+                          ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.more_vert),
+                      onPressed: () => _showDeleteConfirmation(context),
+                    ),
+                    onTap: () {
+                      // Navigasi ke halaman detail sesuai kategori
+                      // Contoh: Navigator.pushNamed(context, '/detail_pengaduan');
+                    },
+                    isThreeLine: true,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
