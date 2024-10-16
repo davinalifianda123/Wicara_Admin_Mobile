@@ -1262,15 +1262,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const Spacer(),
                     Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.search,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            // Aksi pencarian
-                          },
-                        ),
                         Stack(
                           children: [
                             IconButton(
