@@ -189,6 +189,13 @@ class PengaduanScreen extends StatelessWidget {
                             ),
                             onPressed: () {
                               // Implement notifications functionality here
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationScreen(),
+                                ),
+                              );
                             },
                           ),
                           Positioned(
@@ -603,6 +610,13 @@ class RatingScreen extends StatelessWidget {
                             ),
                             onPressed: () {
                               // Implement notifications functionality here
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationScreen(),
+                                ),
+                              );
                             },
                           ),
                           Positioned(
@@ -1227,7 +1241,16 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                               Icons.notifications,
                               color: Colors.white,
                             ),
-                            onPressed: () {},
+                            onPressed: () {
+                              // Implement notifications functionality here
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationScreen(),
+                                ),
+                              );
+                            },
                           ),
                           Positioned(
                             right: 8,
@@ -1369,7 +1392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Spacer(flex: 2),
+                    const Spacer(flex: 1),
                     const Text(
                       'Profile',
                       style: TextStyle(
@@ -1378,18 +1401,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Spacer(),
+                    const Spacer(flex: 1),
                     Row(
                       children: [
-                        IconButton(
-                          icon: const Icon(
-                            Icons.search,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            // Aksi pencarian
-                          },
-                        ),
                         Stack(
                           children: [
                             IconButton(
@@ -1398,7 +1412,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 color: Colors.white,
                               ),
                               onPressed: () {
-                                // Aksi notifikasi
+                              // Implement notifications functionality here
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NotificationScreen(),
+                                  ),
+                                );
                               },
                             ),
                             Positioned(
