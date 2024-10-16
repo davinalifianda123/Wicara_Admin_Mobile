@@ -1304,9 +1304,7 @@ class BerandaScreen extends StatelessWidget {
             _buildActivitySection(), // Aktivitas bagian
           ],
         ),
-      ),
-      bottomNavigationBar:
-          _buildBottomNavigationBar(), // Navigasi bawah (opsional)
+      ),// Navigasi bawah (opsional)
     );
   }
 
@@ -1374,10 +1372,6 @@ class BerandaScreen extends StatelessWidget {
           childAspectRatio: 1, // Ukuran item grid
         ),
         children: [
-          _buildMenuItem('Pengaduan', Icons.report),
-          _buildMenuItem('Kehilangan', Icons.search),
-          _buildMenuItem('Rating', Icons.star),
-          _buildMenuItem('Apa ya kira kira', Icons.question_mark),
           _buildMenuItem('Dosen/Tendik', Icons.person),
           _buildMenuItem('Mahasiswa', Icons.school),
           _buildMenuItem('Unit Layanan', Icons.business),
@@ -1410,120 +1404,91 @@ class BerandaScreen extends StatelessWidget {
 
   // Fungsi _buildActivitySection untuk bagian aktivitas
   Widget _buildActivitySection() {
-  return Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Aktivitas yang perlu ditangani',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Aktivitas yang perlu ditangani',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 16),
-        _buildActivityCard('Pengaduan', 150, Icons.report), // Menggunakan ikon baru
-        const SizedBox(height: 8),
-        _buildActivityCard('Laporan Kehilangan', 150, Icons.search),
-        const SizedBox(height: 8),
-        _buildActivityCard('Rating', 150, Icons.star),
-      ],
-    ),
-  );
-}
+          const SizedBox(height: 16),
+          _buildActivityCard('Pengaduan', 150, Icons.report), // Menggunakan ikon baru
+          const SizedBox(height: 8),
+          _buildActivityCard('Laporan Kehilangan', 150, Icons.search),
+          const SizedBox(height: 8),
+          _buildActivityCard('Rating', 150, Icons.star),
+        ],
+      ),
+    );
+  }
   
 
   // Fungsi untuk membuat kartu aktivitas
-Widget _buildActivityCard(String title, int jumlah, IconData icon) {
-  return Card(
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(15.0),
-    ),
-    child: Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF060A47), Color.fromARGB(255, 8, 14, 97), Color.fromARGB(255, 4, 80, 181), Color.fromARGB(255, 84, 115, 254)], // Gradient biru
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.all(Radius.circular(15.0)),
+  Widget _buildActivityCard(String title, int jumlah, IconData icon) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(15.0),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: Colors.white.withOpacity(0.2),
-              child: Icon(icon, color: Colors.white),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '$jumlah Perlu diproses',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.white70,
-                    ),
-                  ),
-                ],
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF060A47), Color.fromARGB(255, 8, 14, 97), Color.fromARGB(255, 4, 80, 181), Color.fromARGB(255, 84, 115, 254)], // Gradient biru
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.all(Radius.circular(15.0)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Colors.white.withOpacity(0.2),
+                child: Icon(icon, color: Colors.white),
               ),
-            ),
-            ElevatedButton(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.white, // Background color
-    foregroundColor: const Color(0xFF0052D4), // Text color
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20.0),
-    ),
-  ),
-  onPressed: () {},
-  child: const Text('Detail'),
-)
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '$jumlah Perlu diproses',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white, // Background color
+                  foregroundColor: const Color(0xFF0052D4), // Text color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+                onPressed: () {},
+                child: const Text('Detail'),
+              )
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
-
-  // Fungsi _buildBottomNavigationBar untuk navigasi bawah
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: 0, // Posisi saat ini di navigasi
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.report),
-          label: 'Pengaduan',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.star),
-          label: 'Rating',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Beranda',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Kehilangan',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
     );
   }
 }
@@ -1783,7 +1748,7 @@ class DetailKehilanganPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Detail Pengaduan',style: TextStyle(color: Colors.white),),
+        title: const Text('Detail Kehilangan',style: TextStyle(color: Colors.white),),
         backgroundColor: const Color(0xFF060A47),
         iconTheme: const IconThemeData(
           color: Colors.white, // Ubah warna back button menjadi putih
@@ -1860,7 +1825,7 @@ class DetailKehilanganPage extends StatelessWidget {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: const Text("Konfirmasi"),
-                          content: const Text("Apakah Anda yakin ingin menolak pengaduan ini?"),
+                          content: const Text("Apakah Anda yakin ingin menghapus laporan ini?"),
                           actions: [
                             TextButton(
                               onPressed: () {
@@ -1874,11 +1839,11 @@ class DetailKehilanganPage extends StatelessWidget {
                                 Navigator.of(context).pop(); // Tutup dialog
                                 Navigator.pop(context); // Kembali ke halaman sebelumnya
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Pengaduan berhasil ditolak')),
+                                  const SnackBar(content: Text('Laporan berhasil dihapus')),
                                 );
                               },
                               child: const Text(
-                                "Tolak"
+                                "Hapus"
                               ),
                             ),
                           ],
@@ -1886,19 +1851,7 @@ class DetailKehilanganPage extends StatelessWidget {
                       },
                     );
                   },
-                  child: const Text('Tolak'),
-                ),
-                const SizedBox(width: 10),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.green, // Green background
-                    foregroundColor: Colors.white, // White text
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  onPressed: () {
-                    // Aksi konfirmasi
-                  },
-                  child: const Text('Konfirmasi'),
+                  child: const Text('Hapus'),
                 ),
               ],
             ),
