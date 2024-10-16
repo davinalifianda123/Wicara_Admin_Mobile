@@ -361,7 +361,7 @@ class PengaduanCard extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DetailRatingPage(),
+                          builder: (context) => const DetailPengaduanPage(),
                         ),
                       );
                     }
@@ -417,6 +417,142 @@ class PengaduanCard extends StatelessWidget {
     );
   }
 }
+
+class DetailPengaduanPage extends StatelessWidget {
+  const DetailPengaduanPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Data default yang akan ditampilkan
+    final idController = TextEditingController(text: 'A0056');
+    final userController = TextEditingController(text: 'Miaauw@polines.ac.id');
+    final instansiController = TextEditingController(text: 'Poliklinik');
+    final ratingController = TextEditingController(text: '5');
+    final tanggalController = TextEditingController(text: '01-09-2024');
+    final deskripsiController = TextEditingController(
+      text:
+          'Kepada warga solinep, tolong laptop sya hilang disekitaran mdh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga. Bisa hubungi ini ya : 098726177228819',
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Detail Rating',style: TextStyle(color: Colors.white),),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Ubah warna back button menjadi putih
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: idController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'ID',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: userController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'User',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: instansiController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Instansi',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ratingController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Skala Bintang',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: tanggalController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Tanggal',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: deskripsiController, // Menggunakan controller
+              enabled: false,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Deskripsi',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Warna tombol
+                  ),
+                  onPressed: () {
+                    // Tampilkan dialog konfirmasi
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Konfirmasi"),
+                          content: const Text("Apakah Anda yakin ingin menghapus review ini?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Tutup dialog
+                              },
+                              child: const Text("Batal"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Logika penghapusan review
+                                Navigator.of(context).pop(); // Tutup dialog
+                                Navigator.pop(context); // Kembali ke halaman sebelumnya
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Review berhasil dihapus')),
+                                );
+                              },
+                              child: const Text(
+                                "Hapus"
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text(
+                    'Hapus',
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 
 
