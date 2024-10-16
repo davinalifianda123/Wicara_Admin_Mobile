@@ -303,11 +303,6 @@ class PengaduanCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.grey,
-                  child: Image.asset("images/Foto_profile.png"),
-                ),
-                const SizedBox(width: 10),
                 const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,7 +315,7 @@ class PengaduanCard extends StatelessWidget {
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 5),
+                      SizedBox(height: 4),
                       Text(
                         '15/9/2024 20:00',
                         style: TextStyle(
@@ -354,6 +349,7 @@ class PengaduanCard extends StatelessWidget {
                     style: TextStyle(color: Colors.grey), // White text color
                   ),
                 ),
+                const SizedBox(width: 10),
                 PopupMenuButton<String>(
                   onSelected: (value) {
                     if (value == 'detail') {
@@ -383,34 +379,6 @@ class PengaduanCard extends StatelessWidget {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.red, // Red background
-                    foregroundColor: Colors.white, // White text
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  onPressed: () {
-                    // Aksi tolak
-                  },
-                  child: const Text('Tolak'),
-                ),
-                const SizedBox(width: 10),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.green, // Green background
-                    foregroundColor: Colors.white, // White text
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  onPressed: () {
-                    // Aksi konfirmasi
-                  },
-                  child: const Text('Konfirmasi'),
-                ),
-              ],
-            ),
           ],
         ),
       ),
@@ -500,9 +468,11 @@ class DetailPengaduanPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Warna tombol
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red, // Red background
+                    foregroundColor: Colors.white, // White text
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
                   onPressed: () {
                     // Tampilkan dialog konfirmasi
@@ -511,7 +481,7 @@ class DetailPengaduanPage extends StatelessWidget {
                       builder: (BuildContext context) {
                         return AlertDialog(
                           title: const Text("Konfirmasi"),
-                          content: const Text("Apakah Anda yakin ingin menghapus review ini?"),
+                          content: const Text("Apakah Anda yakin ingin menolak pengaduan ini?"),
                           actions: [
                             TextButton(
                               onPressed: () {
@@ -525,11 +495,11 @@ class DetailPengaduanPage extends StatelessWidget {
                                 Navigator.of(context).pop(); // Tutup dialog
                                 Navigator.pop(context); // Kembali ke halaman sebelumnya
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Review berhasil dihapus')),
+                                  const SnackBar(content: Text('Review berhasil ditolak')),
                                 );
                               },
                               child: const Text(
-                                "Hapus"
+                                "Tolak"
                               ),
                             ),
                           ],
@@ -537,12 +507,19 @@ class DetailPengaduanPage extends StatelessWidget {
                       },
                     );
                   },
-                  child: const Text(
-                    'Hapus',
-                    style: TextStyle(
-                      color: Colors.white
-                    ),
+                  child: const Text('Tolak'),
+                ),
+                const SizedBox(width: 10),
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.green, // Green background
+                    foregroundColor: Colors.white, // White text
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   ),
+                  onPressed: () {
+                    // Aksi konfirmasi
+                  },
+                  child: const Text('Konfirmasi'),
                 ),
               ],
             ),
