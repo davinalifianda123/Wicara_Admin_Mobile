@@ -289,6 +289,7 @@ class TabBarContainer extends StatelessWidget {
   }
 }
 
+
 class PengaduanCard extends StatelessWidget {
   const PengaduanCard({super.key});
   @override
@@ -307,21 +308,29 @@ class PengaduanCard extends StatelessWidget {
                   child: Image.asset("images/Foto_profile.png"),
                 ),
                 const SizedBox(width: 10),
-                // Wrap Column dengan Flexible agar tidak overflow
-                const Flexible(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Dibully sama teman',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                        overflow: TextOverflow.ellipsis, // Tambahkan overflow handling
+                        style: TextStyle(
+                          fontSize: 16, 
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      Text('15/9/2024 20:00'),
+                      SizedBox(height: 5),
+                      Text(
+                        '15/9/2024 20:00',
+                        style: TextStyle(
+                          fontSize: 12, 
+                          color: Colors.grey,
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
@@ -334,12 +343,17 @@ class PengaduanCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Text(
-                  'Diajukan',
-                  style: TextStyle(
-                    color: Colors.grey,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.2), // Gray background color
+                    borderRadius: BorderRadius.circular(5),
                   ),
-                )
+                  child: const Text(
+                    'Diajukan',
+                    style: TextStyle(color: Colors.grey), // White text color
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 10),
@@ -352,16 +366,27 @@ class PengaduanCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red, // Red background
+                    foregroundColor: Colors.white, // White text
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
                   onPressed: () {
                     // Aksi tolak
                   },
-                  child: const Text('Tolak', style: TextStyle(color: Colors.red)),
+                  child: const Text('Tolak'),
                 ),
+                const SizedBox(width: 10),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.green, // Green background
+                    foregroundColor: Colors.white, // White text
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
                   onPressed: () {
                     // Aksi konfirmasi
                   },
-                  child: const Text('Konfirmasi', style: TextStyle(color: Colors.green)),
+                  child: const Text('Konfirmasi'),
                 ),
               ],
             ),
@@ -371,6 +396,8 @@ class PengaduanCard extends StatelessWidget {
     );
   }
 }
+
+
 
 class RatingScreen extends StatelessWidget {
   const RatingScreen({super.key});
