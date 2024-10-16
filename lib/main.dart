@@ -354,6 +354,27 @@ class PengaduanCard extends StatelessWidget {
                     style: TextStyle(color: Colors.grey), // White text color
                   ),
                 ),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'detail') {
+                      // Navigasi ke halaman detail rating
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DetailRatingPage(),
+                        ),
+                      );
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'detail',
+                        child: Text('Lihat Detail'),
+                      ),
+                    ];
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 10),
