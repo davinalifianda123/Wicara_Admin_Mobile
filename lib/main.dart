@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Wicara',
+      title: 'Demo Bottom Navigation Bar',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -38,6 +38,12 @@ class _MyHomePageState extends State<MyHomePage> {
     const ProfileScreen(),
   ];
 
+  void _navigateToScreen(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,11 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        onTap: _navigateToScreen,
         items: [
           BottomNavigationBarItem(
             icon: _currentIndex == 0
@@ -255,7 +257,7 @@ class PengaduanScreen extends StatelessWidget {
                   ),
                   const SizedBox(
                       height: 20), // Menambahkan jarak sebelum TabBarContainer
-                  const TabBarContainer(),
+                  const TabBarContainerPengaduan(),
                   Expanded(
                     child: ListView.builder(
                       itemCount: 5, // Misalnya ada 3 pengaduan
@@ -274,8 +276,8 @@ class PengaduanScreen extends StatelessWidget {
   }
 }
 
-class TabBarContainer extends StatelessWidget {
-  const TabBarContainer({super.key});
+class TabBarContainerPengaduan extends StatelessWidget {
+  const TabBarContainerPengaduan({super.key});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -319,23 +321,29 @@ class PengaduanCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: Colors.grey,
-                  child: Image.asset("../images/Foto_profile.png"),
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Dibully sama teman',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '15/9/2024 20:00',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 10),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Dibully sama teman',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text('15/9/2024 20:00'),
-                  ],
-                ),
-                const Spacer(),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -349,9 +357,40 @@ class PengaduanCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
-                const Text(
-                  'Diajukan',
-                  style: TextStyle(color: Colors.grey),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color:
+                        Colors.grey.withOpacity(0.2), // Gray background color
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: const Text(
+                    'Diajukan',
+                    style: TextStyle(color: Colors.grey), // White text color
+                  ),
+                ),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'detail') {
+                      // Navigasi ke halaman detail rating
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DetailPengaduanPage(),
+                        ),
+                      );
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'detail',
+                        child: Text('Lihat Detail'),
+                      ),
+                    ];
+                  },
                 ),
               ],
             ),
@@ -361,22 +400,154 @@ class PengaduanCard extends StatelessWidget {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DetailPengaduanPage extends StatelessWidget {
+  const DetailPengaduanPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Data default yang akan ditampilkan
+    final idController = TextEditingController(text: 'A0056');
+    final userController = TextEditingController(text: 'Miaauw@polines.ac.id');
+    final instansiController = TextEditingController(text: 'Poliklinik');
+    final ratingController = TextEditingController(text: '5');
+    final tanggalController = TextEditingController(text: '01-09-2024');
+    final deskripsiController = TextEditingController(
+      text:
+          'Kepada warga solinep, tolong laptop sya hilang disekitaran mdh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga. Bisa hubungi ini ya : 098726177228819',
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Detail Pengaduan',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Ubah warna back button menjadi putih
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: idController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'ID',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: userController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'User',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: instansiController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Instansi',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ratingController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Skala Bintang',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: tanggalController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Tanggal',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: deskripsiController, // Menggunakan controller
+              enabled: false,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Deskripsi',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red, // Red background
+                    foregroundColor: Colors.white, // White text
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
                   onPressed: () {
-                    // Aksi tolak
+                    // Tampilkan dialog konfirmasi
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Konfirmasi"),
+                          content: const Text(
+                              "Apakah Anda yakin ingin menolak pengaduan ini?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Tutup dialog
+                              },
+                              child: const Text("Batal"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Logika penghapusan review
+                                Navigator.of(context).pop(); // Tutup dialog
+                                Navigator.pop(
+                                    context); // Kembali ke halaman sebelumnya
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Pengaduan berhasil ditolak')),
+                                );
+                              },
+                              child: const Text("Tolak"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
                   },
-                  child:
-                      const Text('Tolak', style: TextStyle(color: Colors.red)),
+                  child: const Text('Tolak'),
                 ),
+                const SizedBox(width: 10),
                 TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.green, // Green background
+                    foregroundColor: Colors.white, // White text
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
                   onPressed: () {
                     // Aksi konfirmasi
                   },
-                  child: const Text('Konfirmasi',
-                      style: TextStyle(color: Colors.green)),
+                  child: const Text('Konfirmasi'),
                 ),
               ],
             ),
@@ -675,7 +846,12 @@ class ServiceCard extends StatelessWidget {
                       ),
                     );
                   },
-                  child: const Text('Detail'),
+                  child: const Text(
+                    'Detail',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -710,71 +886,435 @@ class ServiceDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(service.name),
-      ),
       body: Column(
         children: [
-          // Image section
-          Image.asset(
-            service.imageUrl,
-            width: double.infinity,
-            height: 200,
-            fit: BoxFit.cover,
-          ),
-          const SizedBox(height: 16),
-          // The rest of the content wrapped in Expanded
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          // Custom header
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF060A47),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: SafeArea(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    service.name,
-                    style: const TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back, // Ikon panah kembali
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context); // Kembali ke halaman sebelumnya
+                    },
+                  ),
+                  const Text(
+                    'Detail Review',
+                    style: TextStyle(
+                      color: Colors.white, // Mengubah warna teks menjadi putih
+                      fontSize: 18.0, // Tentukan ukuran font secara langsung
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  // Rating stars
                   Row(
                     children: [
-                      Text(
-                        '${service.rating}/5',
-                        style: const TextStyle(
-                          fontSize: 18,
+                      IconButton(
+                        icon: const Icon(
+                          Icons.search,
+                          color: Colors.white,
                         ),
+                        onPressed: () {
+                          // Implement search functionality here
+                        },
                       ),
-                      const SizedBox(width: 4),
-                      Row(
-                        children: List.generate(5, (index) {
-                          return Icon(
-                            index < service.rating
-                                ? Icons.star
-                                : Icons.star_border,
-                            color: Colors.orange,
-                            size: 18,
-                          );
-                        }),
+                      Stack(
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.notifications,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              // Implement notifications functionality here
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                          Positioned(
+                            right: 8,
+                            top: 8,
+                            child: Container(
+                              width: 8,
+                              height: 8,
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Email: ${service.email}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
+                ],
+              ),
+            ),
+          ),
+          // Area yang bisa digulir di bawah header
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Detail layanan
+                  Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    elevation: 4,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(10),
+                          ),
+                          child: Image.asset(
+                            service.imageUrl,
+                            width: double.infinity,
+                            height: 150,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                service.name,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    color: Colors.grey,
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Terakhir Update : 1 September 2024',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Text(
+                                    '${service.rating}/5',
+                                    style: const TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Row(
+                                    children: List.generate(5, (index) {
+                                      if (index < service.rating) {
+                                        return const Icon(
+                                          Icons.star,
+                                          color: Colors.orange,
+                                          size: 20,
+                                        );
+                                      } else {
+                                        return const Icon(
+                                          Icons.star_border,
+                                          color: Colors.orange,
+                                          size: 20,
+                                        );
+                                      }
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${service.reviews} Reviews',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  // More content can go here
+                  const SizedBox(height: 16),
+                  // Daftar Review
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: 5, // Jumlah review yang ditampilkan, bisa diubah
+                    itemBuilder: (context, index) {
+                      return Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  const CircleAvatar(
+                                    backgroundImage: AssetImage(
+                                      '../images/avatar_placeholder.png',
+                                    ), // Ganti dengan gambar avatar
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Melia Apriani', // Nama pengguna
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        '15/04/23', // Tanggal ulasan
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const Spacer(),
+                                  // Popup menu button
+                                  PopupMenuButton<String>(
+                                    onSelected: (value) {
+                                      if (value == 'detail') {
+                                        // Navigasi ke halaman detail rating
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const DetailRatingPage(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    itemBuilder: (BuildContext context) {
+                                      return [
+                                        const PopupMenuItem(
+                                          value: 'detail',
+                                          child: Text('Lihat Detail'),
+                                        ),
+                                      ];
+                                    },
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: List.generate(5, (index) {
+                                  return const Icon(
+                                    Icons.star,
+                                    color: Colors.orange,
+                                    size: 16,
+                                  );
+                                }),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
+                                style: TextStyle(fontSize: 14),
+                              ),
+                              const SizedBox(height: 8),
+                              const Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    '56 orang merasa ulasan ini berguna',
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class DetailRatingPage extends StatelessWidget {
+  const DetailRatingPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Data default yang akan ditampilkan
+    final idController = TextEditingController(text: 'A0056');
+    final userController = TextEditingController(text: 'Miaauw@polines.ac.id');
+    final instansiController = TextEditingController(text: 'Poliklinik');
+    final ratingController = TextEditingController(text: '5');
+    final tanggalController = TextEditingController(text: '01-09-2024');
+    final deskripsiController = TextEditingController(
+      text:
+          'Kepada warga solinep, tolong laptop sya hilang disekitaran mdh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga. Bisa hubungi ini ya : 098726177228819',
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Detail Rating',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Ubah warna back button menjadi putih
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: idController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'ID',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: userController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'User',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: instansiController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Instansi',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ratingController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Skala Bintang',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: tanggalController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Tanggal',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: deskripsiController, // Menggunakan controller
+              enabled: false,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Deskripsi',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red, // Red background
+                    foregroundColor: Colors.white, // White text
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  onPressed: () {
+                    // Tampilkan dialog konfirmasi
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Konfirmasi"),
+                          content: const Text(
+                              "Apakah Anda yakin ingin menghapus ulasan ini?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Tutup dialog
+                              },
+                              child: const Text("Batal"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Logika penghapusan review
+                                Navigator.of(context).pop(); // Tutup dialog
+                                Navigator.pop(
+                                    context); // Kembali ke halaman sebelumnya
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content: Text('Review berhasil Dihapus')),
+                                );
+                              },
+                              child: const Text("Hapus"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text('Hapus'),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -786,73 +1326,108 @@ class BerandaScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Beranda'),
-      ),
+      appBar: null,
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(), // Header untuk desain di atas
+            _buildHeader(context), // Header untuk desain di atas
             _buildMenu(), // Grid menu
-            _buildActivitySection(), // Aktivitas bagian
+            _buildActivitySection(context), // Aktivitas bagian
           ],
         ),
       ),
-      bottomNavigationBar:
-          _buildBottomNavigationBar(), // Navigasi bawah (opsional)
     );
   }
 
   // Fungsi _buildHeader
-  Widget _buildHeader() {
-    return Stack(
-      children: [
-        Container(
-          height: 200, // Tinggi sesuai dengan desain
-          decoration: const BoxDecoration(
-            color: Color(0xFF060A47), // Sesuaikan warna
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
+  Widget _buildHeader(BuildContext context) {
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(30),
+        bottomRight: Radius.circular(30),
+      ),
+      child: Stack(
+        clipBehavior: Clip.hardEdge, // Memotong elemen yang keluar dari Stack
+        children: [
+          Container(
+            height: 240, // Sesuaikan tinggi
+            decoration: const BoxDecoration(
+              color: Color(0xFF060A47), // Warna biru tua
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
             ),
           ),
-        ),
-        const Positioned(
-          top: 30,
-          left: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "WICARA",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          Positioned(
+            top: 16,
+            left: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Logo di atas tulisan WICARA
+                Image.asset(
+                  '../images/Logo.png', // Path ke logo PNG Anda
+                  height: 56, // Sesuaikan ukuran
                 ),
-              ),
-              SizedBox(height: 10),
-              Text(
-                "Wadah Informasi Catatan Aspirasi & Rating Akademik.",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
+                const Text(
+                  "WICARA",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
+                const SizedBox(height: 3),
+                const SizedBox(
+                  width: 200, // Sesuaikan dengan lebar maksimal teks
+                  child: Text(
+                    "Wadah Informasi Catatan Aspirasi & Rating Akademik.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                    maxLines: 3, // Memaksa jadi 3 baris
+                    softWrap: true, // Memungkinkan teks untuk membungkus
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 30,
+            right: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Image.asset(
+                '../images/Pengaduan1.png', // Gambar karakter
+                height: 210, // Kurangi ukuran jika perlu
+                fit: BoxFit.cover, // Pastikan gambar tidak melampaui batas
               ),
-            ],
+            ),
           ),
-        ),
-        Positioned(
-          top: 10,
-          right: 10,
-          child: Image.asset(
-            '../images/Pengaduan1.png', // Gambar dummy (ubah sesuai path Anda)
-            height: 160,
+          // Ikon Notifikasi
+          Positioned(
+            top: 10,
+            right: 20,
+            child: IconButton(
+              icon: const Icon(Icons.notifications,
+                  color: Colors.white, size: 36),
+              onPressed: () {
+                // Implementasikan fungsionalitas notifikasi di sini
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationScreen(),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -868,10 +1443,6 @@ class BerandaScreen extends StatelessWidget {
           childAspectRatio: 1, // Ukuran item grid
         ),
         children: [
-          _buildMenuItem('Pengaduan', Icons.report),
-          _buildMenuItem('Kehilangan', Icons.search),
-          _buildMenuItem('Rating', Icons.star),
-          _buildMenuItem('Apa ya kira kira', Icons.question_mark),
           _buildMenuItem('Dosen/Tendik', Icons.person),
           _buildMenuItem('Mahasiswa', Icons.school),
           _buildMenuItem('Unit Layanan', Icons.business),
@@ -898,7 +1469,7 @@ class BerandaScreen extends StatelessWidget {
   }
 
   // Fungsi _buildActivitySection untuk bagian aktivitas
-  Widget _buildActivitySection() {
+  Widget _buildActivitySection(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -912,19 +1483,21 @@ class BerandaScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
+          _buildActivityCard('Pengaduan', 150, Icons.report, 0,
+              context), // Menggunakan ikon baru
+          const SizedBox(height: 8),
           _buildActivityCard(
-              'Pengaduan', 150, Icons.report), // Menggunakan ikon baru
+              'Laporan Kehilangan', 150, Icons.search, 3, context),
           const SizedBox(height: 8),
-          _buildActivityCard('Laporan Kehilangan', 150, Icons.search),
-          const SizedBox(height: 8),
-          _buildActivityCard('Rating', 150, Icons.star),
+          _buildActivityCard('Rating', 150, Icons.star, 1, context),
         ],
       ),
     );
   }
 
   // Fungsi untuk membuat kartu aktivitas
-  Widget _buildActivityCard(String title, int jumlah, IconData icon) {
+  Widget _buildActivityCard(String title, int jumlah, IconData icon,
+      int navigationIndex, BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -982,7 +1555,13 @@ class BerandaScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  final homeState =
+                      context.findAncestorStateOfType<_MyHomePageState>();
+                  if (homeState != null) {
+                    homeState._navigateToScreen(navigationIndex);
+                  }
+                },
                 child: const Text('Detail'),
               )
             ],
@@ -991,66 +1570,10 @@ class BerandaScreen extends StatelessWidget {
       ),
     );
   }
-
-  // Fungsi _buildBottomNavigationBar untuk navigasi bawah
-  Widget _buildBottomNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: 0, // Posisi saat ini di navigasi
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.report),
-          label: 'Pengaduan',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.star),
-          label: 'Rating',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home),
-          label: 'Beranda',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.search),
-          label: 'Kehilangan',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-      ],
-    );
-  }
 }
 
-class KehilanganScreen extends StatefulWidget {
+class KehilanganScreen extends StatelessWidget {
   const KehilanganScreen({super.key});
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _KehilanganScreenState createState() => _KehilanganScreenState();
-}
-
-class _KehilanganScreenState extends State<KehilanganScreen> {
-  final List<Report> _reports = [
-    Report(
-      user: "Ahmad Farkhani",
-      date: "15/9/2024 20:00",
-      description:
-          "Kepada warga solime, tolong laptop saya hilang disekitaran muh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga.",
-      imageUrl: "../images/laptop.png",
-      status: "Diajukan",
-      contact: "08972617722819",
-    ),
-    Report(
-      user: "Ahmad Farkhani",
-      date: "15/9/2024 20:00",
-      description:
-          "Kepada warga solime, tolong laptop saya hilang disekitaran muh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga.",
-      imageUrl: "../images/laptop.png",
-      status: "Dalam Proses",
-      contact: "08972617722819",
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -1070,6 +1593,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Spacer to center the text
                   const Spacer(
                     flex: 2,
                   ),
@@ -1081,7 +1605,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const Spacer(),
+                  const Spacer(), // Another spacer to keep text centered
                   Row(
                     children: [
                       IconButton(
@@ -1089,7 +1613,9 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                           Icons.search,
                           color: Colors.white,
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          // Implement search functionality here
+                        },
                       ),
                       Stack(
                         children: [
@@ -1099,6 +1625,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                               color: Colors.white,
                             ),
                             onPressed: () {
+                              // Implement notifications functionality here
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -1122,7 +1649,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                           ),
                         ],
                       ),
-                    ], //halo
+                    ],
                   ),
                 ],
               ),
@@ -1153,37 +1680,14 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  const TabBarContainer(),
+                  const SizedBox(
+                      height: 20), // Menambahkan jarak sebelum TabBarContainer
+                  const TabBarContainerKehilangan(),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: _reports.length, // Menyesuaikan jumlah laporan
+                      itemCount: 5, // Misalnya ada 3 pengaduan
                       itemBuilder: (context, index) {
-                        final report =
-                            _reports[index]; // Mengambil data laporan
-                        return Card(
-                          margin: const EdgeInsets.all(8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ListTile(
-                                leading: CircleAvatar(
-                                  backgroundImage: AssetImage(report.imageUrl),
-                                ),
-                                title: Text(report.user),
-                                subtitle: Text(report.date),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text(report.description),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text('Kontak: ${report.contact}'),
-                              ),
-                            ],
-                          ),
-                        );
+                        return const KehilanganCard();
                       },
                     ),
                   ),
@@ -1197,22 +1701,260 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
   }
 }
 
-class Report {
-  final String user;
-  final String date;
-  final String description;
-  final String imageUrl;
-  final String status;
-  final String contact;
+class TabBarContainerKehilangan extends StatelessWidget {
+  const TabBarContainerKehilangan({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.grey[200],
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          TextButton(
+            onPressed: () {},
+            child: const Text('Semua'),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text('Belum Ditemukan'),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text('Ditemukan'),
+          ),
+          TextButton(
+            onPressed: () {},
+            child: const Text('Hilang'),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
-  Report({
-    required this.user,
-    required this.date,
-    required this.description,
-    required this.imageUrl,
-    required this.status,
-    required this.contact,
-  });
+class KehilanganCard extends StatelessWidget {
+  const KehilanganCard({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.all(10),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Hp Samsung Hilang',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '15/9/2024 20:00',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color:
+                        Colors.grey.withOpacity(0.2), // Gray background color
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: const Text(
+                    'Belum Ditemukan',
+                    style: TextStyle(color: Colors.grey), // White text color
+                  ),
+                ),
+                const SizedBox(width: 10),
+                PopupMenuButton<String>(
+                  onSelected: (value) {
+                    if (value == 'detail') {
+                      // Navigasi ke halaman detail rating
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DetailKehilanganPage(),
+                        ),
+                      );
+                    }
+                  },
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'detail',
+                        child: Text('Lihat Detail'),
+                      ),
+                    ];
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'Deskripsi : Hp ku hilang dikamar mandi saat aku lagi mandi...',
+              style: TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DetailKehilanganPage extends StatelessWidget {
+  const DetailKehilanganPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Data default yang akan ditampilkan
+    final idController = TextEditingController(text: 'A0056');
+    final userController = TextEditingController(text: 'Miaauw@polines.ac.id');
+    final instansiController = TextEditingController(text: 'Poliklinik');
+    final ratingController = TextEditingController(text: '5');
+    final tanggalController = TextEditingController(text: '01-09-2024');
+    final deskripsiController = TextEditingController(
+      text:
+          'Kepada warga solinep, tolong laptop sya hilang disekitaran mdh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga. Bisa hubungi ini ya : 098726177228819',
+    );
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Detail Kehilangan',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Ubah warna back button menjadi putih
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: idController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'ID',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: userController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'User',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: instansiController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Instansi',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: ratingController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Skala Bintang',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: tanggalController, // Menggunakan controller
+              enabled: false,
+              decoration: const InputDecoration(
+                labelText: 'Tanggal',
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: deskripsiController, // Menggunakan controller
+              enabled: false,
+              maxLines: 4,
+              decoration: const InputDecoration(
+                labelText: 'Deskripsi',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red, // Red background
+                    foregroundColor: Colors.white, // White text
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                  onPressed: () {
+                    // Tampilkan dialog konfirmasi
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text("Konfirmasi"),
+                          content: const Text(
+                              "Apakah Anda yakin ingin menghapus laporan ini?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(); // Tutup dialog
+                              },
+                              child: const Text("Batal"),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                // Logika penghapusan review
+                                Navigator.of(context).pop(); // Tutup dialog
+                                Navigator.pop(
+                                    context); // Kembali ke halaman sebelumnya
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('Laporan berhasil dihapus')),
+                                );
+                              },
+                              child: const Text("Hapus"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  child: const Text('Hapus'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class ProfileScreen extends StatefulWidget {
@@ -1226,215 +1968,180 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   // Controllers to get the input values
   final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+
+  bool _isPasswordVisible = false; // State to control password visibility
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    var textField = TextField(
+      controller: _emailController,
+      decoration: const InputDecoration(
+        hintText: "Masukkan email",
+      ),
+    );
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        title: const Text(
+          "Profile",
+          style: TextStyle(
+            color: Colors.white, // Mengubah warna teks menjadi putih
+          ),
+        ),
+        centerTitle: true, // Menempatkan teks di tengah
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.white, // Mengubah warna ikon lonceng menjadi putih
+            ),
+            onPressed: () {
+              // Implement notifications functionality here
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const NotificationScreen(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
-        // Membungkus body dalam SingleChildScrollView
-        child: Column(
-          children: [
-            // Custom Header
-            Container(
-              decoration: const BoxDecoration(
-                color: Color(0xFF060A47),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
+        // Makes the content scrollable
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const CircleAvatar(
+                radius: 50,
+                backgroundColor: Colors.grey,
+                child: Icon(
+                  Icons.person,
+                  size: 50,
+                  color: Colors.white,
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: SafeArea(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const SizedBox(height: 10),
+              TextButton(
+                onPressed: () {
+                  // Aksi untuk ubah avatar
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Ubah Avatar ditekan!")),
+                  );
+                },
+                child: const Text(
+                  "Ubah Avatar",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(20.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: const [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: Column(
                   children: [
-                    const Spacer(flex: 2),
-                    const Text(
-                      'Profile',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Email",
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
                       ),
                     ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Stack(
-                          children: [
-                            IconButton(
-                              icon: const Icon(
-                                Icons.notifications,
-                                color: Colors.white,
-                              ),
-                              onPressed: () {
-                                // Aksi notifikasi
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const NotificationScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                            Positioned(
-                              right: 8,
-                              top: 8,
-                              child: Container(
-                                width: 8,
-                                height: 8,
-                                decoration: const BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                            ),
-                          ],
+                    const SizedBox(height: 5),
+                    textField,
+                    const Divider(),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "No Telp",
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    TextField(
+                      controller: _phoneController,
+                      decoration: const InputDecoration(
+                        hintText: "Masukkan nomor telepon",
+                      ),
+                    ),
+                    const Divider(),
+                    const Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Password",
+                        style: TextStyle(fontSize: 16, color: Colors.black54),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    TextField(
+                      controller: _passwordController,
+                      obscureText:
+                          !_isPasswordVisible, // Toggle password visibility
+                      decoration: InputDecoration(
+                        hintText: "Masukkan password",
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
                         ),
-                      ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ),
-            // Body Section
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Avatar
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundColor: Colors.grey,
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Button to change avatar
-                  TextButton(
-                    onPressed: () {
-                      // Aksi untuk ubah avatar
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Ubah Avatar ditekan!")),
-                      );
-                    },
-                    child: const Text(
-                      "Ubah Avatar",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Form container
-                  Container(
-                    padding: const EdgeInsets.all(20.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
+              const SizedBox(height: 20), // Space before the logout button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Tambahkan aksi logout
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Logout ditekan!")),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(231, 217, 37, 13),
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Email input field
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Email",
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.black54),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        TextField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            hintText: "Masukkan email",
-                          ),
-                        ),
-                        const Divider(),
-                        // Phone input field
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "No Telp",
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.black54),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        TextField(
-                          controller: _phoneController,
-                          decoration: const InputDecoration(
-                            hintText: "Masukkan nomor telepon",
-                          ),
-                        ),
-                        const Divider(),
-                        // Password input field
-                        const Align(
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "Password",
-                            style:
-                                TextStyle(fontSize: 16, color: Colors.black54),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            hintText: "Masukkan password",
-                          ),
-                        ),
-                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  // Logout button
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Aksi logout
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Logout ditekan!")),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        padding: const EdgeInsets.all(15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: const Text(
-                        "Logout",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
+                  child: const Text(
+                    "Logout",
+                    style: TextStyle(
+                      color: Colors.white, // Warna teks putih
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
