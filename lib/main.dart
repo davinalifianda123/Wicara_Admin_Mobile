@@ -1445,6 +1445,7 @@ class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _NotificationScreenState createState() => _NotificationScreenState();
 }
 
@@ -1479,6 +1480,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
+  // ignore: unused_element
   void _showActionConfirmation(BuildContext context) {
     showDialog(
       context: context,
