@@ -1311,82 +1311,91 @@ class BerandaScreen extends StatelessWidget {
 
   // Fungsi _buildHeader
   Widget _buildHeader(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: 240, // Adjust height as per the first image
-          decoration: const BoxDecoration(
-            color: Color(0xFF060A47), // Dark blue color
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(30),
-              bottomRight: Radius.circular(30),
+    return ClipRRect(
+      borderRadius: const BorderRadius.only(
+        bottomLeft: Radius.circular(30),
+        bottomRight: Radius.circular(30),
+      ),
+      child: Stack(
+        clipBehavior: Clip.hardEdge, // Memotong elemen yang keluar dari Stack
+        children: [
+          Container(
+            height: 240, // Sesuaikan tinggi
+            decoration: const BoxDecoration(
+              color: Color(0xFF060A47), // Warna biru tua
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
+              ),
             ),
           ),
-        ),
-        Positioned(
-          top: 16,
-          left: 20,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Logo di atas tulisan WICARA
-              Image.asset(
-                'images/Logo.png', // Path ke logo PNG Anda
-                height: 56, // Adjust size
-              ),
-              const Text(
-                "WICARA",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+          Positioned(
+            top: 16,
+            left: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Logo di atas tulisan WICARA
+                Image.asset(
+                  'images/Logo.png', // Path ke logo PNG Anda
+                  height: 56, // Sesuaikan ukuran
                 ),
-              ),
-              const SizedBox(height: 3),
-              const SizedBox(
-                width: 200, // Sesuaikan dengan lebar maksimal teks
-                child: Text(
-                  "Wadah Informasi Catatan Aspirasi & Rating Akademik.",
+                const Text(
+                  "WICARA",
                   style: TextStyle(
-                    fontSize: 16,
+                    fontFamily: 'Poppins',
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
-                  maxLines: 3, // Memaksa jadi 3 baris
-                  softWrap: true, // Memungkinkan teks untuk membungkus
                 ),
+                const SizedBox(height: 3),
+                const SizedBox(
+                  width: 200, // Sesuaikan dengan lebar maksimal teks
+                  child: Text(
+                    "Wadah Informasi Catatan Aspirasi & Rating Akademik.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.white,
+                    ),
+                    maxLines: 3, // Memaksa jadi 3 baris
+                    softWrap: true, // Memungkinkan teks untuk membungkus
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 30,
+            right: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: Image.asset(
+                'images/Pengaduan1.png', // Gambar karakter
+                height: 210, // Kurangi ukuran jika perlu
+                fit: BoxFit.cover, // Pastikan gambar tidak melampaui batas
               ),
-            ],
+            ),
           ),
-        ),
-        Positioned(
-          top: -20,
-          right: -25,
-          child: Image.asset(
-            'images/Pengaduan1.png', // Character image
-            height: 320,
+          // Ikon Notifikasi
+          Positioned(
+            top: 10,
+            right: 20,
+            child: IconButton(
+              icon: const Icon(Icons.notifications, color: Colors.white, size: 36),
+              onPressed: () {
+                // Implementasikan fungsionalitas notifikasi di sini
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationScreen(),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-        // Notification Icon
-        Positioned(
-          top: 10,
-          right: 20,
-          child: IconButton(
-            icon:
-                const Icon(Icons.notifications, color: Colors.white, size: 36),
-            onPressed: () {
-              // Implement notifications functionality here
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      const NotificationScreen(),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
