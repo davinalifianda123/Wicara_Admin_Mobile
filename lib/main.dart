@@ -1988,9 +1988,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           "Profile",
           style: TextStyle(
             color: Colors.white, // Mengubah warna teks menjadi putih
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true, // Menempatkan teks di tengah
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(
