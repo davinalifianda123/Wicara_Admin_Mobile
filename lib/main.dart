@@ -552,21 +552,21 @@ class RatingScreen extends StatelessWidget {
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
     Service(
       name: 'Radiologi',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
     Service(
       name: 'Makanan',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
   ];
 
@@ -657,7 +657,7 @@ class RatingScreen extends StatelessWidget {
                   Row(
                     children: [
                       Image.asset(
-                        '../images/Kalender.png',
+                        'images/Kalender.png',
                         ),
                         const SizedBox(height: 4),
                         const Text(
@@ -1408,7 +1408,9 @@ class BerandaScreen extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4, // Jumlah kolom grid
-          childAspectRatio: 1, // Ukuran item grid
+          childAspectRatio: 0.8, // Memberikan lebih banyak ruang vertikal
+          mainAxisSpacing: 16, // Memberikan jarak vertikal antar item
+          crossAxisSpacing: 16, // Memberikan jarak horizontal antar item
         ),
         children: [
           _buildMenuItem('Dosen/Tendik', Icons.person),
@@ -1420,18 +1422,25 @@ class BerandaScreen extends StatelessWidget {
     );
   }
 
-  // Fungsi untuk membuat item grid menu
+// Fungsi untuk membuat item grid menu
   Widget _buildMenuItem(String title, IconData icon) {
     return Column(
+      mainAxisSize: MainAxisSize.min, // Menghindari overflow dengan meminimalkan ukuran kolom
       children: [
         CircleAvatar(
-          radius: 30,
-          backgroundColor:
-              const Color.fromARGB(255, 6, 10, 71), // Sesuaikan warna
+          radius: 28, // Kurangi radius agar lebih sesuai dengan grid
+          backgroundColor: const Color.fromARGB(255, 6, 10, 71),
           child: Icon(icon, color: Colors.white),
         ),
         const SizedBox(height: 8),
-        Text(title, style: const TextStyle(fontSize: 12)),
+        Flexible(
+          child: Text(
+            title,
+            style: const TextStyle(fontSize: 12),
+            textAlign: TextAlign.center, // Pusatkan teks
+            overflow: TextOverflow.ellipsis, // Hindari overflow pada teks
+          ),
+        ),
       ],
     );
   }
