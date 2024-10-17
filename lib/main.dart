@@ -1360,8 +1360,8 @@ class BerandaScreen extends StatelessWidget {
           ),
         ),
         Positioned(
-          top: 32,
-          right: 28,
+          top: -20,
+          right: -25,
           child: Image.asset(
             'images/Pengaduan1.png', // Character image
             height: 320,
