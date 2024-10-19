@@ -155,6 +155,7 @@ class PengaduanScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
+          // Ini adalah navbar atas
           Container(
             decoration: const BoxDecoration(
               color: Color(0xFF060A47),
@@ -163,57 +164,62 @@ class PengaduanScreen extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Spacer to center the text
-                  const Spacer(flex: 2,),
-                  const Text('Pengaduan', style: TextStyle( color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, ),),
-                  const Spacer(), // Another spacer to keep text centered
-                  Row(
+                  // Icon Search di sebelah kiri
+                  IconButton(
+                    icon: const Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      // Implement search functionality here
+                    },
+                  ),
+                  // Expanded untuk menempatkan teks di tengah
+                  const Expanded(
+                    child: Text(
+                      'Pengaduan',
+                      textAlign: TextAlign.center, // Pastikan teks berada di tengah
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Icon Notification di sebelah kanan
+                  Stack(
                     children: [
                       IconButton(
                         icon: const Icon(
-                          Icons.search,
+                          Icons.notifications,
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          // Implement search functionality here
+                          // Implement notifications functionality here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const NotificationScreen(),
+                            ),
+                          );
                         },
                       ),
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.notifications,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              // Implement notifications functionality here
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NotificationScreen(),
-                                ),
-                              );
-                            },
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
                           ),
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -221,25 +227,21 @@ class PengaduanScreen extends StatelessWidget {
               ),
             ),
           ),
+          // Mengurangi padding untuk lebih mendekatkan konten dengan navbar atas
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Pengaduan',
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
                   Row(
                     children: [
                       Image.asset(
                         'images/Kalender.png',
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                        '  Terakhir Update : 1 September 2024',
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Terakhir Update : 1 September 2024',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -247,7 +249,7 @@ class PengaduanScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20), // Menambahkan jarak sebelum TabBarContainer
+                  const SizedBox(height: 10), // Menambahkan sedikit jarak sebelum TabBarContainer
                   const TabBarContainerPengaduan(),
                   Expanded(
                     child: ListView.builder(
@@ -256,7 +258,7 @@ class PengaduanScreen extends StatelessWidget {
                         return const PengaduanCard();
                       },
                     ),
-                  ), 
+                  ),
                 ],
               ),
             ),
@@ -269,30 +271,39 @@ class PengaduanScreen extends StatelessWidget {
 
 class TabBarContainerPengaduan extends StatelessWidget {
   const TabBarContainerPengaduan({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey[200],
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return DefaultTabController(
+      length: 4, // Jumlah tab
+      child: Column(
         children: [
-          TextButton(
-            onPressed: () {},
-            child: const Text('Semua'),
+          Container(
+            color: Colors.grey[200],
+            child: const TabBar(
+              labelColor: Colors.orange, // Warna teks saat dipilih
+              unselectedLabelColor: Colors.grey, // Warna teks saat tidak dipilih
+              indicatorColor: Colors.orange, // Warna garis bawah saat dipilih
+              indicatorWeight: 2.0, // Ketebalan garis bawah
+              tabs: [
+                Tab(text: 'Semua'),
+                Tab(text: 'Diajukan'),
+                Tab(text: 'Diproses'),
+                Tab(text: 'Selesai'),
+              ],
+            ),
           ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Diajukan'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Diproses'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Selesai'),
-          ),
+          // Content bisa diisi jika ingin memiliki konten berdasarkan tab
+          // Expanded(
+          //   child: TabBarView(
+          //     children: [
+          //       Container(), // Konten untuk "Semua"
+          //       Container(), // Konten untuk "Diajukan"
+          //       Container(), // Konten untuk "Diproses"
+          //       Container(), // Konten untuk "Selesai"
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
@@ -564,7 +575,7 @@ class RatingScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // Custom header
+          // Ini adalah navbar atas
           Container(
             decoration: const BoxDecoration(
               color: Color(0xFF060A47),
@@ -573,57 +584,62 @@ class RatingScreen extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Spacer to center the text
-                  const Spacer(flex: 2,),
-                  const Text('Rating', style: TextStyle( color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, ),),
-                  const Spacer(), // Another spacer to keep text centered
-                  Row(
+                  // Icon Search di sebelah kiri
+                  IconButton(
+                    icon: const Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      // Implement search functionality here
+                    },
+                  ),
+                  // Expanded untuk menempatkan teks di tengah
+                  const Expanded(
+                    child: Text(
+                      'Rating',
+                      textAlign: TextAlign.center, // Pastikan teks berada di tengah
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Icon Notification di sebelah kanan
+                  Stack(
                     children: [
                       IconButton(
                         icon: const Icon(
-                          Icons.search,
+                          Icons.notifications,
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          // Implement search functionality here
+                          // Implement notifications functionality here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const NotificationScreen(),
+                            ),
+                          );
                         },
                       ),
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.notifications,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              // Implement notifications functionality here
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NotificationScreen(),
-                                ),
-                              );
-                            },
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
                           ),
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -631,26 +647,21 @@ class RatingScreen extends StatelessWidget {
               ),
             ),
           ),
-          // Body content
+          // Mengurangi padding untuk lebih mendekatkan konten dengan navbar atas
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Rating Unit Layanan',
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
                   Row(
                     children: [
                       Image.asset(
-                        '../images/Kalender.png',
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                        '  Terakhir Update : 1 September 2024',
+                        'images/Kalender.png',
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Terakhir Update : 1 September 2024',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -658,7 +669,7 @@ class RatingScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 10), // Menambahkan sedikit jarak sebelum TabBarContainer
                   Expanded(
                     child: ListView.builder(
                       itemCount: services.length,
@@ -1538,6 +1549,7 @@ class KehilanganScreen extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
+          // Ini adalah navbar atas
           Container(
             decoration: const BoxDecoration(
               color: Color(0xFF060A47),
@@ -1546,57 +1558,62 @@ class KehilanganScreen extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Spacer to center the text
-                  const Spacer(flex: 2,),
-                  const Text('Kehilangan', style: TextStyle( color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, ),),
-                  const Spacer(), // Another spacer to keep text centered
-                  Row(
+                  // Icon Search di sebelah kiri
+                  IconButton(
+                    icon: const Icon(
+                      Icons.search,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      // Implement search functionality here
+                    },
+                  ),
+                  // Expanded untuk menempatkan teks di tengah
+                  const Expanded(
+                    child: Text(
+                      'Kehilangan',
+                      textAlign: TextAlign.center, // Pastikan teks berada di tengah
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Icon Notification di sebelah kanan
+                  Stack(
                     children: [
                       IconButton(
                         icon: const Icon(
-                          Icons.search,
+                          Icons.notifications,
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          // Implement search functionality here
+                          // Implement notifications functionality here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const NotificationScreen(),
+                            ),
+                          );
                         },
                       ),
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.notifications,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              // Implement notifications functionality here
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NotificationScreen(),
-                                ),
-                              );
-                            },
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
                           ),
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -1604,25 +1621,21 @@ class KehilanganScreen extends StatelessWidget {
               ),
             ),
           ),
+          // Mengurangi padding untuk lebih mendekatkan konten dengan navbar atas
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Kehilangan',
-                    style: TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
                   Row(
                     children: [
                       Image.asset(
                         'images/Kalender.png',
-                        ),
-                        const SizedBox(height: 4),
-                        const Text(
-                        '  Terakhir Update : 1 September 2024',
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Terakhir Update : 1 September 2024',
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -1630,7 +1643,7 @@ class KehilanganScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20), // Menambahkan jarak sebelum TabBarContainer
+                  const SizedBox(height: 10), // Menambahkan sedikit jarak sebelum TabBarContainer
                   const TabBarContainerKehilangan(),
                   Expanded(
                     child: ListView.builder(
@@ -1639,7 +1652,7 @@ class KehilanganScreen extends StatelessWidget {
                         return const KehilanganCard();
                       },
                     ),
-                  ), 
+                  ),
                 ],
               ),
             ),
@@ -1652,30 +1665,39 @@ class KehilanganScreen extends StatelessWidget {
 
 class TabBarContainerKehilangan extends StatelessWidget {
   const TabBarContainerKehilangan({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey[200],
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+    return DefaultTabController(
+      length: 4, // Jumlah tab
+      child: Column(
         children: [
-          TextButton(
-            onPressed: () {},
-            child: const Text('Semua'),
+          Container(
+            color: Colors.grey[200],
+            child: const TabBar(
+              labelColor: Colors.orange, // Warna teks saat dipilih
+              unselectedLabelColor: Colors.grey, // Warna teks saat tidak dipilih
+              indicatorColor: Colors.orange, // Warna garis bawah saat dipilih
+              indicatorWeight: 2.0, // Ketebalan garis bawah
+              tabs: [
+                Tab(text: 'Semua'),
+                Tab(text: 'Belum Ditemukan'),
+                Tab(text: 'Ditemukan'),
+                Tab(text: 'Hilang'),
+              ],
+            ),
           ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Belum Ditemukan'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Ditemukan'),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: const Text('Hilang'),
-          ),
+          // Content bisa diisi jika ingin memiliki konten berdasarkan tab
+          // Expanded(
+          //   child: TabBarView(
+          //     children: [
+          //       Container(), // Konten untuk "Semua"
+          //       Container(), // Konten untuk "Belum Ditemukan"
+          //       Container(), // Konten untuk "Ditemukan"
+          //       Container(), // Konten untuk "Hilang"
+          //     ],
+          //   ),
+          // ),
         ],
       ),
     );
