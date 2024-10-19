@@ -29,12 +29,12 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _currentIndex = 2; // Default tampilan awal di Beranda
+  int _currentIndex = 0; // Default tampilan awal di Beranda
 
   final List<Widget> _screens = [
+    const BerandaScreen(),
     const PengaduanScreen(),
     const RatingScreen(),
-    const BerandaScreen(),
     const KehilanganScreen(),
     const ProfileScreen(),
   ];
@@ -56,20 +56,20 @@ class _MyHomePageState extends State<MyHomePage> {
         items: [
           BottomNavigationBarItem(
             icon: _currentIndex == 0
+                ? _buildSelectedIcon("images/Beranda.png", "Beranda")
+                :_buildUnselectedIcon("images/Beranda.png", "Beranda"),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: _currentIndex == 1
                 ? _buildSelectedIcon("images/pengaduan.png", "Pengaduan")
                 :_buildUnselectedIcon("images/pengaduan.png", "Pengaduan"),
             label: '',
           ),
           BottomNavigationBarItem(
-            icon: _currentIndex == 1
+            icon: _currentIndex == 2
                 ? _buildSelectedIcon("images/Rating.png", "Rating")
                 :_buildUnselectedIcon("images/Rating.png", "Rating"),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: _currentIndex == 2
-                ? _buildSelectedIcon("images/Beranda.png", "Beranda")
-                :_buildUnselectedIcon("images/Beranda.png", "Beranda"),
             label: '',
           ),
           BottomNavigationBarItem(
