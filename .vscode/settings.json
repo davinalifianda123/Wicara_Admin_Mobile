@@ -1,4 +1,7 @@
 {
     "java.compile.nullAnalysis.mode": "disabled",
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "dart.previewHotReloadOnSaveWatcher": false,
+    "dart.flutterHotReloadOnSave": "all",
+    "dart.hotReloadOnSave": "all"
 }

@@ -372,134 +372,170 @@ class DetailPengaduanPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Pengaduan',style: TextStyle(color: Colors.white),),
-        backgroundColor: const Color(0xFF060A47),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Ubah warna back button menjadi putih
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: idController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'ID',
+      body: Column(
+        children: [
+          // Custom AppBar mirip dengan PengaduanScreen
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF060A47),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: userController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'User',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: instansiController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Instansi',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: ratingController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Skala Bintang',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: tanggalController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Tanggal',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: deskripsiController, // Menggunakan controller
-              enabled: false,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Deskripsi',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.red, // Red background
-                    foregroundColor: Colors.white, // White text
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  // Icon Back di sebelah kiri
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () {
-                    // Tampilkan dialog konfirmasi
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Konfirmasi"),
-                          content: const Text("Apakah Anda yakin ingin menolak pengaduan ini?"),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Tutup dialog
-                              },
-                              child: const Text("Batal"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Logika penghapusan review
-                                Navigator.of(context).pop(); // Tutup dialog
-                                Navigator.pop(context); // Kembali ke halaman sebelumnya
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Pengaduan berhasil ditolak')),
-                                );
-                              },
-                              child: const Text(
-                                "Tolak"
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: const Text('Tolak'),
-                ),
-                const SizedBox(width: 10),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.green, // Green background
-                    foregroundColor: Colors.white, // White text
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  // Expanded untuk menempatkan teks di tengah
+                  const Expanded(
+                    child: Text(
+                      'Detail Pengaduan',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
-                  onPressed: () {
-                    // Aksi konfirmasi
-                  },
-                  child: const Text('Konfirmasi'),
-                ),
-              ],
+                  // Spacer untuk menggantikan posisi icon notifikasi
+                  const SizedBox(width: 48), // Mengimbangi ukuran ikon yang hilang
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: idController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'ID',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: userController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'User',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: instansiController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Instansi',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: ratingController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Skala Bintang',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: tanggalController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Tanggal',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: deskripsiController, // Menggunakan controller
+                    enabled: false,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Deskripsi',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.red, // Red background
+                          foregroundColor: Colors.white, // White text
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        onPressed: () {
+                          // Tampilkan dialog konfirmasi
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Konfirmasi"),
+                                content: const Text("Apakah Anda yakin ingin menolak pengaduan ini?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // Tutup dialog
+                                    },
+                                    child: const Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Logika penghapusan review
+                                      Navigator.of(context).pop(); // Tutup dialog
+                                      Navigator.pop(context); // Kembali ke halaman sebelumnya
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Pengaduan berhasil ditolak')),
+                                      );
+                                    },
+                                    child: const Text("Tolak"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: const Text('Tolak'),
+                      ),
+                      const SizedBox(width: 10),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.green, // Green background
+                          foregroundColor: Colors.white, // White text
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        onPressed: () {
+                          // Aksi konfirmasi
+                        },
+                        child: const Text('Konfirmasi'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
 
 
 class RatingScreen extends StatelessWidget {
@@ -511,21 +547,21 @@ class RatingScreen extends StatelessWidget {
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
     Service(
       name: 'Radiologi',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
     Service(
       name: 'Makanan',
       email: 'PIC@gmail.com',
       rating: 4,
       reviews: 273,
-      imageUrl: '../images/poliklinik_image.png',
+      imageUrl: 'images/poliklinik_image.png',
     ),
   ];
 
@@ -822,7 +858,7 @@ class ServiceDetailPage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // Custom header
+          // Navbar atas
           Container(
             decoration: const BoxDecoration(
               color: Color(0xFF060A47),
@@ -831,69 +867,62 @@ class ServiceDetailPage extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Icon Search di sebelah kiri
                   IconButton(
                     icon: const Icon(
-                      Icons.arrow_back, // Ikon panah kembali
+                      Icons.search,
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      Navigator.pop(context); // Kembali ke halaman sebelumnya
+                      // Implement search functionality here
                     },
                   ),
-                  const Text(
+                  // Expanded untuk menempatkan teks di tengah
+                  const Expanded(
+                    child: Text(
                       'Detail Review',
+                      textAlign: TextAlign.center, // Pastikan teks berada di tengah
                       style: TextStyle(
-                        color: Colors.white, // Mengubah warna teks menjadi putih
-                        fontSize: 18.0, // Tentukan ukuran font secara langsung
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  Row(
+                  ),
+                  // Icon Notification di sebelah kanan
+                  Stack(
                     children: [
                       IconButton(
                         icon: const Icon(
-                          Icons.search,
+                          Icons.notifications,
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          // Implement search functionality here
+                          // Implement notifications functionality here
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const NotificationScreen(),
+                            ),
+                          );
                         },
                       ),
-                      Stack(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.notifications,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              // Implement notifications functionality here
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NotificationScreen(),
-                                ),
-                              );
-                            },
+                      Positioned(
+                        right: 8,
+                        top: 8,
+                        child: Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
                           ),
-                          Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                          ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
@@ -901,7 +930,7 @@ class ServiceDetailPage extends StatelessWidget {
               ),
             ),
           ),
-          // Area yang bisa digulir di bawah header
+          // Area yang bisa digulir di bawah navbar
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -1035,7 +1064,7 @@ class ServiceDetailPage extends StatelessWidget {
                                   children: [
                                     CircleAvatar(
                                       backgroundImage: AssetImage(
-                                        '../images/avatar_placeholder.png',
+                                        'images/avatar_placeholder.png',
                                       ), // Ganti dengan gambar avatar
                                     ),
                                     SizedBox(width: 8),
@@ -1122,123 +1151,164 @@ class DetailRatingPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Rating',style: TextStyle(color: Colors.white),),
-        backgroundColor: const Color(0xFF060A47),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Ubah warna back button menjadi putih
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: idController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'ID',
+      body: Column(
+        children: [
+          // Custom AppBar mirip dengan PengaduanScreen
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF060A47),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: userController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'User',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: instansiController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Instansi',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: ratingController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Skala Bintang',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: tanggalController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Tanggal',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: deskripsiController, // Menggunakan controller
-              enabled: false,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Deskripsi',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red, // Warna tombol
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  // Icon Back di sebelah kiri
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () {
-                    // Tampilkan dialog konfirmasi
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Konfirmasi"),
-                          content: const Text("Apakah Anda yakin ingin menghapus review ini?"),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Tutup dialog
-                              },
-                              child: const Text("Batal"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Logika penghapusan review
-                                Navigator.of(context).pop(); // Tutup dialog
-                                Navigator.pop(context); // Kembali ke halaman sebelumnya
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Review berhasil dihapus')),
-                                );
-                              },
-                              child: const Text(
-                                "Hapus"
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: const Text(
-                    'Hapus',
-                    style: TextStyle(
-                      color: Colors.white
+                  // Expanded untuk menempatkan teks di tengah
+                  const Expanded(
+                    child: Text(
+                      'Detail Rating',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  // Spacer untuk menggantikan posisi icon notifikasi
+                  const SizedBox(width: 48), // Mengimbangi ukuran ikon yang hilang
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: idController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'ID',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: userController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'User',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: instansiController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Instansi',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: ratingController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Skala Bintang',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: tanggalController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Tanggal',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: deskripsiController, // Menggunakan controller
+                    enabled: false,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Deskripsi',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red, // Warna tombol
+                        ),
+                        onPressed: () {
+                          // Tampilkan dialog konfirmasi
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Konfirmasi"),
+                                content: const Text("Apakah Anda yakin ingin menghapus review ini?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // Tutup dialog
+                                    },
+                                    child: const Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Logika penghapusan review
+                                      Navigator.of(context).pop(); // Tutup dialog
+                                      Navigator.pop(context); // Kembali ke halaman sebelumnya
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Review berhasil dihapus')),
+                                      );
+                                    },
+                                    child: const Text(
+                                      "Hapus"
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: const Text(
+                          'Hapus',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
 
 class BerandaScreen extends StatelessWidget {
   const BerandaScreen({super.key});
@@ -1360,7 +1430,7 @@ class BerandaScreen extends StatelessWidget {
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 4, // Jumlah kolom grid
           childAspectRatio: 0.8, // Memberikan lebih banyak ruang vertikal
-          mainAxisSpacing: 16, // Memberikan jarak vertikal antar item
+          mainAxisSpacing: 1, // Memberikan jarak vertikal antar item
           crossAxisSpacing: 16, // Memberikan jarak horizontal antar item
         ),
         children: [
@@ -1411,13 +1481,13 @@ class BerandaScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          _buildActivityCard('Pengaduan', 150, Icons.report, 0,
+          _buildActivityCard('Pengaduan', 150, Icons.report, 1,
               context), // Menggunakan ikon baru
           const SizedBox(height: 8),
           _buildActivityCard(
-              'Laporan Kehilangan', 150, Icons.search, 3, context),
+              'Laporan Kehilangan', 150, Icons.search, 2, context),
           const SizedBox(height: 8),
-          _buildActivityCard('Rating', 150, Icons.star, 1, context),
+          _buildActivityCard('Rating', 150, Icons.star, 3, context),
         ],
       ),
     );
@@ -1754,120 +1824,159 @@ class DetailKehilanganPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Detail Kehilangan',style: TextStyle(color: Colors.white),),
-        backgroundColor: const Color(0xFF060A47),
-        iconTheme: const IconThemeData(
-          color: Colors.white, // Ubah warna back button menjadi putih
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextField(
-              controller: idController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'ID',
+      body: Column(
+        children: [
+          // Custom AppBar mirip dengan PengaduanScreen
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF060A47),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(30),
+                bottomRight: Radius.circular(30),
               ),
             ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: userController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'User',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: instansiController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Instansi',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: ratingController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Skala Bintang',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: tanggalController, // Menggunakan controller
-              enabled: false,
-              decoration: const InputDecoration(
-                labelText: 'Tanggal',
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: deskripsiController, // Menggunakan controller
-              enabled: false,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Deskripsi',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.red, // Red background
-                    foregroundColor: Colors.white, // White text
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  // Icon Back di sebelah kiri
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
-                  onPressed: () {
-                    // Tampilkan dialog konfirmasi
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text("Konfirmasi"),
-                          content: const Text("Apakah Anda yakin ingin menghapus laporan ini?"),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop(); // Tutup dialog
-                              },
-                              child: const Text("Batal"),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                // Logika penghapusan review
-                                Navigator.of(context).pop(); // Tutup dialog
-                                Navigator.pop(context); // Kembali ke halaman sebelumnya
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Laporan berhasil dihapus')),
-                                );
-                              },
-                              child: const Text(
-                                "Hapus"
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                  child: const Text('Hapus'),
-                ),
-              ],
+                  // Expanded untuk menempatkan teks di tengah
+                  const Expanded(
+                    child: Text(
+                      'Detail Kehilangan',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  // Spacer untuk menggantikan posisi icon notifikasi
+                  const SizedBox(width: 48), // Mengimbangi ukuran ikon yang hilang
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  TextField(
+                    controller: idController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'ID',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: userController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'User',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: instansiController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Instansi',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: ratingController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Skala Bintang',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: tanggalController, // Menggunakan controller
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      labelText: 'Tanggal',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: deskripsiController, // Menggunakan controller
+                    enabled: false,
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Deskripsi',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.red, // Warna tombol
+                          foregroundColor: Colors.white, // Warna teks putih
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        ),
+                        onPressed: () {
+                          // Tampilkan dialog konfirmasi
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Konfirmasi"),
+                                content: const Text("Apakah Anda yakin ingin menghapus laporan ini?"),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop(); // Tutup dialog
+                                    },
+                                    child: const Text("Batal"),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Logika penghapusan laporan
+                                      Navigator.of(context).pop(); // Tutup dialog
+                                      Navigator.pop(context); // Kembali ke halaman sebelumnya
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Laporan berhasil dihapus')),
+                                      );
+                                    },
+                                    child: const Text("Hapus"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        child: const Text('Hapus'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -2233,8 +2342,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
         title: const Text(
           'Notifikasi',
           style: TextStyle(
-            color: Color.fromARGB(255, 253, 253, 255),
+            color: Colors.white,
             fontWeight: FontWeight.bold,
+            fontSize: 24,
           ),
         ),
         backgroundColor: const Color(0xFF060A47),
@@ -2250,18 +2360,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Notifikasi',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
                 Row(
                   children: [
                     Image.asset(
-                      '../images/Kalender.png',
+                      'images/Kalender.png',
                     ),
                     const SizedBox(height: 4),
                     const Text(
@@ -2344,7 +2450,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         email: 'PIC@gmail.com',
                         rating: 4,
                         reviews: 273,
-                        imageUrl: '../images/poliklinik_image.png',
+                        imageUrl: 'images/poliklinik_image.png',
                       );
 
                       // Navigasi ke halaman detail Service
