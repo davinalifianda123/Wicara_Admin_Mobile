@@ -1925,7 +1925,7 @@ class ProfileScreen extends StatefulWidget {
   // ignore: library_private_types_in_public_api
   _ProfileScreenState createState() => _ProfileScreenState();
 }
- 
+
 class _ProfileScreenState extends State<ProfileScreen> {
   // Controllers to get the input values
   final TextEditingController _emailController = TextEditingController();
@@ -1937,11 +1937,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     var textField = TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        hintText: "Masukkan email",
-                      ),
-                    );
+      controller: _emailController,
+      decoration: const InputDecoration(
+        hintText: "Masukkan email",
+      ),
+    );
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF060A47), // Warna biru tua
@@ -1949,9 +1949,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
           "Profile",
           style: TextStyle(
             color: Colors.white, // Mengubah warna teks menjadi putih
+            fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true, // Menempatkan teks di tengah
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(30),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(
@@ -1963,15 +1969,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      const NotificationScreen(),
+                  builder: (context) => const NotificationScreen(),
                 ),
               );
             },
           ),
         ],
       ),
-      body: SingleChildScrollView( // Makes the content scrollable
+      body: SingleChildScrollView(
+        // Makes the content scrollable
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -2053,12 +2059,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     const SizedBox(height: 5),
                     TextField(
                       controller: _passwordController,
-                      obscureText: !_isPasswordVisible, // Toggle password visibility
+                      obscureText:
+                          !_isPasswordVisible, // Toggle password visibility
                       decoration: InputDecoration(
                         hintText: "Masukkan password",
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
                           ),
                           onPressed: () {
                             setState(() {
@@ -2241,12 +2250,31 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       body: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            alignment: Alignment.centerLeft,
-            child: const Text(
-              '📅 Terakhir Update: 1 September 2024',
-              style: TextStyle(color: Colors.grey),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Notifikasi',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                Row(
+                  children: [
+                    Image.asset(
+                      '../images/Kalender.png',
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      '  Terakhir Update : 1 September 2024',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           SingleChildScrollView(
@@ -2275,44 +2303,66 @@ class _NotificationScreenState extends State<NotificationScreen> {
               itemBuilder: (context, index) {
                 var notif = getFilteredNotifications()[index];
                 return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blueAccent,
-                      child: Text(
-                        notif['title'][0],
-                        style: const TextStyle(color: Colors.white),
-                      ),
+                    child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: Colors.blueAccent,
+                    child: Text(
+                      notif['title'][0],
+                      style: const TextStyle(color: Colors.white),
                     ),
-                    title: Text(notif['title']),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('${notif['time']} - ${notif['category']}'),
-                        if (notif['category'] == 'Rating')
-                          Row(
-                            children: List.generate(5, (starIndex) {
-                              return Icon(
-                                starIndex < notif['rating']
-                                    ? Icons.star
-                                    : Icons.star_border,
-                                color: Colors.amber,
-                                size: 16,
-                              );
-                            }),
-                          ),
-                      ],
-                    ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.more_vert),
-                      onPressed: () => _showDeleteConfirmation(context),
-                    ),
-                    onTap: () {
-                      // Navigasi ke halaman detail sesuai kategori
-                      // Contoh: Navigator.pushNamed(context, '/detail_pengaduan');
-                    },
-                    isThreeLine: true,
                   ),
-                );
+                  title: Text(notif['title']),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${notif['time']} - ${notif['category']}'),
+                      if (notif['category'] == 'Rating')
+                        Row(
+                          children: List.generate(5, (starIndex) {
+                            return Icon(
+                              starIndex < notif['rating']
+                                  ? Icons.star
+                                  : Icons.star_border,
+                              color: Colors.amber,
+                              size: 16,
+                            );
+                          }),
+                        ),
+                    ],
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.more_vert),
+                    onPressed: () => _showDeleteConfirmation(context),
+                  ),
+                  onTap: () {
+                    // Navigasi ke halaman detail sesuai kategori
+                    // Contoh: Navigator.pushNamed(context, '/detail_pengaduan');
+                    if (notif['title'] == 'Poliklinik' &&
+                        notif['category'] == 'Rating') {
+                      // Buat instance Service dengan data yang relevan untuk navigasi
+                      const poliklinikService = Service(
+                        name: 'Poliklinik',
+                        email: 'PIC@gmail.com',
+                        rating: 4,
+                        reviews: 273,
+                        imageUrl: '../images/poliklinik_image.png',
+                      );
+
+                      // Navigasi ke halaman detail Service
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ServiceDetailPage(
+                              service: poliklinikService),
+                        ),
+                      );
+                    }
+                    // Navigasi ke halaman detail lain sesuai kategori (jika diperlukan)
+                    // Contoh:
+                    // else if (notif['category'] == 'Pengaduan') { ... }
+                  },
+                  isThreeLine: true,
+                ));
               },
             ),
           ),
