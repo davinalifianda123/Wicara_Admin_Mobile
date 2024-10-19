@@ -304,92 +304,81 @@ class PengaduanCard extends StatelessWidget {
   const PengaduanCard({super.key});
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(10),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Dibully sama teman',
-                        style: TextStyle(
-                          fontSize: 16, 
-                          fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: () {
+        // Navigasi ke halaman detail pengaduan
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const DetailPengaduanPage(),
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.all(10),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Dibully sama teman',
+                          style: TextStyle(
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '15/9/2024 20:00',
-                        style: TextStyle(
-                          fontSize: 12, 
-                          color: Colors.grey,
+                        SizedBox(height: 4),
+                        Text(
+                          '15/9/2024 20:00',
+                          style: TextStyle(
+                            fontSize: 12, 
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[900],
-                    borderRadius: BorderRadius.circular(5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[900],
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text(
+                      'Bullying',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
-                  child: const Text(
-                    'Bullying',
-                    style: TextStyle(color: Colors.white),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2), // Gray background color
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text(
+                      'Diajukan',
+                      style: TextStyle(color: Colors.grey), // White text color
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.2), // Gray background color
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: const Text(
-                    'Diajukan',
-                    style: TextStyle(color: Colors.grey), // White text color
-                  ),
-                ),
-                const SizedBox(width: 10),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'detail') {
-                      // Navigasi ke halaman detail rating
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DetailPengaduanPage(),
-                        ),
-                      );
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      const PopupMenuItem(
-                        value: 'detail',
-                        child: Text('Lihat Detail'),
-                      ),
-                    ];
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Deskripsi : Aku dibilang wibu sama temen-temen. Saya hanya diam...',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 10),
-          ],
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Deskripsi : Aku dibilang wibu sama temen-temen. Saya hanya diam...',
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
@@ -1060,8 +1049,7 @@ class ServiceDetailPage extends StatelessWidget {
                               ),
                             ),
                           );
-                        },
-                        hoverColor: Colors.blue.withOpacity(0.1), // Optional: hover color effect
+                        }, // Optional: hover color effect
                         child: Card(
                           elevation: 2,
                           shape: RoundedRectangleBorder(
@@ -1699,80 +1687,69 @@ class KehilanganCard extends StatelessWidget {
   const KehilanganCard({super.key});
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.all(10),
-      child: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hp Samsung Hilang',
-                        style: TextStyle(
-                          fontSize: 16, 
-                          fontWeight: FontWeight.bold,
+    return InkWell(
+      onTap: () {
+        // Navigasi ke halaman detail kehilangan
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const DetailKehilanganPage(),
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.all(10),
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hp Samsung Hilang',
+                          style: TextStyle(
+                            fontSize: 16, 
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '15/9/2024 20:00',
-                        style: TextStyle(
-                          fontSize: 12, 
-                          color: Colors.grey,
+                        SizedBox(height: 4),
+                        Text(
+                          '15/9/2024 20:00',
+                          style: TextStyle(
+                            fontSize: 12, 
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.2), // Gray background color
-                    borderRadius: BorderRadius.circular(5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.2), // Gray background color
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: const Text(
+                      'Belum Ditemukan',
+                      style: TextStyle(color: Colors.grey), // White text color
+                    ),
                   ),
-                  child: const Text(
-                    'Belum Ditemukan',
-                    style: TextStyle(color: Colors.grey), // White text color
-                  ),
-                ),
-                const SizedBox(width: 10),
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'detail') {
-                      // Navigasi ke halaman detail rating
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const DetailKehilanganPage(),
-                        ),
-                      );
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      const PopupMenuItem(
-                        value: 'detail',
-                        child: Text('Lihat Detail'),
-                      ),
-                    ];
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Deskripsi : Hp ku hilang dikamar mandi saat aku lagi mandi...',
-              style: TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 10),
-          ],
+                ],
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Deskripsi : Hp ku hilang dikamar mandi saat aku lagi mandi...',
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
       ),
     );
