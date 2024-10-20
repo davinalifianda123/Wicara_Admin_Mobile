@@ -1604,53 +1604,146 @@ class BerandaScreen extends StatelessWidget {
   }
 }
 
-class DosenScreen extends StatelessWidget {
+class DosenScreen extends StatefulWidget {
   const DosenScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Daftar nama dosen sebagai contoh
-    final List<String> dosenList = [
-      "Dr. Bambang Sudibyo, M.Sc.",
-      "Prof. Andi Maulana, Ph.D.",
-      "Ir. Siti Aminah, M.T.",
-      "Drs. Budi Santoso, M.Pd.",
-      "Dr. Hana Suryani, M.Sc.",
-      "Dr. Rizky Setiawan, M.Eng.",
-      "Dr. Dedi Kurniawan, M.Kom."
-    ];
+  State<DosenScreen> createState() => _DosenScreenState();
+}
 
+class _DosenScreenState extends State<DosenScreen> {
+  final List<String> dosenList = [
+    "Dr. John Doe",
+    "Prof. Jane Smith",
+    "Dr. Alice Johnson",
+    "Dr. Robert Brown",
+    "Dr. Emily Davis",
+  ];
+
+  List<String> filteredList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredList = dosenList;
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Daftar Dosen/Tendik"),
-        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        title: const Text('Daftar Dosen/Tendik'),
+        backgroundColor: const Color(0xFF060A47),
         iconTheme: const IconThemeData(
-          color: Colors.white, // Warna ikon back menjadi putih
+          color: Colors.white,
         ),
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Warna teks judul menjadi putih
+          color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: DosenSearchDelegate(dosenList: dosenList),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
-        itemCount: dosenList.length,
+        itemCount: filteredList.length,
         itemBuilder: (context, index) {
           return ListTile(
-            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
-            title: Text(dosenList[index]),
+            title: Text(filteredList[index]),
             onTap: () {
-              // Aksi ketika item di-tap, misal navigasi ke detail dosen
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DosenDetailScreen(name: dosenList[index]),
+                  builder: (context) => DosenDetailScreen(name: filteredList[index]),
                 ),
               );
             },
           );
         },
       ),
+    );
+  }
+}
+
+// Custom Search Delegate
+class DosenSearchDelegate extends SearchDelegate {
+  final List<String> dosenList;
+
+  DosenSearchDelegate({required this.dosenList});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = dosenList
+        .where((dosen) => dosen.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(results[index]),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DosenDetailScreen(name: results[index]),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = dosenList
+        .where((dosen) => dosen.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestions[index]),
+          onTap: () {
+            query = suggestions[index];
+            showResults(context);
+          },
+        );
+      },
     );
   }
 }
@@ -1785,14 +1878,15 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
   }
 }
 
-
-class MahasiswaScreen extends StatelessWidget {
+class MahasiswaScreen extends StatefulWidget {
   const MahasiswaScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Daftar nama mahasiswa sebagai contoh
-    final List<String> mahasiswaList = [
+  State<MahasiswaScreen> createState() => _MahasiswaScreenState();
+}
+
+class _MahasiswaScreenState extends State<MahasiswaScreen> {
+  final List<String> mahasiswaList = [
       "Davin Alifianda Adytia",
       "Melia Apriani",
       "Rizky Setiawan",
@@ -1800,8 +1894,18 @@ class MahasiswaScreen extends StatelessWidget {
       "Rizky Setiawan",
       "Dedi Kurniawan",
       "Dinda Putri Ananda",
-    ];
+  ];
 
+  List<String> filteredList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredList = mahasiswaList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Daftar Mahasiswa"),
@@ -1814,6 +1918,17 @@ class MahasiswaScreen extends StatelessWidget {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: MahasiswaSearchDelegate(mahasiswaList: mahasiswaList),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: mahasiswaList.length,
@@ -1836,6 +1951,79 @@ class MahasiswaScreen extends StatelessWidget {
     );
   }
 }
+
+class MahasiswaSearchDelegate extends SearchDelegate {
+  final List<String> mahasiswaList;
+
+  MahasiswaSearchDelegate({required this.mahasiswaList});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = mahasiswaList
+        .where((mahasiswa) => mahasiswa.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(results[index]),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MahasiswaDetailScreen(name: results[index]),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = mahasiswaList
+        .where((mahasiswa) => mahasiswa.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestions[index]),
+          onTap: () {
+            query = suggestions[index];
+            showResults(context);
+          },
+        );
+      },
+    );
+  }
+}
+
 
 class MahasiswaDetailScreen extends StatefulWidget {
   final String name;
@@ -1967,14 +2155,15 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
   }
 }
 
-
-class UnitLayananScreen extends StatelessWidget {
+class UnitLayananScreen extends StatefulWidget {
   const UnitLayananScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Daftar nama mahasiswa sebagai contoh
-    final List<String> unitLayananList = [
+  State<UnitLayananScreen> createState() => _UnitLayananScreenState();
+}
+
+class _UnitLayananScreenState extends State<UnitLayananScreen> {
+  final List<String> unitLayananList = [
       "Poliklinik",
       "Biro Akademik",
       "Biro Administrasi Umum",
@@ -1982,8 +2171,18 @@ class UnitLayananScreen extends StatelessWidget {
       "Biro Perencanaan dan Sistem Informasi",
       "Biro Umum",
       "Biro Kerjasama dan Hubungan Masyarakat",
-    ];
+  ];
 
+  List<String> filteredList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    filteredList = unitLayananList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Daftar Unit Layanan"),
@@ -1996,6 +2195,17 @@ class UnitLayananScreen extends StatelessWidget {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: UnitLayananSearchDelegate(unitLayananList: unitLayananList),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: unitLayananList.length,
@@ -2015,6 +2225,78 @@ class UnitLayananScreen extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+}
+
+class UnitLayananSearchDelegate extends SearchDelegate {
+  final List<String> unitLayananList;
+
+  UnitLayananSearchDelegate({required this.unitLayananList});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = unitLayananList
+        .where((unitLayanan) => unitLayanan.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(results[index]),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => UnitLayananDetailScreen(name: results[index]),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = unitLayananList
+        .where((unitLayanan) => unitLayanan.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestions[index]),
+          onTap: () {
+            query = suggestions[index];
+            showResults(context);
+          },
+        );
+      },
     );
   }
 }
@@ -2097,20 +2379,32 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
   }
 }
 
-class JenisPengaduanScreen extends StatelessWidget {
+class JenisPengaduanScreen extends StatefulWidget {
   const JenisPengaduanScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Daftar nama mahasiswa sebagai contoh
-    final List<String> jenisPengaduanList = [
+  State<JenisPengaduanScreen> createState() => _JenisPengaduanScreenState();
+}
+
+class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
+  final List<String> jenisPengaduanList = [
       "Pelecehan Seksual",
       "Bullying",
       "Dosen",
       "Fasilitas",
       "Akademik",
-    ];
+  ];
+  
+  List<String> filteredList = [];
 
+  @override
+  void initState() {
+    super.initState();
+    filteredList = jenisPengaduanList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Daftar Jenis Pengaduan"),
@@ -2123,6 +2417,17 @@ class JenisPengaduanScreen extends StatelessWidget {
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearch(
+                context: context,
+                delegate: JenisPengaduanSearchDelegate(jenisPengaduanList: jenisPengaduanList),
+              );
+            },
+          ),
+        ],
       ),
       body: ListView.builder(
         itemCount: jenisPengaduanList.length,
@@ -2145,6 +2450,79 @@ class JenisPengaduanScreen extends StatelessWidget {
     );
   }
 }
+
+class JenisPengaduanSearchDelegate extends SearchDelegate {
+  final List<String> jenisPengaduanList;
+
+  JenisPengaduanSearchDelegate({required this.jenisPengaduanList});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    final results = jenisPengaduanList
+        .where((jenisPengaduan) => jenisPengaduan.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: results.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(results[index]),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => JenisPengaduanDetailScreen(name: results[index]),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final suggestions = jenisPengaduanList
+        .where((jenisPengaduan) => jenisPengaduan.toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
+    return ListView.builder(
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestions[index]),
+          onTap: () {
+            query = suggestions[index];
+            showResults(context);
+          },
+        );
+      },
+    );
+  }
+}
+
 
 class JenisPengaduanDetailScreen extends StatefulWidget {
   final String name;
