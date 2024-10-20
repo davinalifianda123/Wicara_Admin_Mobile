@@ -1328,7 +1328,7 @@ class BerandaScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(context), // Header untuk desain di atas
-            _buildMenu(), // Grid menu
+            _buildMenu(context), // Grid menu
             _buildActivitySection(context), // Aktivitas bagian
           ],
         ),
@@ -1406,10 +1406,10 @@ class BerandaScreen extends StatelessWidget {
           ),
           // Ikon Notifikasi
           Positioned(
-            top: 20,
+            top: 28,
             right: 20,
             child: IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.white, size: 26),
+              icon: const Icon(Icons.notifications, color: Colors.white, size: 25),
               onPressed: () {
                 // Implementasikan fungsionalitas notifikasi di sini
                 Navigator.push(
@@ -1427,9 +1427,9 @@ class BerandaScreen extends StatelessWidget {
   }
 
   // Fungsi _buildMenu untuk grid menu
-  Widget _buildMenu() {
+  Widget _buildMenu(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: GridView(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -1440,42 +1440,70 @@ class BerandaScreen extends StatelessWidget {
           crossAxisSpacing: 16, // Memberikan jarak horizontal antar item
         ),
         children: [
-          _buildMenuItem('Dosen/Tendik', Icons.person),
-          _buildMenuItem('Mahasiswa', Icons.school),
-          _buildMenuItem('Unit Layanan', Icons.business),
-          _buildMenuItem('Jenis Pengaduan', Icons.category),
+          _buildMenuItem(context , 'Dosen/Tendik', Icons.person),
+          _buildMenuItem(context ,'Mahasiswa', Icons.school),
+          _buildMenuItem(context ,'Unit Layanan', Icons.business),
+          _buildMenuItem(context ,'Jenis Pengaduan', Icons.category),
         ],
       ),
     );
   }
 
-// Fungsi untuk membuat item grid menu
-  Widget _buildMenuItem(String title, IconData icon) {
-    return Column(
-      mainAxisSize: MainAxisSize.min, // Menghindari overflow dengan meminimalkan ukuran kolom
-      children: [
-        CircleAvatar(
-          radius: 28, // Kurangi radius agar lebih sesuai dengan grid
-          backgroundColor: const Color.fromARGB(255, 6, 10, 71),
-          child: Icon(icon, color: Colors.white),
-        ),
-        const SizedBox(height: 8),
-        Flexible(
-          child: Text(
-            title,
-            style: const TextStyle(fontSize: 12),
-            textAlign: TextAlign.center, // Pusatkan teks
-            overflow: TextOverflow.ellipsis, // Hindari overflow pada teks
+  // Fungsi untuk membuat item grid menu
+    // Fungsi untuk membuat item grid menu
+  Widget _buildMenuItem(BuildContext context,String title, IconData icon) {
+    return InkWell(
+      onTap: () {
+        // Aksi saat item di-tap, arahkan ke screen baru
+        if (title == 'Dosen/Tendik') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const DosenScreen()),
+          );
+        } else if (title == 'Mahasiswa') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MahasiswaScreen()),
+          );
+        } else if (title == 'Unit Layanan') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const UnitLayananScreen()),
+          );
+        } else if (title == 'Jenis Pengaduan') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const JenisPengaduanScreen()),
+          );
+        }
+      },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircleAvatar(
+            radius: 28,
+            backgroundColor: const Color.fromARGB(255, 6, 10, 71),
+            child: Icon(icon, color: Colors.white),
           ),
-        ),
-      ],
+          const SizedBox(height: 8),
+          Flexible(
+            child: Text(
+              title,
+              style: const TextStyle(fontSize: 12),
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
     );
   }
+
 
   // Fungsi _buildActivitySection untuk bagian aktivitas
   Widget _buildActivitySection(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1575,6 +1603,617 @@ class BerandaScreen extends StatelessWidget {
     );
   }
 }
+
+class DosenScreen extends StatelessWidget {
+  const DosenScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Daftar nama dosen sebagai contoh
+    final List<String> dosenList = [
+      "Dr. Bambang Sudibyo, M.Sc.",
+      "Prof. Andi Maulana, Ph.D.",
+      "Ir. Siti Aminah, M.T.",
+      "Drs. Budi Santoso, M.Pd.",
+      "Dr. Hana Suryani, M.Sc.",
+      "Dr. Rizky Setiawan, M.Eng.",
+      "Dr. Dedi Kurniawan, M.Kom."
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Daftar Dosen/Tendik"),
+        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Warna ikon back menjadi putih
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Warna teks judul menjadi putih
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: ListView.builder(
+        itemCount: dosenList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            title: Text(dosenList[index]),
+            onTap: () {
+              // Aksi ketika item di-tap, misal navigasi ke detail dosen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => DosenDetailScreen(name: dosenList[index]),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class DosenDetailScreen extends StatefulWidget {
+  final String name;
+
+  const DosenDetailScreen({super.key, required this.name});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _DosenDetailScreenState createState() => _DosenDetailScreenState();
+}
+
+class _DosenDetailScreenState extends State<DosenDetailScreen> {
+  late TextEditingController namaController;
+  late TextEditingController nomorIndukController;
+  late TextEditingController noTelpController;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  late TextEditingController roleController;
+  bool _isPasswordVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Menginisialisasi controller dengan nilai default
+    namaController = TextEditingController(text: widget.name);
+    nomorIndukController = TextEditingController(text: "123456789");
+    noTelpController = TextEditingController(text: "081234567890");
+    emailController = TextEditingController(text: "dosen@example.com");
+    passwordController = TextEditingController(text: "password123");
+    roleController = TextEditingController(text: "Dosen");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Detail Dosen"),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Icon(Icons.person, size: 100, color: Color(0xFF060A47)),
+              const SizedBox(height: 20),
+              TextField(
+                controller: namaController,
+                decoration: const InputDecoration(
+                  labelText: "Nama",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: nomorIndukController,
+                decoration: const InputDecoration(
+                  labelText: "Nomor Induk",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: noTelpController,
+                decoration: const InputDecoration(
+                  labelText: "No. Telp",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: passwordController,
+                obscureText: !_isPasswordVisible,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: roleController,
+                decoration: const InputDecoration(
+                  labelText: "Role",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF060A47),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                onPressed: () {
+                  // Simpan perubahan data atau lakukan aksi lainnya
+                },
+                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class MahasiswaScreen extends StatelessWidget {
+  const MahasiswaScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Daftar nama mahasiswa sebagai contoh
+    final List<String> mahasiswaList = [
+      "Davin Alifianda Adytia",
+      "Melia Apriani",
+      "Rizky Setiawan",
+      "Dinda Putri Ananda",
+      "Rizky Setiawan",
+      "Dedi Kurniawan",
+      "Dinda Putri Ananda",
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Daftar Mahasiswa"),
+        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Warna ikon back menjadi putih
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Warna teks judul menjadi putih
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: ListView.builder(
+        itemCount: mahasiswaList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            title: Text(mahasiswaList[index]),
+            onTap: () {
+              // Aksi ketika item di-tap, misal navigasi ke detail dosen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MahasiswaDetailScreen(name: mahasiswaList[index]),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class MahasiswaDetailScreen extends StatefulWidget {
+  final String name;
+
+  const MahasiswaDetailScreen({super.key, required this.name});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _MahasiswaDetailScreenState createState() => _MahasiswaDetailScreenState();
+}
+
+class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
+  late TextEditingController namaController;
+  late TextEditingController nomorIndukController;
+  late TextEditingController noTelpController;
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  late TextEditingController roleController;
+  bool _isPasswordVisible = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Menginisialisasi controller dengan nilai default
+    namaController = TextEditingController(text: widget.name);
+    nomorIndukController = TextEditingController(text: "987654321");
+    noTelpController = TextEditingController(text: "081234567890");
+    emailController = TextEditingController(text: "mahasiswa@example.com");
+    passwordController = TextEditingController(text: "password123");
+    roleController = TextEditingController(text: "Mahasiswa");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Detail Mahasiswa"),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Icon(Icons.person, size: 100, color: Color(0xFF060A47)),
+              const SizedBox(height: 20),
+              TextField(
+                controller: namaController,
+                decoration: const InputDecoration(
+                  labelText: "Nama",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: nomorIndukController,
+                decoration: const InputDecoration(
+                  labelText: "Nomor Induk",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: noTelpController,
+                decoration: const InputDecoration(
+                  labelText: "No. Telp",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: passwordController,
+                obscureText: !_isPasswordVisible,
+                decoration: InputDecoration(
+                  labelText: "Password",
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: roleController,
+                decoration: const InputDecoration(
+                  labelText: "Role",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF060A47),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                onPressed: () {
+                  // Simpan perubahan data atau lakukan aksi lainnya
+                },
+                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class UnitLayananScreen extends StatelessWidget {
+  const UnitLayananScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Daftar nama mahasiswa sebagai contoh
+    final List<String> unitLayananList = [
+      "Poliklinik",
+      "Biro Akademik",
+      "Biro Administrasi Umum",
+      "Biro Keuangan",
+      "Biro Perencanaan dan Sistem Informasi",
+      "Biro Umum",
+      "Biro Kerjasama dan Hubungan Masyarakat",
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Daftar Unit Layanan"),
+        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Warna ikon back menjadi putih
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Warna teks judul menjadi putih
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: ListView.builder(
+        itemCount: unitLayananList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            title: Text(unitLayananList[index]),
+            onTap: () {
+              // Aksi ketika item di-tap, misal navigasi ke detail dosen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => UnitLayananDetailScreen(name: unitLayananList[index]),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class UnitLayananDetailScreen extends StatefulWidget {
+  final String name;
+
+  const UnitLayananDetailScreen({super.key, required this.name});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _UnitLayananDetailScreenState createState() => _UnitLayananDetailScreenState();
+}
+
+class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
+  late TextEditingController namaController;
+  late TextEditingController emailController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Menginisialisasi controller dengan nilai default
+    namaController = TextEditingController(text: widget.name);
+    emailController = TextEditingController(text: "pic@example.com");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Detail Unit Layanan"),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Icon(Icons.person, size: 100, color: Color(0xFF060A47)),
+              const SizedBox(height: 20),
+              TextField(
+                controller: namaController,
+                decoration: const InputDecoration(
+                  labelText: "Nama Unit Layanan",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF060A47),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                onPressed: () {
+                  // Simpan perubahan data atau lakukan aksi lainnya
+                },
+                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class JenisPengaduanScreen extends StatelessWidget {
+  const JenisPengaduanScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Daftar nama mahasiswa sebagai contoh
+    final List<String> jenisPengaduanList = [
+      "Pelecehan Seksual",
+      "Bullying",
+      "Dosen",
+      "Fasilitas",
+      "Akademik",
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Daftar Jenis Pengaduan"),
+        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        iconTheme: const IconThemeData(
+          color: Colors.white, // Warna ikon back menjadi putih
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Warna teks judul menjadi putih
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: ListView.builder(
+        itemCount: jenisPengaduanList.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            title: Text(jenisPengaduanList[index]),
+            onTap: () {
+              // Aksi ketika item di-tap, misal navigasi ke detail dosen
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => JenisPengaduanDetailScreen(name: jenisPengaduanList[index]),
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+class JenisPengaduanDetailScreen extends StatefulWidget {
+  final String name;
+
+  const JenisPengaduanDetailScreen({super.key, required this.name});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _JenisPengaduanDetailScreenState createState() => _JenisPengaduanDetailScreenState();
+}
+
+class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen> {
+  late TextEditingController namaController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Menginisialisasi controller dengan nilai default
+    namaController = TextEditingController(text: widget.name);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Detail Jenis Pengaduan"),
+        backgroundColor: const Color(0xFF060A47),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Icon(Icons.person, size: 100, color: Color(0xFF060A47)),
+              const SizedBox(height: 20),
+              TextField(
+                controller: namaController,
+                decoration: const InputDecoration(
+                  labelText: "Nama Unit Layanan",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF060A47),
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                ),
+                onPressed: () {
+                  // Simpan perubahan data atau lakukan aksi lainnya
+                },
+                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 
 class KehilanganScreen extends StatelessWidget {
   const KehilanganScreen({super.key});
