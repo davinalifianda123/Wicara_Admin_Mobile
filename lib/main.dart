@@ -123,7 +123,7 @@ class PengaduanScreen extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
                 children: [
@@ -234,12 +234,13 @@ class TabBarContainerPengaduan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4, // Jumlah tab
+      length: 6, // Perbarui jumlah tab menjadi 6
       child: Column(
         children: [
           Container(
             color: Colors.grey[200],
             child: const TabBar(
+              isScrollable: true, // Tambahkan ini agar tab bisa di-scroll horizontal
               labelColor: Colors.orange, // Warna teks saat dipilih
               unselectedLabelColor: Colors.grey, // Warna teks saat tidak dipilih
               indicatorColor: Colors.orange, // Warna garis bawah saat dipilih
@@ -249,6 +250,8 @@ class TabBarContainerPengaduan extends StatelessWidget {
                 Tab(text: 'Diajukan'),
                 Tab(text: 'Diproses'),
                 Tab(text: 'Selesai'),
+                Tab(text: 'Ditolak'), // Tambahkan tab "Ditolak"
+                Tab(text: 'Dibatalkan'), // Tambahkan tab "Dibatalkan"
               ],
             ),
           ),
@@ -260,6 +263,8 @@ class TabBarContainerPengaduan extends StatelessWidget {
           //       Container(), // Konten untuk "Diajukan"
           //       Container(), // Konten untuk "Diproses"
           //       Container(), // Konten untuk "Selesai"
+          //       Container(), // Konten untuk "Ditolak"
+          //       Container(), // Konten untuk "Dibatalkan"
           //     ],
           //   ),
           // ),
@@ -268,6 +273,7 @@ class TabBarContainerPengaduan extends StatelessWidget {
     );
   }
 }
+
 
 
 class PengaduanCard extends StatelessWidget {
@@ -383,7 +389,7 @@ class DetailPengaduanPage extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: SafeArea(
               child: Row(
                 children: [
@@ -579,7 +585,7 @@ class RatingScreen extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
                 children: [
@@ -867,7 +873,7 @@ class ServiceDetailPage extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
                 children: [
@@ -1162,7 +1168,7 @@ class DetailRatingPage extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: SafeArea(
               child: Row(
                 children: [
@@ -1351,7 +1357,7 @@ class BerandaScreen extends StatelessWidget {
             ),
           ),
           Positioned(
-            top: 16,
+            top: 20,
             left: 20,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1400,10 +1406,10 @@ class BerandaScreen extends StatelessWidget {
           ),
           // Ikon Notifikasi
           Positioned(
-            top: 10,
+            top: 20,
             right: 20,
             child: IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.white, size: 36),
+              icon: const Icon(Icons.notifications, color: Colors.white, size: 26),
               onPressed: () {
                 // Implementasikan fungsionalitas notifikasi di sini
                 Navigator.push(
@@ -1587,7 +1593,7 @@ class KehilanganScreen extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10), // Kurangi padding vertikal untuk mengurangi tinggi
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Kurangi padding vertikal untuk mengurangi tinggi
             child: SafeArea(
               child: Row(
                 children: [
@@ -1704,6 +1710,7 @@ class TabBarContainerKehilangan extends StatelessWidget {
           Container(
             color: Colors.grey[200],
             child: const TabBar(
+              isScrollable: true, // Membuat TabBar bisa discroll secara horizontal
               labelColor: Colors.orange, // Warna teks saat dipilih
               unselectedLabelColor: Colors.grey, // Warna teks saat tidak dipilih
               indicatorColor: Colors.orange, // Warna garis bawah saat dipilih
@@ -1732,7 +1739,6 @@ class TabBarContainerKehilangan extends StatelessWidget {
     );
   }
 }
-
 
 class KehilanganCard extends StatelessWidget {
   const KehilanganCard({super.key});
@@ -1835,7 +1841,7 @@ class DetailKehilanganPage extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: SafeArea(
               child: Row(
                 children: [
@@ -2013,7 +2019,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: SafeArea(
               child: Row(
                 children: [
