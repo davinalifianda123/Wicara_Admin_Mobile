@@ -15,7 +15,219 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(),
+      home: const Login(),
+    );
+  }
+}
+
+class Login extends StatelessWidget {
+  const Login({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              height: 284,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(50),
+                  bottomRight: Radius.circular(50)
+                ),
+                image: DecorationImage(
+                  image: AssetImage('images/Pengaduan1.png'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 36,
+                      width: 120,
+                      decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.all(Radius.circular(50)),
+                        color: Colors.white,
+                      ),
+                      child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Image.asset("images/Logo.png"),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        top: 24.0
+                      ),
+                      child: Text(
+                        'WICARA',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 32.0,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins'
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        top: 2,
+                      ),
+                      child: SizedBox(
+                        width: 200,
+                        child: Text(
+                          'Wadah Informasi Catatan Aspirasi & Rating Akademik',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 8.0,
+                              fontWeight: FontWeight.w100,
+                              fontFamily: 'Poppins',
+                              fontStyle: FontStyle.italic
+                          ),
+                        ),
+                      )
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Login',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 48.0,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins'
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(
+                      top: 8
+                    ),
+                    child: Text(
+                      'Selamat Datang Di Platform Aspirasi Dan Rating Akademik',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'Poppins'
+                      ),
+                    ),
+                  ),
+                  Container (
+                    margin: const EdgeInsets.only(top: 16),
+                    child: const TextField(
+                      decoration: InputDecoration(
+                        hintText: 'Email',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(50.0))
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                            borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 2
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.only(left: 20)
+                      ),
+                    ),
+                  ),
+                  Container (
+                    margin: const EdgeInsets.only(top: 16),
+                    child: const TextField(
+                      decoration: InputDecoration(
+                          hintText: 'Password',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(50.0))
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(50.0)),
+                            borderSide: BorderSide(
+                                color: Colors.grey,
+                                width: 2
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.only(left: 20)
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.only(top: 24, bottom: 26),
+                    width: double.infinity,
+                    height: 2.0,
+                    color: Colors.grey,
+                  ),
+                  Center(
+                    child: SizedBox(
+                      width: 110,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Misalkan validasi berhasil, pindah ke MyHomePage
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const MyHomePage()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amber
+                        ),
+                        child: const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                          ),
+
+                          ),
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(right: 5),
+                          child: Text(
+                            'Lupa Password',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 5),
+                          child: Text(
+                            'Klik Disini',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.indigo,
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.w600
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -3654,9 +3866,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Tambahkan aksi logout
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Logout ditekan!")),
+                          // Misalkan validasi berhasil, pindah ke MyHomePage
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const Login()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
