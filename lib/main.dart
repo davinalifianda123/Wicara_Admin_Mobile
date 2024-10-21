@@ -39,7 +39,7 @@ class Login extends StatelessWidget {
                   bottomRight: Radius.circular(50)
                 ),
                 image: DecorationImage(
-                  image: AssetImage('images/Pengaduan1.png'),
+                  image: AssetImage('images/Login_Image.png'),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -84,8 +84,8 @@ class Login extends StatelessWidget {
                           'Wadah Informasi Catatan Aspirasi & Rating Akademik',
                           style: TextStyle(
                               color: Colors.white,
-                              fontSize: 8.0,
-                              fontWeight: FontWeight.w100,
+                              fontSize: 20.0,
+                              fontWeight: FontWeight.w500,
                               fontFamily: 'Poppins',
                               fontStyle: FontStyle.italic
                           ),
@@ -117,7 +117,7 @@ class Login extends StatelessWidget {
                       'Selamat Datang Di Platform Aspirasi Dan Rating Akademik',
                       style: TextStyle(
                           color: Colors.black,
-                          fontSize: 20,
+                          fontSize: 15,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Poppins'
                       ),
@@ -179,7 +179,7 @@ class Login extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.amber
+                          backgroundColor: Colors.amber[600]
                         ),
                         child: const Text(
                           'Login',
