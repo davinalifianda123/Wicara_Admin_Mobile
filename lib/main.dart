@@ -105,6 +105,31 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
+class LastUpdateRow extends StatelessWidget {
+  final String lastUpdateDate;
+
+  const LastUpdateRow({
+    super.key,
+    required this.lastUpdateDate,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.access_time, color: Colors.grey),
+        const SizedBox(width: 4),
+        Text(
+          'Terakhir Diperbarui: $lastUpdateDate',
+          style: const TextStyle(color: Colors.grey, fontSize: 12),
+        ),
+      ],
+    );
+  }
+}
+
+
+// ----------------------------PENGADUAN--------------------------------
 class PengaduanScreen extends StatefulWidget {
   const PengaduanScreen({super.key});
 
@@ -156,6 +181,7 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   List<Map<String, String>> _filteredPengaduanList = [];
   bool _isSearching = false;
   String _searchQuery = '';
+  String _selectedStatus = 'Semua';
 
   @override
   void initState() {
@@ -173,6 +199,7 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
     setState(() {
       _isSearching = false;
       _searchQuery = '';
+      _selectedStatus = 'Semua';
       _filteredPengaduanList = _pengaduanList;
     });
   }
@@ -183,6 +210,19 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
       _filteredPengaduanList = _pengaduanList
           .where((item) => item['title']!.toLowerCase().contains(newQuery.toLowerCase()))
           .toList();
+    });
+  }
+
+  void _filterByStatus(String status) {
+    setState(() {
+      _selectedStatus = status;
+      if (status == 'Semua') {
+        _filteredPengaduanList = _pengaduanList;
+      } else {
+        _filteredPengaduanList = _pengaduanList
+            .where((item) => item['status'] == status)
+            .toList();
+      }
     });
   }
 
@@ -198,7 +238,6 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
             onSearchStop: _stopSearch,
             onSearchQueryChanged: _updateSearchQuery,
           ),
-          // Bagian utama untuk mendeteksi date dari PengaduanCard paling atas
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
@@ -206,15 +245,15 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   LastUpdateRow(
-                    // Mengambil tanggal dari elemen paling atas di _filteredPengaduanList
-                    lastUpdateDate: _filteredPengaduanList.isNotEmpty 
+                    lastUpdateDate: _filteredPengaduanList.isNotEmpty
                         ? _filteredPengaduanList.first['date'] ?? 'Tanggal tidak tersedia'
                         : 'Tanggal tidak tersedia',
                   ),
                   const SizedBox(height: 10),
-                  const TabBarContainerPengaduan(),
+                  TabBarContainerPengaduan(onStatusChanged: _filterByStatus),
                   Expanded(
-                    child: PengaduanList(pengaduanList: _filteredPengaduanList),
+                    child: PengaduanList(
+                      pengaduanList: _filteredPengaduanList),
                   ),
                 ],
               ),
@@ -225,30 +264,6 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
     );
   }
 }
-
-class LastUpdateRow extends StatelessWidget {
-  final String lastUpdateDate;
-
-  const LastUpdateRow({
-    super.key,
-    required this.lastUpdateDate,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        const Icon(Icons.access_time, color: Colors.grey),
-        const SizedBox(width: 4),
-        Text(
-          'Terakhir Diperbarui: $lastUpdateDate',
-          style: const TextStyle(color: Colors.grey, fontSize: 12),
-        ),
-      ],
-    );
-  }
-}
-
 
 class PengaduanAppBar extends StatelessWidget {
   final bool isSearching;
@@ -313,7 +328,7 @@ class PengaduanAppBar extends StatelessWidget {
                     ),
                     const Spacer(),
                     IconButton(
-                      icon: const Icon(Icons.notifications, color: Colors.white),
+                      icon: const Icon(Icons.notifications, color: Colors.white, size: 25,),
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -359,8 +374,10 @@ class PengaduanList extends StatelessWidget {
   }
 }
 
-class TabBarContainerPengaduan extends StatelessWidget {
-  const TabBarContainerPengaduan({super.key});
+class TabBarContainerPengaduan extends StatefulWidget {
+  final Function(String) onStatusChanged;
+
+  const TabBarContainerPengaduan({super.key, required this.onStatusChanged});
 
   static const List<String> tabLabels = [
     'Semua',
@@ -372,35 +389,42 @@ class TabBarContainerPengaduan extends StatelessWidget {
   ];
 
   @override
+  // ignore: library_private_types_in_public_api
+  _TabBarContainerPengaduanState createState() => _TabBarContainerPengaduanState();
+}
+
+class _TabBarContainerPengaduanState extends State<TabBarContainerPengaduan> {
+  String selectedTab = TabBarContainerPengaduan.tabLabels[0];
+
+  @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: tabLabels.length, // Jumlah tab mengikuti panjang list
-      child: Column(
-        children: [
-          Container(
-            color: Colors.grey[200],
-            child: TabBar(
-              isScrollable: true, // Membuat tab bisa di-scroll horizontal
-              labelColor: Colors.orange, // Warna teks saat dipilih
-              unselectedLabelColor: Colors.grey, // Warna teks saat tidak dipilih
-              indicatorColor: Colors.orange, // Warna garis bawah saat dipilih
-              indicatorWeight: 2.0, // Ketebalan garis bawah
-              tabs: tabLabels.map((label) => Tab(text: label)).toList(),
-            ),
-          ),
-          // Konten bisa diisi jika ingin memiliki konten berdasarkan tab
-          // Expanded(
-          //   child: TabBarView(
-          //     children: tabLabels.map((label) => Container()).toList(),
-          //   ),
-          // ),
-        ],
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      color: Colors.grey[200],
+      child: DropdownButton<String>(
+        value: selectedTab,
+        icon: const Icon(Icons.arrow_downward),
+        isExpanded: true,
+        underline: Container(
+          height: 2,
+          color: Colors.orange,
+        ),
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedTab = newValue!;
+            widget.onStatusChanged(selectedTab); // Call the callback to pass selected status
+          });
+        },
+        items: TabBarContainerPengaduan.tabLabels.map<DropdownMenuItem<String>>((String label) {
+          return DropdownMenuItem<String>(
+            value: label,
+            child: Text(label),
+          );
+        }).toList(),
       ),
     );
   }
 }
-
-
 
 class PengaduanCard extends StatelessWidget {
   final String title;
@@ -748,325 +772,368 @@ class DetailPengaduanPage extends StatelessWidget {
     );
   }
 }
+// ---------------------------------------------------------------------
 
 
-class RatingScreen extends StatelessWidget {
+// ----------------------------RATING--------------------------------
+class RatingScreen extends StatefulWidget {
   const RatingScreen({super.key});
 
-  final List<Service> services = const [
-    Service(
-      name: 'Poliklinik',
-      email: 'PIC@gmail.com',
-      rating: 4,
-      reviews: 273,
-      imageUrl: 'images/poliklinik_image.png',
-    ),
-    Service(
-      name: 'Radiologi',
-      email: 'PIC@gmail.com',
-      rating: 4,
-      reviews: 273,
-      imageUrl: 'images/poliklinik_image.png',
-    ),
-    Service(
-      name: 'Makanan',
-      email: 'PIC@gmail.com',
-      rating: 4,
-      reviews: 273,
-      imageUrl: 'images/poliklinik_image.png',
-    ),
+  @override
+  // ignore: library_private_types_in_public_api
+  _RatingScreenState createState() => _RatingScreenState();
+}
+
+class _RatingScreenState extends State<RatingScreen> {
+  final List<Map<String, String>> _serviceList = [
+    {
+      'name': 'Poliklinik',
+      'email': 'PIC@gmail.com',
+      'rating': '4',
+      'reviews': '273',
+      'imageUrl': 'images/poliklinik_image.png',
+    },
+    {
+      'name': 'Radiologi',
+      'email': 'PIC@gmail.com',
+      'rating': '4',
+      'reviews': '273',
+      'imageUrl': 'images/poliklinik_image.png',
+    },
+    {
+      'name': 'Makanan',
+      'email': 'PIC@gmail.com',
+      'rating': '4',
+      'reviews': '273',
+      'imageUrl': 'images/poliklinik_image.png',
+    },
+    // Add more services as needed
   ];
+
+  List<Map<String, String>> _filteredServiceList = [];
+  bool _isSearching = false;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredServiceList = _serviceList;
+  }
+
+  void _startSearch() {
+    setState(() {
+      _isSearching = true;
+    });
+  }
+
+  void _stopSearch() {
+    setState(() {
+      _isSearching = false;
+      _searchQuery = '';
+      _filteredServiceList = _serviceList;
+    });
+  }
+
+  void _updateSearchQuery(String newQuery) {
+    setState(() {
+      _searchQuery = newQuery;
+      _filteredServiceList = _serviceList
+          .where((service) => service['name']!.toLowerCase().contains(newQuery.toLowerCase()))
+          .toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          // Ini adalah navbar atas
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF060A47),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+          RatingAppBar(
+            isSearching: _isSearching,
+            searchQuery: _searchQuery,
+            onSearchStart: _startSearch,
+            onSearchStop: _stopSearch,
+            onSearchQueryChanged: _updateSearchQuery,
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+              child: ListView.builder(
+                itemCount: _filteredServiceList.length,
+                itemBuilder: (context, index) {
+                  final service = _filteredServiceList[index];
+                  return ServiceCard(
+                    name: service['name']!,
+                    email: service['email']!,
+                    rating: int.parse(service['rating']!),
+                    reviews: int.parse(service['reviews']!),
+                    imageUrl: service['imageUrl']!,
+                  );
+                },
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Kurangi padding vertikal untuk mengurangi tinggi
-            child: SafeArea(
-              child: Row(
-                children: [
-                  // Icon Search di sebelah kiri
-                  IconButton(
-                    icon: const Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      // Implement search functionality here
-                    },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class RatingAppBar extends StatelessWidget {
+  final bool isSearching;
+  final String searchQuery;
+  final VoidCallback onSearchStart;
+  final VoidCallback onSearchStop;
+  final ValueChanged<String> onSearchQueryChanged;
+
+  const RatingAppBar({
+    super.key,
+    required this.isSearching,
+    required this.searchQuery,
+    required this.onSearchStart,
+    required this.onSearchStop,
+    required this.onSearchQueryChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF060A47),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: SafeArea(
+        child: Row(
+          children: [
+            if (isSearching)
+              Expanded(
+                child: TextField(
+                  autofocus: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: 'Cari layanan...',
+                    hintStyle: TextStyle(color: Colors.white54),
+                    border: InputBorder.none,
                   ),
-                  // Expanded untuk menempatkan teks di tengah
-                  const Expanded(
-                    child: Text(
+                  onChanged: onSearchQueryChanged,
+                ),
+              )
+            else
+              Expanded(
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.white),
+                      onPressed: onSearchStart,
+                    ),
+                    const Spacer(),
+                    const Text(
                       'Rating',
-                      textAlign: TextAlign.center, // Pastikan teks berada di tengah
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ),
-                  // Icon Notification di sebelah kanan
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          // Implement notifications functionality here
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const NotificationScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Mengurangi padding untuk lebih mendekatkan konten dengan navbar atas
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        'images/Kalender.png',
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        'Terakhir Update : 1 September 2024',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10), // Menambahkan sedikit jarak sebelum TabBarContainer
-                  Expanded(
-                    child: ListView.builder(
-                      itemCount: services.length,
-                      itemBuilder: (context, index) {
-                        return ServiceCard(service: services[index]);
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.notifications, color: Colors.white, size: 25),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                        );
                       },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ),
-        ],
+            if (isSearching)
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: onSearchStop,
+              ),
+          ],
+        ),
       ),
     );
   }
 }
 
 class ServiceCard extends StatelessWidget {
-  final Service service;
-
-  const ServiceCard({super.key, required this.service});
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Image Section with Overlay
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-                child: Image.asset(
-                  service.imageUrl,
-                  width: double.infinity,
-                  height: 150,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              // Overlay Gradient
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.6),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              // Service name and email inside the image overlay
-              Positioned(
-                left: 16,
-                bottom: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      service.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      service.email,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          // Rating and Reviews Section
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Rating stars and reviews
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          '${service.rating}/5',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Row(
-                          children: List.generate(5, (index) {
-                            if (index < service.rating) {
-                              return const Icon(
-                                Icons.star,
-                                color: Colors.orange,
-                                size: 20,
-                              );
-                            } else {
-                              return const Icon(
-                                Icons.star_border,
-                                color: Colors.orange,
-                                size: 20,
-                              );
-                            }
-                          }),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${service.reviews} Reviews',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-                // Detail Button
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ServiceDetailPage(service: service),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    'Detail',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class Service {
   final String name;
   final String email;
   final int rating;
   final int reviews;
   final String imageUrl;
 
-  const Service({
+  const ServiceCard({
+    super.key,
     required this.name,
     required this.email,
     required this.rating,
     required this.reviews,
     required this.imageUrl,
   });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        // Navigasi ke ServiceDetailPage dan mengoper data
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ServiceDetailPage(
+              service: {
+                'name': name,
+                'email': email,
+                'rating': rating.toString(),
+                'reviews': reviews.toString(),
+                'imageUrl': imageUrl,
+              },
+            ),
+          ),
+        );
+      },
+      child: Card(
+        elevation: 4,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+              child: Image.asset(
+                imageUrl,
+                width: double.infinity,
+                height: 150,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    email,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        '$rating/5',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Row(
+                        children: List.generate(5, (index) {
+                          return Icon(
+                            index < rating ? Icons.star : Icons.star_border,
+                            color: Colors.orange,
+                            size: 20,
+                          );
+                        }),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$reviews Reviews',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class ServiceDetailPage extends StatelessWidget {
-  final Service service;
+class ServiceDetailPage extends StatefulWidget {
+  final Map<String, String> service;
 
   const ServiceDetailPage({super.key, required this.service});
 
   @override
+  // ignore: library_private_types_in_public_api
+  _ServiceDetailPageState createState() => _ServiceDetailPageState();
+}
+
+class _ServiceDetailPageState extends State<ServiceDetailPage> {
+  String selectedSort = 'Terbaru'; // Default sort
+  List<Map<String, dynamic>> reviews = [
+    {
+      'name': 'Melia Apriani',
+      'date': DateTime(2023, 4, 15),
+      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
+      'rating': 5,
+      'helpfulCount': 56,
+      'avatar': 'images/Foto_profile.png',
+    },
+    {
+      'name': 'Danu Alamansyah',
+      'date': DateTime(2008, 10, 15),
+      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
+      'rating': 5,
+      'helpfulCount': 56,
+      'avatar': 'images/Foto_profile.png',
+    },
+    {
+      'name': 'Melia Apriani',
+      'date': DateTime(2009, 10, 15),
+      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
+      'rating': 5,
+      'helpfulCount': 56,
+      'avatar': 'images/Foto_profile.png',
+    },
+    {
+      'name': 'Melia Apriani',
+      'date': DateTime(2011, 10, 15),
+      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
+      'rating': 5,
+      'helpfulCount': 56,
+      'avatar': 'images/Foto_profile.png',
+    },
+    // Tambahkan contoh data lainnya sesuai kebutuhan
+  ];
+
+  @override
   Widget build(BuildContext context) {
+    // Sorting the reviews based on the selected sort option
+    reviews.sort((a, b) {
+      if (selectedSort == 'Terbaru') {
+        return b['date'].compareTo(a['date']); // Sort by newest first
+      } else {
+        return a['date'].compareTo(b['date']); // Sort by oldest first
+      }
+    });
+
     return Scaffold(
       body: Column(
         children: [
@@ -1079,25 +1146,23 @@ class ServiceDetailPage extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Kurangi padding vertikal untuk mengurangi tinggi
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
             child: SafeArea(
               child: Row(
                 children: [
-                  // Icon Search di sebelah kiri
                   IconButton(
                     icon: const Icon(
-                      Icons.search,
+                      Icons.arrow_back,
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      // Implement search functionality here
+                      Navigator.pop(context);
                     },
                   ),
-                  // Expanded untuk menempatkan teks di tengah
                   const Expanded(
                     child: Text(
                       'Detail Review',
-                      textAlign: TextAlign.center, // Pastikan teks berada di tengah
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
@@ -1105,7 +1170,6 @@ class ServiceDetailPage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  // Icon Notification di sebelah kanan
                   Stack(
                     children: [
                       IconButton(
@@ -1114,27 +1178,13 @@ class ServiceDetailPage extends StatelessWidget {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          // Implement notifications functionality here
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  const NotificationScreen(),
+                              builder: (context) => const NotificationScreen(),
                             ),
                           );
                         },
-                      ),
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -1163,7 +1213,7 @@ class ServiceDetailPage extends StatelessWidget {
                             top: Radius.circular(10),
                           ),
                           child: Image.asset(
-                            service.imageUrl,
+                            widget.service['imageUrl']!,
                             width: double.infinity,
                             height: 150,
                             fit: BoxFit.cover,
@@ -1175,35 +1225,17 @@ class ServiceDetailPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                service.name,
+                                widget.service['name']!,
                                 style: const TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.calendar_today,
-                                    color: Colors.grey,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    'Terakhir Update : 1 September 2024',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 2),
                               Row(
                                 children: [
                                   Text(
-                                    '${service.rating}/5',
+                                    '${widget.service['rating']}/5',
                                     style: const TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold,
@@ -1212,26 +1244,24 @@ class ServiceDetailPage extends StatelessWidget {
                                   const SizedBox(width: 8),
                                   Row(
                                     children: List.generate(5, (index) {
-                                      if (index < service.rating) {
-                                        return const Icon(
-                                          Icons.star,
-                                          color: Colors.orange,
-                                          size: 20,
-                                        );
-                                      } else {
-                                        return const Icon(
-                                          Icons.star_border,
-                                          color: Colors.orange,
-                                          size: 20,
-                                        );
-                                      }
+                                      return index < int.parse(widget.service['rating']!)
+                                          ? const Icon(
+                                              Icons.star,
+                                              color: Colors.orange,
+                                              size: 20,
+                                            )
+                                          : const Icon(
+                                              Icons.star_border,
+                                              color: Colors.orange,
+                                              size: 20,
+                                            );
                                     }),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${service.reviews} Reviews',
+                                '${widget.service['reviews']} Reviews',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -1243,24 +1273,49 @@ class ServiceDetailPage extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 2),
+                  // Dropdown untuk sorting
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      DropdownButton<String>(
+                        value: selectedSort,
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'Terbaru',
+                            child: Text('Terbaru'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Terlama',
+                            child: Text('Terlama'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedSort = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                   // Daftar Review
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: 5, // Jumlah review yang ditampilkan, bisa diubah
+                    itemCount: reviews.length,
                     itemBuilder: (context, index) {
+                      final review = reviews[index];
                       return InkWell(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => DetailRatingPage(
-                                reviewId: index, // Pass any data you want to `DetailRatingPage`
+                                review: reviews[index], // Kirim review sesuai indeks yang dipilih
                               ),
                             ),
                           );
-                        }, // Optional: hover color effect
+                        },
                         child: Card(
                           elevation: 2,
                           shape: RoundedRectangleBorder(
@@ -1272,57 +1327,57 @@ class ServiceDetailPage extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Row(
+                                Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundImage: AssetImage(
-                                        'images/Foto_profile.png',
-                                      ), // Ganti dengan gambar avatar
+                                      backgroundImage: AssetImage(review['avatar']),
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Melia Apriani', // Nama pengguna
-                                          style: TextStyle(
+                                          review['name'],
+                                          style: const TextStyle(
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          '15/04/23', // Tanggal ulasan
-                                          style: TextStyle(
+                                          '${review['date'].day}/${review['date'].month}/${review['date'].year}',
+                                          style: const TextStyle(
                                             color: Colors.grey,
                                             fontSize: 12,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    Spacer(),
+                                    const Spacer(),
                                   ],
                                 ),
                                 const SizedBox(height: 8),
                                 Row(
                                   children: List.generate(5, (index) {
-                                    return const Icon(
-                                      Icons.star,
+                                    return Icon(
+                                      index < review['rating']
+                                          ? Icons.star
+                                          : Icons.star_border,
                                       color: Colors.orange,
                                       size: 16,
                                     );
                                   }),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text(
-                                  'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
-                                  style: TextStyle(fontSize: 14),
+                                Text(
+                                  review['content'],
+                                  style: const TextStyle(fontSize: 14),
                                 ),
                                 const SizedBox(height: 8),
-                                const Row(
+                                Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     Text(
-                                      '56 orang merasa ulasan ini berguna',
-                                      style: TextStyle(
+                                      '${review['helpfulCount']} orang merasa ulasan ini berguna',
+                                      style: const TextStyle(
                                         color: Colors.grey,
                                         fontSize: 12,
                                       ),
@@ -1335,7 +1390,7 @@ class ServiceDetailPage extends StatelessWidget {
                         ),
                       );
                     },
-                  )
+                  ),
                 ],
               ),
             ),
@@ -1347,20 +1402,19 @@ class ServiceDetailPage extends StatelessWidget {
 }
 
 class DetailRatingPage extends StatelessWidget {
-  const DetailRatingPage({super.key, required int reviewId});
+  final Map<String, dynamic> review;
+
+  const DetailRatingPage({super.key, required this.review});
 
   @override
   Widget build(BuildContext context) {
-    // Data default yang akan ditampilkan
-    final idController = TextEditingController(text: 'A0056');
-    final userController = TextEditingController(text: 'Miaauw@polines.ac.id');
-    final instansiController = TextEditingController(text: 'Poliklinik');
-    final ratingController = TextEditingController(text: '5');
-    final tanggalController = TextEditingController(text: '01-09-2024');
-    final deskripsiController = TextEditingController(
-      text:
-          'Kepada warga solinep, tolong laptop sya hilang disekitaran mdh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga. Bisa hubungi ini ya : 098726177228819',
-    );
+    // Data yang akan ditampilkan berdasarkan review yang diterima
+    final name = review['name'] as String;
+    final date = review['date'] as DateTime;
+    final content = review['content'] as String;
+    final rating = review['rating'] as int;
+    final helpfulCount = review['helpfulCount'] as int;
+    final avatar = review['avatar'] as String;
 
     return Scaffold(
       body: Column(
@@ -1407,70 +1461,77 @@ class DetailRatingPage extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextField(
-                    controller: idController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'ID',
-                    ),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: AssetImage(avatar),
+                        radius: 30,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextFormField(
+                          initialValue: name,
+                          readOnly: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Nama',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
-                  TextField(
-                    controller: userController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'User',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: instansiController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Instansi',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: ratingController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Skala Bintang',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: tanggalController, // Menggunakan controller
-                    enabled: false,
+                  TextFormField(
+                    initialValue: '${date.day}/${date.month}/${date.year}',
+                    readOnly: true,
                     decoration: const InputDecoration(
                       labelText: 'Tanggal',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: deskripsiController, // Menggunakan controller
-                    enabled: false,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Deskripsi',
                       border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Row(
+                    children: List.generate(5, (index) {
+                      return Icon(
+                        index < rating ? Icons.star : Icons.star_border,
+                        color: Colors.orange,
+                        size: 20,
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: content,
+                    readOnly: true,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      labelText: 'Isi Review',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    initialValue: '$helpfulCount orang merasa ulasan ini berguna',
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Jumlah yang Menilai Bermanfaat',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red, // Warna tombol
+                          backgroundColor: Colors.red,
                         ),
                         onPressed: () {
-                          // Tampilkan dialog konfirmasi
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -1480,22 +1541,19 @@ class DetailRatingPage extends StatelessWidget {
                                 actions: [
                                   TextButton(
                                     onPressed: () {
-                                      Navigator.of(context).pop(); // Tutup dialog
+                                      Navigator.of(context).pop();
                                     },
                                     child: const Text("Batal"),
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      // Logika penghapusan review
-                                      Navigator.of(context).pop(); // Tutup dialog
-                                      Navigator.pop(context); // Kembali ke halaman sebelumnya
+                                      Navigator.of(context).pop();
+                                      Navigator.pop(context);
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(content: Text('Review berhasil dihapus')),
                                       );
                                     },
-                                    child: const Text(
-                                      "Hapus"
-                                    ),
+                                    child: const Text("Hapus"),
                                   ),
                                 ],
                               );
@@ -1520,8 +1578,10 @@ class DetailRatingPage extends StatelessWidget {
     );
   }
 }
+// -------------------------------------------------------------------
 
 
+// ----------------------------BERANDA--------------------------------
 class BerandaScreen extends StatelessWidget {
   const BerandaScreen({super.key});
 
@@ -1809,7 +1869,10 @@ class BerandaScreen extends StatelessWidget {
     );
   }
 }
+// -------------------------------------------------------------------
 
+
+// ----------------------------DOSEN--------------------------------
 class DosenScreen extends StatefulWidget {
   const DosenScreen({super.key});
 
@@ -1865,6 +1928,7 @@ class _DosenScreenState extends State<DosenScreen> {
         itemCount: filteredList.length,
         itemBuilder: (context, index) {
           return ListTile(
+            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
             title: Text(filteredList[index]),
             onTap: () {
               Navigator.push(
@@ -1881,7 +1945,6 @@ class _DosenScreenState extends State<DosenScreen> {
   }
 }
 
-// Custom Search Delegate
 class DosenSearchDelegate extends SearchDelegate {
   final List<String> dosenList;
 
@@ -2083,7 +2146,10 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
     );
   }
 }
+// -------------------------------------------------------------------
 
+
+// ----------------------------MAHASISWA--------------------------------
 class MahasiswaScreen extends StatefulWidget {
   const MahasiswaScreen({super.key});
 
@@ -2140,7 +2206,7 @@ class _MahasiswaScreenState extends State<MahasiswaScreen> {
         itemCount: mahasiswaList.length,
         itemBuilder: (context, index) {
           return ListTile(
-            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            leading: const Icon(Icons.school, color: Color(0xFF060A47)), // Ikon mahasiswa
             title: Text(mahasiswaList[index]),
             onTap: () {
               // Aksi ketika item di-tap, misal navigasi ke detail dosen
@@ -2230,7 +2296,6 @@ class MahasiswaSearchDelegate extends SearchDelegate {
   }
 }
 
-
 class MahasiswaDetailScreen extends StatefulWidget {
   final String name;
 
@@ -2282,7 +2347,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const Icon(Icons.person, size: 100, color: Color(0xFF060A47)),
+              const Icon(Icons.school, size: 100, color: Color(0xFF060A47)),
               const SizedBox(height: 20),
               TextField(
                 controller: namaController,
@@ -2360,7 +2425,10 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
     );
   }
 }
+// ---------------------------------------------------------------------
 
+
+// ----------------------------UNIT LAYANAN--------------------------------
 class UnitLayananScreen extends StatefulWidget {
   const UnitLayananScreen({super.key});
 
@@ -2417,7 +2485,7 @@ class _UnitLayananScreenState extends State<UnitLayananScreen> {
         itemCount: unitLayananList.length,
         itemBuilder: (context, index) {
           return ListTile(
-            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            leading: const Icon(Icons.business, color: Color(0xFF060A47)), // Ikon unit layanan
             title: Text(unitLayananList[index]),
             onTap: () {
               // Aksi ketika item di-tap, misal navigasi ke detail dosen
@@ -2549,7 +2617,7 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const Icon(Icons.person, size: 100, color: Color(0xFF060A47)),
+              const Icon(Icons.business, size: 100, color: Color(0xFF060A47)),
               const SizedBox(height: 20),
               TextField(
                 controller: namaController,
@@ -2584,7 +2652,10 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
     );
   }
 }
+// ------------------------------------------------------------------------
 
+
+// ----------------------------JENIS PENGADUAN--------------------------------
 class JenisPengaduanScreen extends StatefulWidget {
   const JenisPengaduanScreen({super.key});
 
@@ -2639,7 +2710,7 @@ class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
         itemCount: jenisPengaduanList.length,
         itemBuilder: (context, index) {
           return ListTile(
-            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            leading: const Icon(Icons.category, color: Color(0xFF060A47)), // Ikon jenis pengaduan
             title: Text(jenisPengaduanList[index]),
             onTap: () {
               // Aksi ketika item di-tap, misal navigasi ke detail dosen
@@ -2729,7 +2800,6 @@ class JenisPengaduanSearchDelegate extends SearchDelegate {
   }
 }
 
-
 class JenisPengaduanDetailScreen extends StatefulWidget {
   final String name;
 
@@ -2770,7 +2840,7 @@ class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen>
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const Icon(Icons.person, size: 100, color: Color(0xFF060A47)),
+              const Icon(Icons.category, size: 100, color: Color(0xFF060A47)),
               const SizedBox(height: 20),
               TextField(
                 controller: namaController,
@@ -2797,261 +2867,445 @@ class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen>
     );
   }
 }
+// ---------------------------------------------------------------------------
 
 
-class KehilanganScreen extends StatelessWidget {
+// ----------------------------KEHILANGAN--------------------------------
+class KehilanganScreen extends StatefulWidget {
   const KehilanganScreen({super.key});
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _KehilanganScreenState createState() => _KehilanganScreenState();
+}
+
+class _KehilanganScreenState extends State<KehilanganScreen> {
+  final _kehilanganList = [
+    {
+      'title': 'Hp Samsung Hilang',
+      'date': '1 September 2024',
+      'jenisBarang': 'Elektronik',
+      'status': 'Belum Ditemukan',
+      'description': 'Hp Samsung Galaxy A50 warna hitam hilang di kantin.',
+    },
+    {
+      'title': 'Dompet Hilang',
+      'date': '2 September 2024',
+      'jenisBarang': 'Dompet',
+      'status': 'Ditemukan',
+      'description': 'Dompet warna coklat, berisi KTP dan uang 50 ribu.',
+    },
+    {
+      'title': 'Kunci Motor Hilang',
+      'date': '3 September 2024',
+      'jenisBarang': 'Kunci',
+      'status': 'Hilang',
+      'description': 'Kunci motor Honda Beat warna hitam hilang di parkiran.',
+    },
+    {
+      'title': 'Tas Laptop Hilang',
+      'date': '4 September 2024',
+      'jenisBarang': 'Tas',
+      'status': 'Belum Ditemukan',
+      'description': 'Tas laptop warna hitam hilang di perpustakaan.',
+    },
+    {
+      'title': 'Buku Hilang',
+      'date': '5 September 2024',
+      'jenisBarang': 'Buku',
+      'status': 'Ditemukan',
+      'description': 'Buku berjudul "Pemrograman Flutter" hilang di ruang kuliah.',
+    },
+  ];
+
+  List<Map<String, String>> _filteredKehilanganList = [];
+  bool _isSearching = false;
+  String _searchQuery = '';
+  String _selectedStatus = 'Semua';
+
+  @override
+  void initState() {
+    super.initState();
+    _filteredKehilanganList = _kehilanganList;
+  }
+
+  void _startSearch() {
+    setState(() {
+      _isSearching = true;
+    });
+  }
+
+  void _stopSearch() {
+    setState(() {
+      _isSearching = false;
+      _searchQuery = '';
+      _selectedStatus = 'Semua';
+      _filteredKehilanganList = _kehilanganList;
+    });
+  }
+
+  void _updateSearchQuery(String newQuery) {
+    setState(() {
+      _searchQuery = newQuery;
+      _filteredKehilanganList = _kehilanganList
+        .where((item) => item['title']!.toLowerCase().contains(newQuery.toLowerCase()))
+        .toList();
+    });
+  }
+
+  void _filterByStatus(String status) {
+    setState(() {
+      _selectedStatus = status;
+      if (status == 'Semua') {
+        _filteredKehilanganList = _kehilanganList;
+      } else {
+        _filteredKehilanganList = _kehilanganList
+            .where((item) => item['status'] == status)
+            .toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-          // Ini adalah navbar atas
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF060A47),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4), // Kurangi padding vertikal untuk mengurangi tinggi
-            child: SafeArea(
-              child: Row(
-                children: [
-                  // Icon Search di sebelah kiri
-                  IconButton(
-                    icon: const Icon(
-                      Icons.search,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      // Implement search functionality here
-                    },
-                  ),
-                  // Expanded untuk menempatkan teks di tengah
-                  const Expanded(
-                    child: Text(
-                      'Kehilangan',
-                      textAlign: TextAlign.center, // Pastikan teks berada di tengah
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  // Icon Notification di sebelah kanan
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          // Implement notifications functionality here
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const NotificationScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          KehilanganAppBar(
+            isSearching: _isSearching,
+            searchQuery: _searchQuery,
+            onSearchStart: _startSearch,
+            onSearchStop: _stopSearch,
+            onSearchQueryChanged: _updateSearchQuery,
           ),
-          // Mengurangi padding untuk lebih mendekatkan konten dengan navbar atas
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        'images/Kalender.png',
-                      ),
-                      const SizedBox(width: 4),
-                      const Text(
-                        'Terakhir Update : 1 September 2024',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
+                  LastUpdateRow(
+                    lastUpdateDate: _filteredKehilanganList.isNotEmpty
+                        ? _filteredKehilanganList.first['date'] ?? 'Tanggal tidak tersedia'
+                        : 'Tanggal tidak tersedia',  
                   ),
                   const SizedBox(height: 10), // Menambahkan sedikit jarak sebelum TabBarContainer
-                  const TabBarContainerKehilangan(),
+                  TabBarContainerKehilangan(onStatusChanged: _filterByStatus),
                   Expanded(
-                    child: ListView.builder(
-                      itemCount: 5, // Misalnya ada 3 pengaduan
-                      itemBuilder: (context, index) {
-                        return const KehilanganCard();
+                    child: KehilanganList(
+                      kehilanganList: _filteredKehilanganList,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class KehilanganAppBar extends StatelessWidget {
+  final bool isSearching;
+  final String searchQuery;
+  final VoidCallback onSearchStart;
+  final VoidCallback onSearchStop;
+  final ValueChanged<String> onSearchQueryChanged;
+
+  const KehilanganAppBar({
+    super.key,
+    required this.isSearching,
+    required this.searchQuery,
+    required this.onSearchStart,
+    required this.onSearchStop,
+    required this.onSearchQueryChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Color(0xFF060A47),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      child: SafeArea(
+        child: Row(
+          children: [
+            if (isSearching)
+              Expanded(
+                child: TextField(
+                  autofocus: true,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: 'Cari Kehilangan...',
+                    hintStyle: TextStyle(color: Colors.white54),
+                    border: InputBorder.none,
+                  ),
+                  onChanged: onSearchQueryChanged,
+                ),
+              )
+            else
+              Expanded(
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.search, color: Colors.white),
+                      onPressed: onSearchStart,
+                    ),
+                    const Spacer(),
+                    const Text(
+                      'Kehilangan',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.notifications, color: Colors.white, size: 25,),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                        );
                       },
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class TabBarContainerKehilangan extends StatelessWidget {
-  const TabBarContainerKehilangan({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4, // Jumlah tab
-      child: Column(
-        children: [
-          Container(
-            color: Colors.grey[200],
-            child: const TabBar(
-              isScrollable: true, // Membuat TabBar bisa discroll secara horizontal
-              labelColor: Colors.orange, // Warna teks saat dipilih
-              unselectedLabelColor: Colors.grey, // Warna teks saat tidak dipilih
-              indicatorColor: Colors.orange, // Warna garis bawah saat dipilih
-              indicatorWeight: 2.0, // Ketebalan garis bawah
-              tabs: [
-                Tab(text: 'Semua'),
-                Tab(text: 'Belum Ditemukan'),
-                Tab(text: 'Ditemukan'),
-                Tab(text: 'Hilang'),
-              ],
-            ),
-          ),
-          // Content bisa diisi jika ingin memiliki konten berdasarkan tab
-          // Expanded(
-          //   child: TabBarView(
-          //     children: [
-          //       Container(), // Konten untuk "Semua"
-          //       Container(), // Konten untuk "Belum Ditemukan"
-          //       Container(), // Konten untuk "Ditemukan"
-          //       Container(), // Konten untuk "Hilang"
-          //     ],
-          //   ),
-          // ),
-        ],
-      ),
-    );
-  }
-}
-
-class KehilanganCard extends StatelessWidget {
-  const KehilanganCard({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // Navigasi ke halaman detail kehilangan
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const DetailKehilanganPage(),
-          ),
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.all(10),
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Hp Samsung Hilang',
-                          style: TextStyle(
-                            fontSize: 16, 
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '15/9/2024 20:00',
-                          style: TextStyle(
-                            fontSize: 12, 
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.2), // Gray background color
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: const Text(
-                      'Belum Ditemukan',
-                      style: TextStyle(color: Colors.grey), // White text color
-                    ),
-                  ),
-                ],
+            if (isSearching)
+              IconButton(
+                icon: const Icon(Icons.close, color: Colors.white),
+                onPressed: onSearchStop,
               ),
-              const SizedBox(height: 10),
-              const Text(
-                'Deskripsi : Hp ku hilang dikamar mandi saat aku lagi mandi...',
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 10),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 }
 
-class DetailKehilanganPage extends StatelessWidget {
-  const DetailKehilanganPage({super.key});
+class KehilanganList extends StatelessWidget {
+  final List<Map<String, String>> kehilanganList;
+
+  const KehilanganList({super.key, required this.kehilanganList});
 
   @override
   Widget build(BuildContext context) {
-    // Data default yang akan ditampilkan
-    final idController = TextEditingController(text: 'A0056');
-    final userController = TextEditingController(text: 'Miaauw@polines.ac.id');
-    final instansiController = TextEditingController(text: 'Poliklinik');
-    final ratingController = TextEditingController(text: '5');
-    final tanggalController = TextEditingController(text: '01-09-2024');
-    final deskripsiController = TextEditingController(
-      text:
-          'Kepada warga solinep, tolong laptop sya hilang disekitaran mdh. Bentuknya kayak digambar. Yang menemukan saya doakan masuk surga. Bisa hubungi ini ya : 098726177228819',
+    return ListView.builder(
+      itemCount: kehilanganList.length,
+      itemBuilder: (context, index) {
+        final kehilangan = kehilanganList[index];
+        return KehilanganCard(
+          title: kehilangan['title'] ?? '',
+          date: kehilangan['date'] ?? '',
+          jenisBarang: kehilangan['jenisBarang'] ?? '',
+          status: kehilangan['status'] ?? '',
+          description: kehilangan['description'] ?? '',
+        );
+      },
     );
+  }
+}
 
+class TabBarContainerKehilangan extends StatefulWidget {
+  final Function(String) onStatusChanged;
+
+  const TabBarContainerKehilangan({super.key, required this.onStatusChanged});
+
+  static const List<String> tabLabels = [
+    'Semua',
+    'Belum Ditemukan',
+    'Ditemukan',
+    'Hilang'
+  ];
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _TabBarContainerKehilanganState createState() => _TabBarContainerKehilanganState();
+}
+
+class _TabBarContainerKehilanganState extends State<TabBarContainerKehilangan> {
+  String selectedTab = TabBarContainerKehilangan.tabLabels[0];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      color: Colors.grey[200],
+      child: DropdownButton<String>(
+        value: selectedTab,
+        icon: const Icon(Icons.arrow_downward),
+        isExpanded: true,
+        underline: Container(
+          height: 2,
+          color: Colors.orange,
+        ),
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedTab = newValue!;
+            widget.onStatusChanged(selectedTab); // Call the callback to pass selected status
+          });
+        },
+        items: TabBarContainerKehilangan.tabLabels.map<DropdownMenuItem<String>>((String label) {
+          return DropdownMenuItem<String>(
+            value: label,
+            child: Text(label),
+          );
+        }).toList(),
+      ),
+    );
+  }
+}
+
+class KehilanganCard extends StatelessWidget {
+  final String title;
+  final String date;
+  final String jenisBarang;
+  final String status;
+  final String description;
+
+  const KehilanganCard({
+    super.key,
+    required this.title,
+    required this.date,
+    required this.jenisBarang,
+    required this.status,
+    required this.description,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        // Navigasi ke halaman detail Kehilangan dengan data dari card
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DetailKehilanganPage(
+              title: title,
+              date: date,
+              jenisBarang: jenisBarang,
+              status: status,
+              description: description,
+            ),
+          ),
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 3, // Memberikan ruang lebih banyak untuk teks title dan date
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          date,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.blue[900],
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text(
+                      jenisBarang,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: statusColor(status), // Memanggil fungsi untuk menentukan warna background
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text(
+                      status,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Deskripsi : $description',
+                style: const TextStyle(color: Colors.grey),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Fungsi untuk mengubah status menjadi warna background yang sesuai
+  Color statusColor(String status) {
+    switch (status) {
+      case 'Belum Ditemukan':
+        return Colors.grey.withOpacity(1);
+      case 'Ditemukan':
+        return Colors.green.withOpacity(1);
+      case 'Hilang':
+        return Colors.red.withOpacity(1);
+      default:
+        return Colors.grey.withOpacity(1);
+    }
+  }
+}
+
+class DetailKehilanganPage extends StatelessWidget {
+  final String title;
+  final String date;
+  final String jenisBarang;
+  final String status;
+  final String description;
+
+  const DetailKehilanganPage({
+    super.key,
+    required this.title,
+    required this.date,
+    required this.jenisBarang,
+    required this.status,
+    required this.description,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
@@ -3102,48 +3356,16 @@ class DetailKehilanganPage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TextField(
-                    controller: idController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'ID',
-                    ),
-                  ),
+                  _buildReadOnlyTextField(label: 'Judul', text: title),
+                  const SizedBox(height: 16),
+                  _buildReadOnlyTextField(label: 'Tanggal', text: date),
+                  const SizedBox(height: 16),
+                  _buildReadOnlyTextField(label: 'Jenis Barang', text: jenisBarang),
+                  const SizedBox(height: 16),
+                  _buildReadOnlyTextField(label: 'Status', text: status),
                   const SizedBox(height: 16),
                   TextField(
-                    controller: userController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'User',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: instansiController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Instansi',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: ratingController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Skala Bintang',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: tanggalController, // Menggunakan controller
-                    enabled: false,
-                    decoration: const InputDecoration(
-                      labelText: 'Tanggal',
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: deskripsiController, // Menggunakan controller
+                    controller: TextEditingController(text: description),
                     enabled: false,
                     maxLines: 4,
                     decoration: const InputDecoration(
@@ -3154,47 +3376,7 @@ class DetailKehilanganPage extends StatelessWidget {
                   const SizedBox(height: 16),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          backgroundColor: Colors.red, // Warna tombol
-                          foregroundColor: Colors.white, // Warna teks putih
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        ),
-                        onPressed: () {
-                          // Tampilkan dialog konfirmasi
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                title: const Text("Konfirmasi"),
-                                content: const Text("Apakah Anda yakin ingin menghapus laporan ini?"),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop(); // Tutup dialog
-                                    },
-                                    child: const Text("Batal"),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      // Logika penghapusan laporan
-                                      Navigator.of(context).pop(); // Tutup dialog
-                                      Navigator.pop(context); // Kembali ke halaman sebelumnya
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Laporan berhasil dihapus')),
-                                      );
-                                    },
-                                    child: const Text("Hapus"),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        child: const Text('Hapus'),
-                      ),
-                    ],
+                    children: _buildActionButtons(context),
                   ),
                 ],
               ),
@@ -3204,9 +3386,81 @@ class DetailKehilanganPage extends StatelessWidget {
       ),
     );
   }
+
+  // Membuat TextField yang hanya bisa dilihat (read-only)
+  Widget _buildReadOnlyTextField({required String label, required String text}) {
+    return TextField(
+      controller: TextEditingController(text: text),
+      enabled: false,
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+      ),
+    );
+  }
+
+  // Membuat tombol aksi berdasarkan status pengaduan
+  List<Widget> _buildActionButtons(BuildContext context) {
+    return [
+      TextButton(
+        style: TextButton.styleFrom(
+          backgroundColor: Colors.red, // Red background
+          foregroundColor: Colors.white, // White text
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        ),
+        onPressed: () {
+          _showConfirmationDialog(
+            context,
+            title: "Konfirmasi",
+            content: "Apakah Anda yakin ingin menghapus kehilangan ini?",
+            onConfirm: () {
+              Navigator.of(context).pop(); // Tutup dialog
+              Navigator.pop(context); // Kembali ke halaman sebelumnya
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Kehilangan berhasil dihapus')),
+              );
+            },
+          );
+        },
+        child: const Text('Hapus'),
+      ),
+    ]; 
+  }
+
+  // Menampilkan dialog konfirmasi
+  void _showConfirmationDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    required VoidCallback onConfirm,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Tutup dialog
+              },
+              child: const Text("Batal"),
+            ),
+            TextButton(
+              onPressed: onConfirm,
+              child: const Text("Ya"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+// ------------------------------------------------------------------
 
 
+// ----------------------------PROFILE--------------------------------
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
@@ -3286,18 +3540,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           );
                         },
-                      ),
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -3450,8 +3692,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
+// -------------------------------------------------------------------
 
 
+// ----------------------------NOTIFIKASI--------------------------------
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
 
@@ -3674,22 +3918,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     if (notif['title'] == 'Poliklinik' &&
                         notif['category'] == 'Rating') {
                       // Buat instance Service dengan data yang relevan untuk navigasi
-                      const poliklinikService = Service(
-                        name: 'Poliklinik',
-                        email: 'PIC@gmail.com',
-                        rating: 4,
-                        reviews: 273,
-                        imageUrl: 'images/poliklinik_image.png',
-                      );
 
                       // Navigasi ke halaman detail Service
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ServiceDetailPage(
-                              service: poliklinikService),
-                        ),
-                      );
                     }
                     // Navigasi ke halaman detail lain sesuai kategori (jika diperlukan)
                     // Contoh:
@@ -3705,3 +3935,4 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 }
+// ---------------------------------------------------------------------
