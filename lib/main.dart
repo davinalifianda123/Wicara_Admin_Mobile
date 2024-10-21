@@ -32,11 +32,11 @@ class Login extends StatelessWidget {
           children: [
             Container(
               width: double.infinity,
-              height: 284,
+              height: 285,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(50),
-                  bottomRight: Radius.circular(50)
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30)
                 ),
                 image: DecorationImage(
                   image: AssetImage('images/Login_Image.png'),
@@ -57,7 +57,7 @@ class Login extends StatelessWidget {
                       ),
                       child: Padding(
                           padding: const EdgeInsets.all(5.0),
-                          child: Image.asset("images/Logo.png"),
+                          child: Image.asset("images/Polines.png"),
                       ),
                     ),
                     const Padding(
@@ -117,7 +117,7 @@ class Login extends StatelessWidget {
                       'Selamat Datang Di Platform Aspirasi Dan Rating Akademik',
                       style: TextStyle(
                           color: Colors.black,
-                          fontSize: 15,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
                           fontFamily: 'Poppins'
                       ),
@@ -1822,60 +1822,68 @@ class BerandaScreen extends StatelessWidget {
         clipBehavior: Clip.hardEdge, // Memotong elemen yang keluar dari Stack
         children: [
           Container(
-            height: 240, // Sesuaikan tinggi
+            width: double.infinity,
+            height: 285,
             decoration: const BoxDecoration(
-              color: Color(0xFF060A47), // Warna biru tua
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+                bottomRight: Radius.circular(30)
+              ),
+              image: DecorationImage(
+                image: AssetImage('images/Login_Image.png'),
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-          Positioned(
-            top: 20,
-            left: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Logo di atas tulisan WICARA
-                Image.asset(
-                  'images/Logo.png', // Path ke logo PNG Anda
-                  height: 56, // Sesuaikan ukuran
-                ),
-                const Text(
-                  "WICARA",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                const SizedBox(
-                  width: 200, // Sesuaikan dengan lebar maksimal teks
-                  child: Text(
-                    "Wadah Informasi Catatan Aspirasi & Rating Akademik.",
-                    style: TextStyle(
-                      fontSize: 16,
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 36,
+                    width: 120,
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(50)),
                       color: Colors.white,
                     ),
-                    maxLines: 3, // Memaksa jadi 3 baris
-                    softWrap: true, // Memungkinkan teks untuk membungkus
+                    child: Padding(
+                        padding: const EdgeInsets.all(5.0),
+                        child: Image.asset("images/Polines.png"),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            top: 30,
-            right: 1,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(30),
-              child: Image.asset(
-                'images/Pengaduan1.png', // Gambar karakter
-                height: 210, // Kurangi ukuran jika perlu
-                fit: BoxFit.cover, // Pastikan gambar tidak melampaui batas
+                  const Padding(
+                    padding: EdgeInsets.only(
+                      top: 24.0
+                    ),
+                    child: Text(
+                      'WICARA',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 32.0,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins'
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(
+                      top: 2,
+                    ),
+                    child: SizedBox(
+                      width: 200,
+                      child: Text(
+                        'Wadah Informasi Catatan Aspirasi & Rating Akademik',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Poppins',
+                            fontStyle: FontStyle.italic
+                        ),
+                      ),
+                    )
+                  ),
+                ],
               ),
             ),
           ),
