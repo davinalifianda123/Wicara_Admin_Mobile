@@ -181,7 +181,6 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   List<Map<String, String>> _filteredPengaduanList = [];
   bool _isSearching = false;
   String _searchQuery = '';
-  String _selectedStatus = 'Semua';
 
   @override
   void initState() {
@@ -199,7 +198,6 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
     setState(() {
       _isSearching = false;
       _searchQuery = '';
-      _selectedStatus = 'Semua';
       _filteredPengaduanList = _pengaduanList;
     });
   }
@@ -215,7 +213,6 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
 
   void _filterByStatus(String status) {
     setState(() {
-      _selectedStatus = status;
       if (status == 'Semua') {
         _filteredPengaduanList = _pengaduanList;
       } else {
@@ -2921,7 +2918,6 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
   List<Map<String, String>> _filteredKehilanganList = [];
   bool _isSearching = false;
   String _searchQuery = '';
-  String _selectedStatus = 'Semua';
 
   @override
   void initState() {
@@ -2939,7 +2935,6 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
     setState(() {
       _isSearching = false;
       _searchQuery = '';
-      _selectedStatus = 'Semua';
       _filteredKehilanganList = _kehilanganList;
     });
   }
@@ -2955,7 +2950,6 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
 
   void _filterByStatus(String status) {
     setState(() {
-      _selectedStatus = status;
       if (status == 'Semua') {
         _filteredKehilanganList = _kehilanganList;
       } else {
