@@ -3708,6 +3708,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       controller: _emailController,
       decoration: const InputDecoration(
         hintText: "Masukkan email",
+        hintStyle: TextStyle(color: Colors.grey),
       ),
     );
     return Scaffold(
@@ -3826,18 +3827,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             child: Text(
                               "Email",
                               style:
-                                  TextStyle(fontSize: 16, color: Colors.black54),
+                                  TextStyle(fontSize: 16, color: Colors.black),
                             ),
                           ),
                           const SizedBox(height: 5),
                           textField,
-                          const Divider(),
+                          const SizedBox(height: 20),
                           const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               "No Telp",
                               style:
-                                  TextStyle(fontSize: 16, color: Colors.black54),
+                                  TextStyle(fontSize: 16, color: Colors.black),
                             ),
                           ),
                           const SizedBox(height: 5),
@@ -3845,15 +3846,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             controller: _phoneController,
                             decoration: const InputDecoration(
                               hintText: "Masukkan nomor telepon",
+                              hintStyle: TextStyle(color: Colors.grey),
                             ),
                           ),
-                          const Divider(),
+                          const SizedBox(height: 20),
                           const Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
                               "Password",
                               style:
-                                  TextStyle(fontSize: 16, color: Colors.black54),
+                                  TextStyle(fontSize: 16, color: Colors.black),
                             ),
                           ),
                           const SizedBox(height: 5),
@@ -3863,6 +3865,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 !_isPasswordVisible, // Toggle password visibility
                             decoration: InputDecoration(
                               hintText: "Masukkan password",
+                              hintStyle: const TextStyle(color: Colors.grey),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   _isPasswordVisible
