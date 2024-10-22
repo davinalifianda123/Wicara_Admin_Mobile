@@ -51,6 +51,7 @@ class Login extends StatelessWidget {
                     Container(
                       height: 36,
                       width: 120,
+                      margin: const EdgeInsets.only(top: 16),
                       decoration: const BoxDecoration(
                         borderRadius: BorderRadius.all(Radius.circular(50)),
                         color: Colors.white,
@@ -96,7 +97,7 @@ class Login extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.0),
+            Padding(padding: const EdgeInsets.symmetric(vertical: 50.0, horizontal: 40.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -111,7 +112,7 @@ class Login extends StatelessWidget {
                   ),
                   const Padding(
                     padding: EdgeInsets.only(
-                      top: 8
+                      top: 4
                     ),
                     child: Text(
                       'Selamat Datang Di Platform Aspirasi Dan Rating Akademik',
@@ -124,7 +125,7 @@ class Login extends StatelessWidget {
                     ),
                   ),
                   Container (
-                    margin: const EdgeInsets.only(top: 16),
+                    margin: const EdgeInsets.only(top: 30),
                     child: const TextField(
                       decoration: InputDecoration(
                         hintText: 'Email',
@@ -162,9 +163,9 @@ class Login extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    margin: const EdgeInsets.only(top: 24, bottom: 26),
+                    margin: const EdgeInsets.only(top: 25, bottom: 15),
                     width: double.infinity,
-                    height: 2.0,
+                    height: 0.5,
                     color: Colors.grey,
                   ),
                   Center(
@@ -179,6 +180,7 @@ class Login extends StatelessWidget {
                           );
                         },
                         style: ElevatedButton.styleFrom(
+                          elevation: 5,
                           backgroundColor: Colors.amber[600]
                         ),
                         child: const Text(
@@ -201,7 +203,7 @@ class Login extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.only(right: 5),
                           child: Text(
-                            'Lupa Password',
+                            'Lupa Password?',
                             style: TextStyle(
                               fontSize: 16,
                             ),
@@ -1842,6 +1844,7 @@ class BerandaScreen extends StatelessWidget {
                   Container(
                     height: 36,
                     width: 120,
+                    margin: const EdgeInsets.only(top: 16),
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(50)),
                       color: Colors.white,
