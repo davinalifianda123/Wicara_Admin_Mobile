@@ -705,7 +705,11 @@ class PengaduanCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -3103,35 +3107,35 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
   final _kehilanganList = [
     {
       'title': 'Hp Samsung Hilang',
-      'date': '1 September 2024',
+      'date': '15/9/2024 19:00',
       'jenisBarang': 'Elektronik',
       'status': 'Belum Ditemukan',
       'description': 'Hp Samsung Galaxy A50 warna hitam hilang di kantin.',
     },
     {
       'title': 'Dompet Hilang',
-      'date': '2 September 2024',
+      'date': '15/9/2024 19:00',
       'jenisBarang': 'Dompet',
       'status': 'Ditemukan',
       'description': 'Dompet warna coklat, berisi KTP dan uang 50 ribu.',
     },
     {
       'title': 'Kunci Motor Hilang',
-      'date': '3 September 2024',
+      'date': '15/9/2024 19:00',
       'jenisBarang': 'Kunci',
       'status': 'Hilang',
       'description': 'Kunci motor Honda Beat warna hitam hilang di parkiran.',
     },
     {
       'title': 'Tas Laptop Hilang',
-      'date': '4 September 2024',
+      'date': '15/9/2024 19:00',
       'jenisBarang': 'Tas',
       'status': 'Belum Ditemukan',
       'description': 'Tas laptop warna hitam hilang di perpustakaan.',
     },
     {
       'title': 'Buku Hilang',
-      'date': '5 September 2024',
+      'date': '15/9/2024 19:00',
       'jenisBarang': 'Buku',
       'status': 'Ditemukan',
       'description': 'Buku berjudul "Pemrograman Flutter" hilang di ruang kuliah.',
@@ -3450,7 +3454,11 @@ class KehilanganCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -4050,28 +4058,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
       ),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'images/Kalender.png',
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      '  Terakhir Update : 1 September 2024',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
           ),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
