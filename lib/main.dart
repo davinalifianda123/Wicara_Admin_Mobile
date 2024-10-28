@@ -1,7 +1,49 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
+}
+
+void login(BuildContext context, String email, String password) async {
+  final response = await http.post(
+    Uri.parse('https://c02b-114-79-21-172.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php'), // Ganti URL ini dengan URL server kamu
+    body: {
+      'email': email,
+      'password': password,
+    },
+  );
+
+  if (response.statusCode == 200) {
+    var data = json.decode(response.body);
+    if (data['success']) {
+      // Jika login berhasil, navigasi ke halaman utama
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MyHomePage()),
+      );
+    } else {
+      // Tampilkan pesan error
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Login Gagal"),
+          content: Text(data['message']),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            )
+          ],
+        ),
+      );
+    }
+  } else {
+    print("Error: ${response.statusCode}");
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -20,8 +62,57 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   const Login({super.key});
+
+  @override
+  _LoginState createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  void login() async {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      // Tampilkan pesan error jika email atau password kosong
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Email dan password tidak boleh kosong')),
+      );
+      return;
+    }
+
+    // Mengirim request login ke backend
+    var url = Uri.parse('https://c02b-114-79-21-172.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php');
+    var response = await http.post(url, body: {
+      'email': email,
+      'password': password,
+    });
+
+    if (response.statusCode == 200) {
+      var data = json.decode(response.body);
+      if (data['success']) {
+        // Login berhasil, arahkan ke halaman home
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
+        );
+      } else {
+        // Login gagal, tampilkan pesan error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data['message'])),
+        );
+      }
+    } else {
+      // Error saat koneksi ke server
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Terjadi kesalahan, coba lagi nanti')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +127,7 @@ class Login extends StatelessWidget {
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
                   bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30)
+                  bottomRight: Radius.circular(30),
                 ),
                 image: DecorationImage(
                   image: AssetImage('images/Login_Image.png'),
@@ -57,47 +148,45 @@ class Login extends StatelessWidget {
                         color: Colors.white,
                       ),
                       child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Image.asset("images/Polines.png"),
+                        padding: const EdgeInsets.all(5.0),
+                        child: Image.asset("images/Polines.png"),
                       ),
                     ),
                     const Padding(
-                      padding: EdgeInsets.only(
-                        top: 24.0
-                      ),
+                      padding: EdgeInsets.only(top: 24.0),
                       child: Text(
                         'WICARA',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 32.0,
                           fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins'
+                          fontFamily: 'Poppins',
                         ),
                       ),
                     ),
                     const Padding(
-                      padding: EdgeInsets.only(
-                        top: 2,
-                      ),
+                      padding: EdgeInsets.only(top: 2),
                       child: SizedBox(
                         width: 200,
                         child: Text(
                           'Wadah Informasi Catatan Aspirasi & Rating Akademik',
                           style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20.0,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: 'Poppins',
-                              fontStyle: FontStyle.italic
+                            color: Colors.white,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Poppins',
+                            fontStyle: FontStyle.italic,
                           ),
                         ),
-                      )
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
-            Padding(padding: const EdgeInsets.symmetric(vertical: 50.0, horizontal: 40.0),
+            Padding(
+              padding:
+              const EdgeInsets.symmetric(vertical: 50.0, horizontal: 40.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -107,58 +196,61 @@ class Login extends StatelessWidget {
                         color: Colors.black,
                         fontSize: 48.0,
                         fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins'
-                    ),
+                        fontFamily: 'Poppins'),
                   ),
                   const Padding(
-                    padding: EdgeInsets.only(
-                      top: 4
-                    ),
+                    padding: EdgeInsets.only(top: 4),
                     child: Text(
                       'Selamat Datang Di Platform Aspirasi Dan Rating Akademik',
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins'
-                      ),
+                          fontFamily: 'Poppins'),
                     ),
                   ),
-                  Container (
+                  Container(
                     margin: const EdgeInsets.only(top: 30),
-                    child: const TextField(
-                      decoration: InputDecoration(
+                    child: TextField(
+                      controller: emailController,
+                      decoration: const InputDecoration(
                         hintText: 'Email',
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(50.0))
+                          borderRadius:
+                          BorderRadius.all(Radius.circular(50.0)),
                         ),
                         focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                            borderSide: BorderSide(
+                          borderRadius:
+                          BorderRadius.all(Radius.circular(50.0)),
+                          borderSide: BorderSide(
                             color: Colors.grey,
-                            width: 2
+                            width: 2,
                           ),
                         ),
-                        contentPadding: EdgeInsets.only(left: 20)
+                        contentPadding: EdgeInsets.only(left: 20),
                       ),
                     ),
                   ),
-                  Container (
+                  Container(
                     margin: const EdgeInsets.only(top: 16),
-                    child: const TextField(
-                      decoration: InputDecoration(
-                          hintText: 'Password',
-                          border: OutlineInputBorder(
-                              borderRadius: BorderRadius.all(Radius.circular(50.0))
+                    child: TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration: const InputDecoration(
+                        hintText: 'Password',
+                        border: OutlineInputBorder(
+                          borderRadius:
+                          BorderRadius.all(Radius.circular(50.0)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius:
+                          BorderRadius.all(Radius.circular(50.0)),
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 2,
                           ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(50.0)),
-                            borderSide: BorderSide(
-                                color: Colors.grey,
-                                width: 2
-                            ),
-                          ),
-                          contentPadding: EdgeInsets.only(left: 20)
+                        ),
+                        contentPadding: EdgeInsets.only(left: 20),
                       ),
                     ),
                   ),
@@ -172,16 +264,10 @@ class Login extends StatelessWidget {
                     child: SizedBox(
                       width: 110,
                       child: ElevatedButton(
-                        onPressed: () {
-                          // Misalkan validasi berhasil, pindah ke MyHomePage
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const MyHomePage()),
-                          );
-                        },
+                        onPressed: login,
                         style: ElevatedButton.styleFrom(
                           elevation: 5,
-                          backgroundColor: Colors.amber[600]
+                          backgroundColor: Colors.amber[600],
                         ),
                         child: const Text(
                           'Login',
@@ -190,8 +276,7 @@ class Login extends StatelessWidget {
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
                           ),
-
-                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -217,7 +302,7 @@ class Login extends StatelessWidget {
                               fontSize: 16,
                               color: Colors.indigo,
                               decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.w600
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         )
