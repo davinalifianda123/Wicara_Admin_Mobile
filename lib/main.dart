@@ -8,7 +8,7 @@ void main() {
 
 void login(BuildContext context, String email, String password) async {
   final response = await http.post(
-    Uri.parse('https://c02b-114-79-21-172.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php'), // Ganti URL ini dengan URL server kamu
+    Uri.parse('https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php'), // Ganti URL ini dengan URL server kamu
     body: {
       'email': email,
       'password': password,
@@ -86,7 +86,7 @@ class _LoginState extends State<Login> {
     }
 
     // Mengirim request login ke backend
-    var url = Uri.parse('https://c02b-114-79-21-172.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php');
+    var url = Uri.parse('https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php');
     var response = await http.post(url, body: {
       'email': email,
       'password': password,
@@ -1882,6 +1882,32 @@ class DetailRatingPage extends StatelessWidget {
 
 
 // ----------------------------BERANDA--------------------------------
+class BerandaService {
+  // Ganti URL ini dengan URL API kamu
+  static const String apiUrl = "https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/api/api_beranda.php";
+
+  static Future<Map<String, int>> fetchActivityData() async {
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return {
+          "pengaduan": data["pengaduan"] ?? 0,
+          "kehilangan": data["kehilangan"] ?? 0,
+          "rating": data["rating"] ?? 0,
+        };
+      } else {
+        print("Failed to load data: ${response.statusCode}");
+        throw Exception("Failed to load data");
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+      throw Exception("Error fetching data: $e");
+    }
+  }
+}
+
 class BerandaScreen extends StatelessWidget {
   const BerandaScreen({super.key});
 
@@ -2074,37 +2100,51 @@ class BerandaScreen extends StatelessWidget {
     );
   }
 
-
-  // Fungsi _buildActivitySection untuk bagian aktivitas
+  // Fungsi _buildActivitySection dengan FutureBuilder untuk mendapatkan data dari API
   Widget _buildActivitySection(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Aktivitas yang perlu ditangani',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
+    return FutureBuilder<Map<String, int>>(
+      future: BerandaService.fetchActivityData(), // Memanggil fungsi API
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          // Menampilkan indikator loading saat menunggu data
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          // Menampilkan pesan kesalahan jika terjadi error
+          return const Center(child: Text('Gagal memuat data'));
+        } else if (snapshot.hasData) {
+          // Jika data berhasil didapatkan
+          final data = snapshot.data!;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Aktivitas yang perlu ditangani',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _buildActivityCard('Pengaduan', data["pengaduan"] ?? 0, Icons.report, 1, context),
+                const SizedBox(height: 8),
+                _buildActivityCard('Laporan Kehilangan', data["kehilangan"] ?? 0, Icons.search, 2, context),
+                const SizedBox(height: 8),
+                _buildActivityCard('Rating', data["rating"] ?? 0, Icons.star, 3, context),
+              ],
             ),
-          ),
-          const SizedBox(height: 16),
-          _buildActivityCard('Pengaduan', 150, Icons.report, 1,
-              context), // Menggunakan ikon baru
-          const SizedBox(height: 8),
-          _buildActivityCard(
-              'Laporan Kehilangan', 150, Icons.search, 2, context),
-          const SizedBox(height: 8),
-          _buildActivityCard('Rating', 150, Icons.star, 3, context),
-        ],
-      ),
+          );
+        } else {
+          // Jika tidak ada data
+          return const Center(child: Text('Tidak ada data yang tersedia'));
+        }
+      },
     );
   }
 
   // Fungsi untuk membuat kartu aktivitas
-  Widget _buildActivityCard(String title, int jumlah, IconData icon,
-      int navigationIndex, BuildContext context) {
+  Widget _buildActivityCard(String title, int jumlah, IconData icon, int navigationIndex, BuildContext context) {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15.0),
@@ -2190,22 +2230,35 @@ class DosenScreen extends StatefulWidget {
 }
 
 class _DosenScreenState extends State<DosenScreen> {
-  final List<String> dosenList = [
-    "Dr. John Doe",
-    "Prof. Jane Smith",
-    "Dr. Alice Johnson",
-    "Dr. Robert Brown",
-    "Dr. Emily Davis",
-  ];
-
-  List<String> filteredList = [];
+  List<Map<String, dynamic>> dosenList = [];
+  List<Map<String, dynamic>> filteredList = [];
 
   @override
   void initState() {
     super.initState();
-    filteredList = dosenList;
+    fetchDosen();
   }
 
+  Future<void> fetchDosen() async {
+    try {
+      final response = await http.get(
+        Uri.parse('https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/api/api_dosen.php'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          dosenList = data.cast<Map<String, dynamic>>();
+          filteredList = dosenList;
+        });
+      } else {
+        throw Exception("Failed to load dosen data");
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -2236,14 +2289,15 @@ class _DosenScreenState extends State<DosenScreen> {
       body: ListView.builder(
         itemCount: filteredList.length,
         itemBuilder: (context, index) {
+          final dosen = filteredList[index];
           return ListTile(
             leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
-            title: Text(filteredList[index]),
+            title: Text(dosen['nama'] ?? 'Unknown'),
             onTap: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => DosenDetailScreen(name: filteredList[index]),
+                  builder: (context) => DosenDetailScreen(dosen: dosen),
                 ),
               );
             },
@@ -2255,7 +2309,7 @@ class _DosenScreenState extends State<DosenScreen> {
 }
 
 class DosenSearchDelegate extends SearchDelegate {
-  final List<String> dosenList;
+  final List<Map<String, dynamic>> dosenList;
 
   DosenSearchDelegate({required this.dosenList});
 
@@ -2284,19 +2338,22 @@ class DosenSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     final results = dosenList
-        .where((dosen) => dosen.toLowerCase().contains(query.toLowerCase()))
+        .where((dosen) =>
+    dosen['nama'] != null &&
+        dosen['nama'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
+        final dosen = results[index];
         return ListTile(
-          title: Text(results[index]),
+          title: Text(dosen['nama'] ?? 'Unknown'),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => DosenDetailScreen(name: results[index]),
+                builder: (context) => DosenDetailScreen(dosen: dosen),
               ),
             );
           },
@@ -2308,16 +2365,19 @@ class DosenSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = dosenList
-        .where((dosen) => dosen.toLowerCase().contains(query.toLowerCase()))
+        .where((dosen) =>
+    dosen['nama'] != null &&
+        dosen['nama'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
+        final dosen = suggestions[index];
         return ListTile(
-          title: Text(suggestions[index]),
+          title: Text(dosen['nama'] ?? 'Unknown'),
           onTap: () {
-            query = suggestions[index];
+            query = dosen['nama'];
             showResults(context);
           },
         );
@@ -2327,9 +2387,9 @@ class DosenSearchDelegate extends SearchDelegate {
 }
 
 class DosenDetailScreen extends StatefulWidget {
-  final String name;
+  final Map<String, dynamic> dosen;
 
-  const DosenDetailScreen({super.key, required this.name});
+  const DosenDetailScreen({super.key, required this.dosen});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -2348,12 +2408,11 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Menginisialisasi controller dengan nilai default
-    namaController = TextEditingController(text: widget.name);
-    nomorIndukController = TextEditingController(text: "123456789");
-    noTelpController = TextEditingController(text: "081234567890");
-    emailController = TextEditingController(text: "dosen@example.com");
-    passwordController = TextEditingController(text: "password123");
+    namaController = TextEditingController(text: widget.dosen['nama']);
+    nomorIndukController = TextEditingController(text: widget.dosen['nomor_induk']);
+    noTelpController = TextEditingController(text: widget.dosen['nomor_telepon']);
+    emailController = TextEditingController(text: widget.dosen['email']);
+    passwordController = TextEditingController(text: widget.dosen['password']);
     roleController = TextEditingController(text: "Dosen");
   }
 
@@ -2455,7 +2514,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
     );
   }
 }
-// -------------------------------------------------------------------
+// ---------------------------------------------------------------------
 
 
 // ----------------------------MAHASISWA--------------------------------
