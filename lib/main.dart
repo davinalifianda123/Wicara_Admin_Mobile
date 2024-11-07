@@ -1,49 +1,21 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+
+// variabel api url
+const String baseUrl = 'https://e7a3-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
+final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
+final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
+final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
+final mahasiswaUrl = Uri.parse('$baseUrl/api/api_mahasiswa.php');
+final unitLayananUrl = Uri.parse('$baseUrl/api/api_unitLayanan.php');
+final jenisPengaduanUrl = Uri.parse('$baseUrl/api/api_jenisPengaduan.php');
+final profileUrl = Uri.parse('$baseUrl/api/api_profile.php');
+final pengaduanUrl = Uri.parse('$baseUrl/api/api_pengaduan.php');
 
 void main() {
   runApp(const MyApp());
-}
-
-void login(BuildContext context, String email, String password) async {
-  final response = await http.post(
-    Uri.parse('https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php'), // Ganti URL ini dengan URL server kamu
-    body: {
-      'email': email,
-      'password': password,
-    },
-  );
-
-  if (response.statusCode == 200) {
-    var data = json.decode(response.body);
-    if (data['success']) {
-      // Jika login berhasil, navigasi ke halaman utama
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MyHomePage()),
-      );
-    } else {
-      // Tampilkan pesan error
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text("Login Gagal"),
-          content: Text(data['message']),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("OK"),
-            )
-          ],
-        ),
-      );
-    }
-  } else {
-    print("Error: ${response.statusCode}");
-  }
 }
 
 class MyApp extends StatelessWidget {
@@ -78,36 +50,40 @@ class _LoginState extends State<Login> {
     String password = passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      // Tampilkan pesan error jika email atau password kosong
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Email dan password tidak boleh kosong')),
       );
       return;
     }
 
-    // Mengirim request login ke backend
-    var url = Uri.parse('https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/Back-end/api_login.php');
-    var response = await http.post(url, body: {
-      'email': email,
-      'password': password,
-    });
+    final response = await http.post(
+      loginUrl,
+      body: {
+        'email': email,
+        'password': password,
+      },
+    );
 
     if (response.statusCode == 200) {
       var data = json.decode(response.body);
       if (data['success']) {
-        // Login berhasil, arahkan ke halaman home
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('id_user', data['id_user'].toString());
+        await prefs.setString('email', data['email']);
+        await prefs.setString('nama', data['nama']);
+        await prefs.setString('password', data['password']);
+        await prefs.setString('image', data['image']);
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const MyHomePage()),
         );
       } else {
-        // Login gagal, tampilkan pesan error
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(data['message'])),
         );
       }
     } else {
-      // Error saat koneksi ke server
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Terjadi kesalahan, coba lagi nanti')),
       );
@@ -1883,12 +1859,9 @@ class DetailRatingPage extends StatelessWidget {
 
 // ----------------------------BERANDA--------------------------------
 class BerandaService {
-  // Ganti URL ini dengan URL API kamu
-  static const String apiUrl = "https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/api/api_beranda.php";
-
   static Future<Map<String, int>> fetchActivityData() async {
     try {
-      final response = await http.get(Uri.parse(apiUrl));
+      final response = await http.get(berandaUrl);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
@@ -2242,7 +2215,7 @@ class _DosenScreenState extends State<DosenScreen> {
   Future<void> fetchDosen() async {
     try {
       final response = await http.get(
-        Uri.parse('https://884b-103-214-229-137.ngrok-free.app/Wicara_Admin_Web/api/api_dosen.php'),
+        dosenUrl,
       );
 
       if (response.statusCode == 200) {
@@ -2392,28 +2365,56 @@ class DosenDetailScreen extends StatefulWidget {
   const DosenDetailScreen({super.key, required this.dosen});
 
   @override
-  // ignore: library_private_types_in_public_api
   _DosenDetailScreenState createState() => _DosenDetailScreenState();
 }
 
 class _DosenDetailScreenState extends State<DosenDetailScreen> {
+  late TextEditingController idUserController;
   late TextEditingController namaController;
   late TextEditingController nomorIndukController;
   late TextEditingController noTelpController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
   late TextEditingController roleController;
-  bool _isPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
+    idUserController = TextEditingController(text: widget.dosen['id_user']);
     namaController = TextEditingController(text: widget.dosen['nama']);
     nomorIndukController = TextEditingController(text: widget.dosen['nomor_induk']);
     noTelpController = TextEditingController(text: widget.dosen['nomor_telepon']);
     emailController = TextEditingController(text: widget.dosen['email']);
     passwordController = TextEditingController(text: widget.dosen['password']);
     roleController = TextEditingController(text: "Dosen");
+  }
+
+  void resetPassword() async {
+    final idDosen = idUserController.text; // Ambil ID dosen dari controller
+
+    final response = await http.post(
+      dosenUrl,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({"id_user": idDosen}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data["success"]) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data["message"])),
+        );
+        passwordController.text = "Polines123*"; // Tampilkan password default
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data["message"])),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal menghubungi server")),
+      );
+    }
   }
 
   @override
@@ -2444,6 +2445,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
                   labelText: "Nama",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2452,6 +2454,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
                   labelText: "Nomor Induk",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2460,6 +2463,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
                   labelText: "No. Telp",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2468,25 +2472,17 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
                   labelText: "Email",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
+                obscureText: true,
+                decoration: const InputDecoration(
                   labelText: "Password",
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
+                  border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2495,6 +2491,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
                   labelText: "Role",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -2502,10 +2499,8 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
                   backgroundColor: const Color(0xFF060A47),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
-                onPressed: () {
-                  // Simpan perubahan data atau lakukan aksi lainnya
-                },
-                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+                onPressed: resetPassword,
+                child: const Text("Reset Password", style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -2526,35 +2521,47 @@ class MahasiswaScreen extends StatefulWidget {
 }
 
 class _MahasiswaScreenState extends State<MahasiswaScreen> {
-  final List<String> mahasiswaList = [
-      "Davin Alifianda Adytia",
-      "Melia Apriani",
-      "Rizky Setiawan",
-      "Dinda Putri Ananda",
-      "Rizky Setiawan",
-      "Dedi Kurniawan",
-      "Dinda Putri Ananda",
-  ];
-
-  List<String> filteredList = [];
+  List<Map<String, dynamic>> mahasiswaList = [];
+  List<Map<String, dynamic>> filteredList = [];
 
   @override
   void initState() {
     super.initState();
-    filteredList = mahasiswaList;
+    fetchMahasiswa();
+  }
+
+  Future<void> fetchMahasiswa() async {
+    try {
+      final response = await http.get(
+        mahasiswaUrl,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          mahasiswaList = data.cast<Map<String, dynamic>>();
+          filteredList = mahasiswaList;
+        });
+      } else {
+        throw Exception("Failed to load mahasiswa data");
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Daftar Mahasiswa"),
-        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        title: const Text('Daftar Mahasiswa'),
+        backgroundColor: const Color(0xFF060A47),
         iconTheme: const IconThemeData(
-          color: Colors.white, // Warna ikon back menjadi putih
+          color: Colors.white,
         ),
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Warna teks judul menjadi putih
+          color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
@@ -2571,17 +2578,17 @@ class _MahasiswaScreenState extends State<MahasiswaScreen> {
         ],
       ),
       body: ListView.builder(
-        itemCount: mahasiswaList.length,
+        itemCount: filteredList.length,
         itemBuilder: (context, index) {
+          final mahasiswa = filteredList[index];
           return ListTile(
-            leading: const Icon(Icons.school, color: Color(0xFF060A47)), // Ikon mahasiswa
-            title: Text(mahasiswaList[index]),
+            leading: const Icon(Icons.school, color: Color(0xFF060A47)), // Ikon dosen
+            title: Text(mahasiswa['nama'] ?? 'Unknown'),
             onTap: () {
-              // Aksi ketika item di-tap, misal navigasi ke detail dosen
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MahasiswaDetailScreen(name: mahasiswaList[index]),
+                  builder: (context) => MahasiswaDetailScreen(mahasiswa: mahasiswa),
                 ),
               );
             },
@@ -2593,7 +2600,7 @@ class _MahasiswaScreenState extends State<MahasiswaScreen> {
 }
 
 class MahasiswaSearchDelegate extends SearchDelegate {
-  final List<String> mahasiswaList;
+  final List<Map<String, dynamic>> mahasiswaList;
 
   MahasiswaSearchDelegate({required this.mahasiswaList});
 
@@ -2622,19 +2629,22 @@ class MahasiswaSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     final results = mahasiswaList
-        .where((mahasiswa) => mahasiswa.toLowerCase().contains(query.toLowerCase()))
+        .where((mahasiswa) =>
+    mahasiswa['nama'] != null &&
+        mahasiswa['nama'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
+        final mahasiswa = results[index];
         return ListTile(
-          title: Text(results[index]),
+          title: Text(mahasiswa['nama'] ?? 'Unknown'),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => MahasiswaDetailScreen(name: results[index]),
+                builder: (context) => MahasiswaDetailScreen(mahasiswa: mahasiswa),
               ),
             );
           },
@@ -2646,16 +2656,19 @@ class MahasiswaSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = mahasiswaList
-        .where((mahasiswa) => mahasiswa.toLowerCase().contains(query.toLowerCase()))
+        .where((mahasiswa) =>
+    mahasiswa['nama'] != null &&
+        mahasiswa['nama'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
+        final mahasiswa = suggestions[index];
         return ListTile(
-          title: Text(suggestions[index]),
+          title: Text(mahasiswa['nama'] ?? 'Unknown'),
           onTap: () {
-            query = suggestions[index];
+            query = mahasiswa['nama'];
             showResults(context);
           },
         );
@@ -2665,34 +2678,61 @@ class MahasiswaSearchDelegate extends SearchDelegate {
 }
 
 class MahasiswaDetailScreen extends StatefulWidget {
-  final String name;
+  final Map<String, dynamic> mahasiswa;
 
-  const MahasiswaDetailScreen({super.key, required this.name});
+  const MahasiswaDetailScreen({super.key, required this.mahasiswa});
 
   @override
-  // ignore: library_private_types_in_public_api
   _MahasiswaDetailScreenState createState() => _MahasiswaDetailScreenState();
 }
 
 class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
+  late TextEditingController idUserController;
   late TextEditingController namaController;
   late TextEditingController nomorIndukController;
   late TextEditingController noTelpController;
   late TextEditingController emailController;
   late TextEditingController passwordController;
   late TextEditingController roleController;
-  bool _isPasswordVisible = false;
 
   @override
   void initState() {
     super.initState();
-    // Menginisialisasi controller dengan nilai default
-    namaController = TextEditingController(text: widget.name);
-    nomorIndukController = TextEditingController(text: "987654321");
-    noTelpController = TextEditingController(text: "081234567890");
-    emailController = TextEditingController(text: "mahasiswa@example.com");
-    passwordController = TextEditingController(text: "password123");
+    idUserController = TextEditingController(text: widget.mahasiswa['id_user']);
+    namaController = TextEditingController(text: widget.mahasiswa['nama']);
+    nomorIndukController = TextEditingController(text: widget.mahasiswa['nomor_induk']);
+    noTelpController = TextEditingController(text: widget.mahasiswa['nomor_telepon']);
+    emailController = TextEditingController(text: widget.mahasiswa['email']);
+    passwordController = TextEditingController(text: widget.mahasiswa['password']);
     roleController = TextEditingController(text: "Mahasiswa");
+  }
+
+  void resetPassword() async {
+    final idMahasiswa = idUserController.text; // Ambil ID mahasiswa dari controller
+
+    final response = await http.post(
+      mahasiswaUrl,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({"id_user": idMahasiswa}),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data["success"]) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data["message"])),
+        );
+        passwordController.text = "Polines123*"; // Tampilkan password default
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(data["message"])),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Gagal menghubungi server")),
+      );
+    }
   }
 
   @override
@@ -2723,6 +2763,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
                   labelText: "Nama",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2731,6 +2772,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
                   labelText: "Nomor Induk",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2739,6 +2781,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
                   labelText: "No. Telp",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2747,25 +2790,17 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
                   labelText: "Email",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
                 controller: passwordController,
-                obscureText: !_isPasswordVisible,
-                decoration: InputDecoration(
+                obscureText: true,
+                decoration: const InputDecoration(
                   labelText: "Password",
-                  border: const OutlineInputBorder(),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isPasswordVisible = !_isPasswordVisible;
-                      });
-                    },
-                  ),
+                  border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 10),
               TextField(
@@ -2774,6 +2809,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
                   labelText: "Role",
                   border: OutlineInputBorder(),
                 ),
+                enabled: false,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -2781,10 +2817,8 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
                   backgroundColor: const Color(0xFF060A47),
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
-                onPressed: () {
-                  // Simpan perubahan data atau lakukan aksi lainnya
-                },
-                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+                onPressed: resetPassword,
+                child: const Text("Reset Password", style: TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -2805,35 +2839,47 @@ class UnitLayananScreen extends StatefulWidget {
 }
 
 class _UnitLayananScreenState extends State<UnitLayananScreen> {
-  final List<String> unitLayananList = [
-      "Poliklinik",
-      "Biro Akademik",
-      "Biro Administrasi Umum",
-      "Biro Keuangan",
-      "Biro Perencanaan dan Sistem Informasi",
-      "Biro Umum",
-      "Biro Kerjasama dan Hubungan Masyarakat",
-  ];
-
-  List<String> filteredList = [];
+  List<Map<String, dynamic>> unitLayananList = [];
+  List<Map<String, dynamic>> filteredList = [];
 
   @override
   void initState() {
     super.initState();
-    filteredList = unitLayananList;
+    fetchUnitLayanan();
+  }
+
+  Future<void> fetchUnitLayanan() async {
+    try {
+      final response = await http.get(
+        unitLayananUrl,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          unitLayananList = data.cast<Map<String, dynamic>>();
+          filteredList = unitLayananList;
+        });
+      } else {
+        throw Exception("Failed to load unit layanan data");
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Daftar Unit Layanan"),
-        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        title: const Text('Daftar Unit Layanan'),
+        backgroundColor: const Color(0xFF060A47),
         iconTheme: const IconThemeData(
-          color: Colors.white, // Warna ikon back menjadi putih
+          color: Colors.white,
         ),
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Warna teks judul menjadi putih
+          color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
@@ -2850,17 +2896,17 @@ class _UnitLayananScreenState extends State<UnitLayananScreen> {
         ],
       ),
       body: ListView.builder(
-        itemCount: unitLayananList.length,
+        itemCount: filteredList.length,
         itemBuilder: (context, index) {
+          final unitLayanan = filteredList[index];
           return ListTile(
-            leading: const Icon(Icons.business, color: Color(0xFF060A47)), // Ikon unit layanan
-            title: Text(unitLayananList[index]),
+            leading: const Icon(Icons.business, color: Color(0xFF060A47)), // Ikon dosen
+            title: Text(unitLayanan['nama_instansi'] ?? 'Unknown'),
             onTap: () {
-              // Aksi ketika item di-tap, misal navigasi ke detail dosen
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => UnitLayananDetailScreen(name: unitLayananList[index]),
+                  builder: (context) => UnitLayananDetailScreen(unitLayanan: unitLayanan),
                 ),
               );
             },
@@ -2872,7 +2918,7 @@ class _UnitLayananScreenState extends State<UnitLayananScreen> {
 }
 
 class UnitLayananSearchDelegate extends SearchDelegate {
-  final List<String> unitLayananList;
+  final List<Map<String, dynamic>> unitLayananList;
 
   UnitLayananSearchDelegate({required this.unitLayananList});
 
@@ -2901,19 +2947,22 @@ class UnitLayananSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     final results = unitLayananList
-        .where((unitLayanan) => unitLayanan.toLowerCase().contains(query.toLowerCase()))
+        .where((unitLayanan) =>
+    unitLayanan['nama_instansi'] != null &&
+        unitLayanan['nama_instansi'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
+        final unitLayanan = results[index];
         return ListTile(
-          title: Text(results[index]),
+          title: Text(unitLayanan['nama_instansi'] ?? 'Unknown'),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => UnitLayananDetailScreen(name: results[index]),
+                builder: (context) => UnitLayananDetailScreen(unitLayanan: unitLayanan),
               ),
             );
           },
@@ -2925,16 +2974,19 @@ class UnitLayananSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = unitLayananList
-        .where((unitLayanan) => unitLayanan.toLowerCase().contains(query.toLowerCase()))
+        .where((unitLayanan) =>
+    unitLayanan['nama_instansi'] != null &&
+        unitLayanan['nama_instansi'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
+        final unitLayanan = suggestions[index];
         return ListTile(
-          title: Text(suggestions[index]),
+          title: Text(unitLayanan['nama_instansi'] ?? 'Unknown'),
           onTap: () {
-            query = suggestions[index];
+            query = unitLayanan['nama_instansi'];
             showResults(context);
           },
         );
@@ -2944,25 +2996,72 @@ class UnitLayananSearchDelegate extends SearchDelegate {
 }
 
 class UnitLayananDetailScreen extends StatefulWidget {
-  final String name;
+  final Map<String, dynamic> unitLayanan;
 
-  const UnitLayananDetailScreen({super.key, required this.name});
+  const UnitLayananDetailScreen({super.key, required this.unitLayanan});
 
   @override
-  // ignore: library_private_types_in_public_api
   _UnitLayananDetailScreenState createState() => _UnitLayananDetailScreenState();
 }
 
 class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
-  late TextEditingController namaController;
-  late TextEditingController emailController;
+  late TextEditingController idInstansiController;
+  late TextEditingController namaInstansiController;
+  late TextEditingController emailPicController;
+  late TextEditingController passwordController;
+  String? qrCodeUrl;
+  bool isEditMode = false;  // Variabel untuk mode edit
 
   @override
   void initState() {
     super.initState();
-    // Menginisialisasi controller dengan nilai default
-    namaController = TextEditingController(text: widget.name);
-    emailController = TextEditingController(text: "pic@example.com");
+    idInstansiController = TextEditingController(text: widget.unitLayanan['id_instansi']);
+    namaInstansiController = TextEditingController(text: widget.unitLayanan['nama_instansi']);
+    emailPicController = TextEditingController(text: widget.unitLayanan['email_pic']);
+    passwordController = TextEditingController(text: widget.unitLayanan['password']);
+    qrCodeUrl = widget.unitLayanan['qr_code_url'];
+  }
+
+  @override
+  void dispose() {
+    idInstansiController.dispose();
+    namaInstansiController.dispose();
+    emailPicController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> saveChanges() async {
+    final response = await http.post(
+      unitLayananUrl,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
+        "unit_id": widget.unitLayanan['id_instansi'],
+        "nama_instansi": namaInstansiController.text,
+        "email_pic": emailPicController.text,
+        "password": passwordController.text,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final result = json.decode(response.body);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Data berhasil disimpan")),
+        );
+        setState(() {
+          isEditMode = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal menyimpan data: ${result['message']}")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan pada server")),
+      );
+    }
   }
 
   @override
@@ -2971,9 +3070,7 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
       appBar: AppBar(
         title: const Text("Detail Unit Layanan"),
         backgroundColor: const Color(0xFF060A47),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+        iconTheme: const IconThemeData(color: Colors.white),
         titleTextStyle: const TextStyle(
           color: Colors.white,
           fontSize: 20,
@@ -2988,20 +3085,49 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
               const Icon(Icons.business, size: 100, color: Color(0xFF060A47)),
               const SizedBox(height: 20),
               TextField(
-                controller: namaController,
+                controller: namaInstansiController,
                 decoration: const InputDecoration(
-                  labelText: "Nama Unit Layanan",
+                  labelText: "Nama",
                   border: OutlineInputBorder(),
                 ),
+                enabled: isEditMode,
               ),
               const SizedBox(height: 10),
               TextField(
-                controller: emailController,
+                controller: emailPicController,
                 decoration: const InputDecoration(
                   labelText: "Email",
                   border: OutlineInputBorder(),
                 ),
+                enabled: isEditMode,
               ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: passwordController,
+                decoration: const InputDecoration(
+                  labelText: "Password",
+                  border: OutlineInputBorder(),
+                ),
+                enabled: isEditMode,
+              ),
+              const SizedBox(height: 20),
+              if (qrCodeUrl != null)
+                Column(
+                  children: [
+                    const Text(
+                      "QR Code",
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 10),
+                    Image.network(
+                      qrCodeUrl = "$baseUrl/api/api_showQR.php?unit_id=${widget.unitLayanan['id_instansi']}",
+                      height: 150,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Text("Gagal memuat / Tidak memiliki QR Code");
+                      },
+                    ),
+                  ],
+                ),
               const SizedBox(height: 20),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
@@ -3009,9 +3135,15 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
                 onPressed: () {
-                  // Simpan perubahan data atau lakukan aksi lainnya
+                  if (isEditMode) {
+                    saveChanges();
+                  } else {
+                    setState(() {
+                      isEditMode = true;
+                    });
+                  }
                 },
-                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+                child: Text(isEditMode ? "Simpan" : "Edit", style: const TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -3032,33 +3164,47 @@ class JenisPengaduanScreen extends StatefulWidget {
 }
 
 class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
-  final List<String> jenisPengaduanList = [
-      "Pelecehan Seksual",
-      "Bullying",
-      "Dosen",
-      "Fasilitas",
-      "Akademik",
-  ];
-  
-  List<String> filteredList = [];
+  List<Map<String, dynamic>> jenisPengaduanList = [];
+  List<Map<String, dynamic>> filteredList = [];
 
   @override
   void initState() {
     super.initState();
-    filteredList = jenisPengaduanList;
+    fetchJenisPengaduan();
+  }
+
+  Future<void> fetchJenisPengaduan() async {
+    try {
+      final response = await http.get(
+        jenisPengaduanUrl,
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          jenisPengaduanList = data.cast<Map<String, dynamic>>();
+          filteredList = jenisPengaduanList;
+        });
+      } else {
+        throw Exception("Failed to load unit layanan data");
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Daftar Jenis Pengaduan"),
-        backgroundColor: const Color(0xFF060A47), // Warna biru tua
+        title: const Text('Daftar Jenis Pengaduan'),
+        backgroundColor: const Color(0xFF060A47),
         iconTheme: const IconThemeData(
-          color: Colors.white, // Warna ikon back menjadi putih
+          color: Colors.white,
         ),
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Warna teks judul menjadi putih
+          color: Colors.white,
           fontSize: 20,
           fontWeight: FontWeight.bold,
         ),
@@ -3075,17 +3221,17 @@ class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
         ],
       ),
       body: ListView.builder(
-        itemCount: jenisPengaduanList.length,
+        itemCount: filteredList.length,
         itemBuilder: (context, index) {
+          final jenisPengaduan = filteredList[index];
           return ListTile(
-            leading: const Icon(Icons.category, color: Color(0xFF060A47)), // Ikon jenis pengaduan
-            title: Text(jenisPengaduanList[index]),
+            leading: const Icon(Icons.category, color: Color(0xFF060A47)), // Ikon dosen
+            title: Text(jenisPengaduan['nama_jenis_pengaduan'] ?? 'Unknown'),
             onTap: () {
-              // Aksi ketika item di-tap, misal navigasi ke detail dosen
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => JenisPengaduanDetailScreen(name: jenisPengaduanList[index]),
+                  builder: (context) => JenisPengaduanDetailScreen(jenisPengaduan: jenisPengaduan),
                 ),
               );
             },
@@ -3097,7 +3243,7 @@ class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
 }
 
 class JenisPengaduanSearchDelegate extends SearchDelegate {
-  final List<String> jenisPengaduanList;
+  final List<Map<String, dynamic>> jenisPengaduanList;
 
   JenisPengaduanSearchDelegate({required this.jenisPengaduanList});
 
@@ -3126,19 +3272,22 @@ class JenisPengaduanSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     final results = jenisPengaduanList
-        .where((jenisPengaduan) => jenisPengaduan.toLowerCase().contains(query.toLowerCase()))
+        .where((jenisPengaduan) =>
+    jenisPengaduan['nama_jenis_pengaduan'] != null &&
+        jenisPengaduan['nama_jenis_pengaduan'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: results.length,
       itemBuilder: (context, index) {
+        final jenisPengaduan = results[index];
         return ListTile(
-          title: Text(results[index]),
+          title: Text(jenisPengaduan['nama_jenis_pengaduan'] ?? 'Unknown'),
           onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => JenisPengaduanDetailScreen(name: results[index]),
+                builder: (context) => JenisPengaduanDetailScreen(jenisPengaduan: jenisPengaduan),
               ),
             );
           },
@@ -3150,16 +3299,19 @@ class JenisPengaduanSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     final suggestions = jenisPengaduanList
-        .where((jenisPengaduan) => jenisPengaduan.toLowerCase().contains(query.toLowerCase()))
+        .where((jenisPengaduan) =>
+    jenisPengaduan['nama_jenis_pengaduan'] != null &&
+        jenisPengaduan['nama_jenis_pengaduan'].toLowerCase().contains(query.toLowerCase()))
         .toList();
 
     return ListView.builder(
       itemCount: suggestions.length,
       itemBuilder: (context, index) {
+        final jenisPengaduan = suggestions[index];
         return ListTile(
-          title: Text(suggestions[index]),
+          title: Text(jenisPengaduan['nama_jenis_pengaduan'] ?? 'Unknown'),
           onTap: () {
-            query = suggestions[index];
+            query = jenisPengaduan['nama_jenis_pengaduan'];
             showResults(context);
           },
         );
@@ -3169,23 +3321,55 @@ class JenisPengaduanSearchDelegate extends SearchDelegate {
 }
 
 class JenisPengaduanDetailScreen extends StatefulWidget {
-  final String name;
+  final Map<String, dynamic> jenisPengaduan;
 
-  const JenisPengaduanDetailScreen({super.key, required this.name});
+  const JenisPengaduanDetailScreen({super.key, required this.jenisPengaduan});
 
   @override
-  // ignore: library_private_types_in_public_api
   _JenisPengaduanDetailScreenState createState() => _JenisPengaduanDetailScreenState();
 }
 
 class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen> {
-  late TextEditingController namaController;
+  late TextEditingController idJenisPengaduanController;
+  late TextEditingController namaJenisPengaduanController;
+  bool isEditMode = false;  // Variabel untuk mode edit
 
   @override
   void initState() {
     super.initState();
-    // Menginisialisasi controller dengan nilai default
-    namaController = TextEditingController(text: widget.name);
+    idJenisPengaduanController = TextEditingController(text: widget.jenisPengaduan['id_jenis_pengaduan']);
+    namaJenisPengaduanController = TextEditingController(text: widget.jenisPengaduan['nama_jenis_pengaduan']);
+  }
+
+  Future<void> saveChanges() async {
+    final response = await http.post(
+      jenisPengaduanUrl,
+      headers: {"Content-Type": "application/json"},
+      body: json.encode({
+        "id_jenis_pengaduan": widget.jenisPengaduan['id_jenis_pengaduan'],
+        "nama_jenis_pengaduan": namaJenisPengaduanController.text
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final result = json.decode(response.body);
+      if (result['success'] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Data berhasil disimpan")),
+        );
+        setState(() {
+          isEditMode = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal menyimpan data: ${result['message']}")),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Terjadi kesalahan pada server")),
+      );
+    }
   }
 
   @override
@@ -3211,11 +3395,12 @@ class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen>
               const Icon(Icons.category, size: 100, color: Color(0xFF060A47)),
               const SizedBox(height: 20),
               TextField(
-                controller: namaController,
+                controller: namaJenisPengaduanController,
                 decoration: const InputDecoration(
                   labelText: "Nama Unit Layanan",
                   border: OutlineInputBorder(),
                 ),
+                enabled: isEditMode,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -3224,9 +3409,15 @@ class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                 ),
                 onPressed: () {
-                  // Simpan perubahan data atau lakukan aksi lainnya
+                  if (isEditMode) {
+                    saveChanges();
+                  } else {
+                    setState(() {
+                      isEditMode = true;
+                    });
+                  }
                 },
-                child: const Text("Simpan", style: TextStyle(color: Colors.white)),
+                child: Text(isEditMode ? "Simpan" : "Edit", style: const TextStyle(color: Colors.white)),
               ),
             ],
           ),
@@ -3834,27 +4025,94 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
   // Controllers to get the input values
   final TextEditingController _emailController = TextEditingController();
-
-  bool _isPasswordVisible = false; // State to control password visibility
+  final TextEditingController _namaController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _phoneController = TextEditingController();
+  bool _isPasswordVisible = false;
+  String? _imageUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _emailController.text = prefs.getString('email') ?? '';
+      _namaController.text = prefs.getString('nama') ?? '';
+      _passwordController.text = prefs.getString('password') ?? ''; // opsional
+      final imagePath = prefs.getString('image');
+      _imageUrl = imagePath != null ? '$baseUrl$imagePath' : null;
+    });
+  }
+
+  @override
+  void dispose() {
+    // Membersihkan controller setelah widget dihapus
+    _emailController.dispose();
+    _namaController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // Fungsi untuk membangun TextField profil
+  Widget _buildProfileField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 16, color: Colors.black)),
+        const SizedBox(height: 5),
+        TextField(
+          controller: controller,
+          enabled: false, // Nonaktifkan pengeditan
+          decoration: InputDecoration(
+            hintText: "Masukkan $label",
+            hintStyle: const TextStyle(color: Colors.grey),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Fungsi untuk membangun TextField password
+  Widget _buildPasswordField(String label, TextEditingController controller) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 16, color: Colors.black)),
+        const SizedBox(height: 5),
+        TextField(
+          controller: controller,
+          obscureText: !_isPasswordVisible,
+          enabled: false, // Nonaktifkan pengeditan
+          decoration: InputDecoration(
+            hintText: "Masukkan $label",
+            hintStyle: const TextStyle(color: Colors.grey),
+            suffixIcon: IconButton(
+              icon: Icon(
+                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    var textField = TextField(
-      controller: _emailController,
-      decoration: const InputDecoration(
-        hintText: "Masukkan email",
-        hintStyle: TextStyle(color: Colors.grey),
-      ),
-    );
     return Scaffold(
       body: Column(
         children: [
@@ -3870,17 +4128,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: SafeArea(
               child: Row(
                 children: [
-                  // Icon Back di sebelah kiri
                   IconButton(
                     icon: const Icon(
                       Icons.arrow_back,
-                      color: Colors.white,
+                      color: Color(0xFF060A47),
                     ),
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      // Tambahkan logika kembali
                     },
                   ),
-                  // Expanded untuk menempatkan teks di tengah
                   const Expanded(
                     child: Text(
                       'Profile',
@@ -3892,7 +4148,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  // Icon Notification di sebelah kanan
                   Stack(
                     children: [
                       IconButton(
@@ -3901,14 +4156,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           color: Colors.white,
                         ),
                         onPressed: () {
-                          // Implement notifications functionality here
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  const NotificationScreen(),
-                            ),
-                          );
+                          // Tambahkan logika notifikasi
                         },
                       ),
                     ],
@@ -3919,25 +4167,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              // Makes the content scrollable
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const CircleAvatar(
+                    CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.grey,
-                      child: Icon(
+                      backgroundImage: _imageUrl != null
+                          ? NetworkImage(_imageUrl!)
+                          : null, // Menampilkan avatar jika ada
+                      child: _imageUrl == null
+                          ? const Icon(
                         Icons.person,
                         size: 50,
                         color: Colors.white,
-                      ),
+                      )
+                          : null,
                     ),
                     const SizedBox(height: 10),
                     TextButton(
                       onPressed: () {
-                        // Aksi untuk ubah avatar
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text("Ubah Avatar ditekan!")),
                         );
@@ -3966,73 +4217,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: Column(
                         children: [
-                          const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Email",
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          textField,
+                          _buildProfileField("Nama", _namaController),
                           const SizedBox(height: 20),
-                          const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "No Telp",
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          TextField(
-                            controller: _phoneController,
-                            decoration: const InputDecoration(
-                              hintText: "Masukkan nomor telepon",
-                              hintStyle: TextStyle(color: Colors.grey),
-                            ),
-                          ),
+                          _buildProfileField("Email", _emailController),
                           const SizedBox(height: 20),
-                          const Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              "Password",
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black),
-                            ),
-                          ),
-                          const SizedBox(height: 5),
-                          TextField(
-                            controller: _passwordController,
-                            obscureText:
-                                !_isPasswordVisible, // Toggle password visibility
-                            decoration: InputDecoration(
-                              hintText: "Masukkan password",
-                              hintStyle: const TextStyle(color: Colors.grey),
-                              suffixIcon: IconButton(
-                                icon: Icon(
-                                  _isPasswordVisible
-                                      ? Icons.visibility
-                                      : Icons.visibility_off,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _isPasswordVisible = !_isPasswordVisible;
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
+                          _buildPasswordField("Password", _passwordController),
                         ],
                       ),
                     ),
-                    const SizedBox(height: 20), // Space before the logout button
+                    const SizedBox(height: 10),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Misalkan validasi berhasil, pindah ke MyHomePage
+                          // Logika logout
                           Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => const Login()),
@@ -4048,7 +4246,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         child: const Text(
                           "Logout",
                           style: TextStyle(
-                            color: Colors.white, // Warna teks putih
+                            color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
