@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://e7a3-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://9a80-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -414,45 +414,7 @@ class PengaduanScreen extends StatefulWidget {
 }
 
 class _PengaduanScreenState extends State<PengaduanScreen> {
-  final List<Map<String, String>> _pengaduanList = [
-    {
-      'title': 'Dibully sama teman',
-      'date': '15/9/2024 19:00',
-      'category': 'Bullying',
-      'status': 'Diajukan',
-      'description': 'Aku dibilang wibu sama temen-temen. Saya hanya diam...'
-    },
-    {
-      'title': 'Dosen',
-      'date': '15/9/2024 20:00',
-      'category': 'Dosen',
-      'status': 'Diproses',
-      'description': 'Aku dibilang wibu sama temen-temen. Saya hanya diam...'
-    },
-    {
-      'title': 'Akademik',
-      'date': '15/9/2024 20:00',
-      'category': 'Akademik',
-      'status': 'Ditolak',
-      'description': 'Aku dibilang wibu sama temen-temen. Saya hanya diam...'
-    },
-    {
-      'title': 'Fasilitas',
-      'date': '15/9/2024 20:00',
-      'category': 'Fasilitas',
-      'status': 'Selesai',
-      'description': 'Aku dibilang wibu sama temen-temen. Saya hanya diam...'
-    },
-    {
-      'title': 'Pelecehan Seksual',
-      'date': '15/9/2024 20:00',
-      'category': 'Pelecehan Seksual',
-      'status': 'Dibatalkan',
-      'description': 'Aku dibilang wibu sama temen-temen. Saya hanya diam...'
-    },
-    // Tambahkan lebih banyak data dummy atau real di sini
-  ];
-
+  List<Map<String, String>> _pengaduanList = [];
   List<Map<String, String>> _filteredPengaduanList = [];
   bool _isSearching = false;
   String _searchQuery = '';
@@ -460,7 +422,39 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredPengaduanList = _pengaduanList;
+    _fetchPengaduanData();
+  }
+
+  Future<void> _fetchPengaduanData() async {
+    try {
+      final response = await http.get(pengaduanUrl);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          // Convert each value to a String or a default message
+          _pengaduanList = List<Map<String, String>>.from(data.map((item) => {
+            'id_kejadian': (item['id_kejadian'] ?? '').toString(),
+            'judul': (item['judul'] ?? 'Judul tidak tersedia').toString(),
+            'nama' : (item['nama'] ?? 'nama tidak tersedia').toString(),
+            'tanggal': (item['tanggal'] ?? 'Tanggal tidak tersedia').toString(),
+            'nama_jenis_pengaduan': (item['nama_jenis_pengaduan'] ?? 'Jenis tidak tersedia').toString(),
+            'nama_status_pengaduan': (item['nama_status_pengaduan'] ?? 'Status tidak tersedia').toString(),
+            'lokasi': (item['lokasi'] ?? 'lokasi tidak tersedia').toString(),
+            'nama_instansi': (item['nama_instansi'] ?? 'instansi tidak tersedia').toString(),
+            'deskripsi': (item['deskripsi'] ?? 'Deskripsi tidak tersedia').toString(),
+            'lampiran': (item['lampiran'] ?? 'lampiran tidak tersedia').toString(),
+          }));
+
+          _filteredPengaduanList = _pengaduanList;
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
   }
 
   void _startSearch() {
@@ -481,7 +475,7 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
     setState(() {
       _searchQuery = newQuery;
       _filteredPengaduanList = _pengaduanList
-          .where((item) => item['title']!.toLowerCase().contains(newQuery.toLowerCase()))
+          .where((item) => item['judul']!.toLowerCase().contains(newQuery.toLowerCase()))
           .toList();
     });
   }
@@ -492,7 +486,7 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
         _filteredPengaduanList = _pengaduanList;
       } else {
         _filteredPengaduanList = _pengaduanList
-            .where((item) => item['status'] == status)
+            .where((item) => item['nama_status_pengaduan'] == status)
             .toList();
       }
     });
@@ -518,7 +512,7 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
                 children: [
                   LastUpdateRow(
                     lastUpdateDate: _filteredPengaduanList.isNotEmpty
-                        ? _filteredPengaduanList.first['date'] ?? 'Tanggal tidak tersedia'
+                        ? _filteredPengaduanList.first['tanggal'] ?? 'Tanggal tidak tersedia'
                         : 'Tanggal tidak tersedia',
                   ),
                   const SizedBox(height: 10),
@@ -635,11 +629,16 @@ class PengaduanList extends StatelessWidget {
       itemBuilder: (context, index) {
         final pengaduan = pengaduanList[index];
         return PengaduanCard(
-          title: pengaduan['title'] ?? '',
-          date: pengaduan['date'] ?? '',
-          category: pengaduan['category'] ?? '',
-          status: pengaduan['status'] ?? '',
-          description: pengaduan['description'] ?? '',
+          id_kejadian: pengaduan['id_kejadian'] ?? '',
+          judul: pengaduan['judul'] ?? '',
+          nama: pengaduan['nama'] ?? '',
+          tanggal: pengaduan['tanggal'] ?? '',
+          nama_jenis_pengaduan: pengaduan['nama_jenis_pengaduan'] ?? '',
+          nama_status_pengaduan : pengaduan['nama_status_pengaduan'] ?? '',
+          lokasi: pengaduan['lokasi'] ?? '',
+          nama_instansi: pengaduan['nama_instansi'] ?? '',
+          deskripsi: pengaduan['deskripsi'] ?? '',
+          lampiran: pengaduan['lampiran'] ?? '',
         );
       },
     );
@@ -699,19 +698,29 @@ class _TabBarContainerPengaduanState extends State<TabBarContainerPengaduan> {
 }
 
 class PengaduanCard extends StatelessWidget {
-  final String title;
-  final String date;
-  final String category;
-  final String status;
-  final String description;
+  final String id_kejadian;
+  final String judul;
+  final String nama;
+  final String tanggal;
+  final String nama_jenis_pengaduan;
+  final String nama_status_pengaduan;
+  final String lokasi;
+  final String nama_instansi;
+  final String deskripsi;
+  final String lampiran;
 
   const PengaduanCard({
     super.key,
-    required this.title,
-    required this.date,
-    required this.category,
-    required this.status,
-    required this.description,
+    required this.id_kejadian,
+    required this.judul,
+    required this.nama,
+    required this.tanggal,
+    required this.nama_jenis_pengaduan,
+    required this.nama_status_pengaduan,
+    required this.lokasi,
+    required this.nama_instansi,
+    required this.deskripsi,
+    required this.lampiran,
   });
 
   @override
@@ -723,11 +732,16 @@ class PengaduanCard extends StatelessWidget {
           context,
           MaterialPageRoute(
             builder: (context) => DetailPengaduanPage(
-              title: title,
-              date: date,
-              category: category,
-              status: status,
-              description: description,
+              id_kejadian: id_kejadian,
+              judul: judul,
+              nama: nama,
+              tanggal: tanggal,
+              nama_jenis_pengaduan: nama_jenis_pengaduan,
+              nama_status_pengaduan: nama_status_pengaduan,
+              lokasi: lokasi,
+              nama_instansi: nama_instansi,
+              deskripsi: deskripsi,
+              lampiran: lampiran,
             ),
           ),
         );
@@ -748,7 +762,7 @@ class PengaduanCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          title,
+                          judul,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -757,7 +771,7 @@ class PengaduanCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          date,
+                          tanggal,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -778,7 +792,7 @@ class PengaduanCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
-                      category,
+                      nama_jenis_pengaduan,
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -786,11 +800,11 @@ class PengaduanCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: statusColor(status), // Memanggil fungsi untuk menentukan warna background
+                      color: statusColor(nama_status_pengaduan), // Memanggil fungsi untuk menentukan warna background
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
-                      status,
+                      nama_status_pengaduan,
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -798,7 +812,7 @@ class PengaduanCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Deskripsi : $description',
+                'Deskripsi : $deskripsi',
                 style: const TextStyle(color: Colors.grey),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -830,105 +844,139 @@ class PengaduanCard extends StatelessWidget {
 }
 
 class DetailPengaduanPage extends StatelessWidget {
-  final String title;
-  final String date;
-  final String category;
-  final String status;
-  final String description;
+  final String id_kejadian;
+  final String judul;
+  final String nama;
+  final String tanggal;
+  final String nama_jenis_pengaduan;
+  final String nama_status_pengaduan;
+  final String lokasi;
+  final String nama_instansi;
+  final String deskripsi;
+  final String lampiran;
 
   const DetailPengaduanPage({
     super.key,
-    required this.title,
-    required this.date,
-    required this.category,
-    required this.status,
-    required this.description,
+    required this.id_kejadian,
+    required this.judul,
+    required this.nama,
+    required this.tanggal,
+    required this.nama_jenis_pengaduan,
+    required this.nama_status_pengaduan,
+    required this.lokasi,
+    required this.nama_instansi,
+    required this.deskripsi,
+    required this.lampiran,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          // Custom AppBar mirip dengan PengaduanScreen
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF060A47),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom AppBar mirip dengan PengaduanScreen
+            Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF060A47),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
               ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  // Icon Back di sebelah kiri
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  // Expanded untuk menempatkan teks di tengah
-                  const Expanded(
-                    child: Text(
-                      'Detail Pengaduan',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
                         color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Detail Pengaduan',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  // Spacer untuk menggantikan posisi icon notifikasi
-                  const SizedBox(width: 48), // Mengimbangi ukuran ikon yang hilang
-                ],
+                    const SizedBox(width: 48),
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildReadOnlyTextField(label: 'Judul', text: title),
-                  const SizedBox(height: 16),
-                  _buildReadOnlyTextField(label: 'Tanggal', text: date),
-                  const SizedBox(height: 16),
-                  _buildReadOnlyTextField(label: 'Kategori', text: category),
-                  const SizedBox(height: 16),
-                  _buildReadOnlyTextField(label: 'Status', text: status),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: TextEditingController(text: description),
-                    enabled: false,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Deskripsi',
-                      border: OutlineInputBorder(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildReadOnlyTextField(label: 'Id Aduan', text: id_kejadian),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Judul', text: judul),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'User', text: nama),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Tanggal', text: tanggal),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Kategori', text: nama_jenis_pengaduan),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Status', text: nama_status_pengaduan),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Lokasi', text: lokasi),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Instansi', text: nama_instansi),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: TextEditingController(text: deskripsi),
+                      enabled: false,
+                      maxLines: 5,
+                      decoration: const InputDecoration(
+                        labelText: 'Deskripsi',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: _buildActionButtons(context),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Container(
+                      height: 200, // Fixed height for the image
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: lampiran.isNotEmpty
+                          ? Image.network(
+                        '$baseUrl/Back-end/foto-pengaduan/$lampiran',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(child: Text('Image not available'));
+                        },
+                      )
+                          : const Center(child: Text('No attachment available')),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: _buildActionButtons(context),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // Membuat TextField yang hanya bisa dilihat (read-only)
   Widget _buildReadOnlyTextField({required String label, required String text}) {
     return TextField(
       controller: TextEditingController(text: text),
@@ -940,113 +988,96 @@ class DetailPengaduanPage extends StatelessWidget {
     );
   }
 
-  // Membuat tombol aksi berdasarkan status pengaduan
   List<Widget> _buildActionButtons(BuildContext context) {
-    if (status == 'Diajukan') {
+    if (nama_status_pengaduan == 'Diajukan') {
       return [
         TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.red, // Red background
-            foregroundColor: Colors.white, // White text
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ),
           onPressed: () {
-            _showConfirmationDialog(
-              context,
-              title: "Konfirmasi",
-              content: "Apakah Anda yakin ingin menolak pengaduan ini?",
-              onConfirm: () {
-                Navigator.of(context).pop(); // Tutup dialog
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Pengaduan berhasil ditolak')),
-                );
-              },
-            );
+            _updateStatus(context, id_kejadian, 'tolak'); // For "Tolak"
           },
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.red,  // Background color for "Tolak"
+            foregroundColor: Colors.white, // Text color
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),  // Padding
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),  // Rounded corners
+            ),
+          ),
           child: const Text('Tolak'),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),  // Add some spacing between the buttons
         TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.green, // Green background
-            foregroundColor: Colors.white, // White text
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ),
           onPressed: () {
-            _showConfirmationDialog(
-              context,
-              title: "Konfirmasi",
-              content: "Apakah Anda yakin ingin menerima pengaduan ini?",
-              onConfirm: () {
-                Navigator.of(context).pop(); // Tutup dialog
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Pengaduan berhasil diterima')),
-                );
-              },
-            );
+            _updateStatus(context, id_kejadian, 'terima'); // For "Terima"
           },
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.green,  // Background color for "Terima"
+            foregroundColor: Colors.white,  // Text color
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),  // Padding
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),  // Rounded corners
+            ),
+          ),
           child: const Text('Terima'),
         ),
       ];
     } else {
       return [
         TextButton(
-          style: TextButton.styleFrom(
-            backgroundColor: Colors.red, // Red background
-            foregroundColor: Colors.white, // White text
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          ),
           onPressed: () {
-            _showConfirmationDialog(
-              context,
-              title: "Konfirmasi",
-              content: "Apakah Anda yakin ingin menghapus pengaduan ini?",
-              onConfirm: () {
-                Navigator.of(context).pop(); // Tutup dialog
-                Navigator.pop(context); // Kembali ke halaman sebelumnya
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Pengaduan berhasil dihapus')),
-                );
-              },
-            );
+            _updateStatus(context, id_kejadian, 'delete'); // For "Hapus"
           },
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.red,  // Background color for "Hapus"
+            foregroundColor: Colors.white, // Text color
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),  // Padding
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),  // Rounded corners
+            ),
+          ),
           child: const Text('Hapus'),
         ),
       ];
     }
   }
 
-  // Menampilkan dialog konfirmasi
-  void _showConfirmationDialog(
-    BuildContext context, {
-    required String title,
-    required String content,
-    required VoidCallback onConfirm,
-  }) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              child: const Text("Batal"),
-            ),
-            TextButton(
-              onPressed: onConfirm,
-              child: const Text("Ya"),
-            ),
-          ],
-        );
+  Future<void> _updateStatus(BuildContext context, String idKejadian, String action) async {
+    final response = await http.post(
+      pengaduanUrl,
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: {
+        'id_kejadian': idKejadian,
+        'action': action,  // Pass action (terima, tolak, delete)
       },
     );
+
+    // Handle response
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      if (result['status'] == 'success') {
+        String statusText = (action == 'terima')
+            ? "Diproses"
+            : (action == 'tolak')
+            ? "Ditolak"
+            : "Dihapus";
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Status berhasil diperbarui ke $statusText')),
+        );
+        // Optionally, you could pop the page to return to the previous screen
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memperbarui status')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Terjadi kesalahan')),
+      );
+    }
   }
+
 }
 // ---------------------------------------------------------------------
 
