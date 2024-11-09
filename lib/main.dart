@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://9a80-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://3da4-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -13,6 +14,7 @@ final unitLayananUrl = Uri.parse('$baseUrl/api/api_unitLayanan.php');
 final jenisPengaduanUrl = Uri.parse('$baseUrl/api/api_jenisPengaduan.php');
 final profileUrl = Uri.parse('$baseUrl/api/api_profile.php');
 final pengaduanUrl = Uri.parse('$baseUrl/api/api_pengaduan.php');
+final kehilanganUrl = Uri.parse('$baseUrl/api/api_kehilangan.php');
 
 void main() {
   runApp(const MyApp());
@@ -3470,44 +3472,7 @@ class KehilanganScreen extends StatefulWidget {
 }
 
 class _KehilanganScreenState extends State<KehilanganScreen> {
-  final _kehilanganList = [
-    {
-      'title': 'Hp Samsung Hilang',
-      'date': '15/9/2024 19:00',
-      'jenisBarang': 'Elektronik',
-      'status': 'Belum Ditemukan',
-      'description': 'Hp Samsung Galaxy A50 warna hitam hilang di kantin.',
-    },
-    {
-      'title': 'Dompet Hilang',
-      'date': '15/9/2024 19:00',
-      'jenisBarang': 'Dompet',
-      'status': 'Ditemukan',
-      'description': 'Dompet warna coklat, berisi KTP dan uang 50 ribu.',
-    },
-    {
-      'title': 'Kunci Motor Hilang',
-      'date': '15/9/2024 19:00',
-      'jenisBarang': 'Kunci',
-      'status': 'Hilang',
-      'description': 'Kunci motor Honda Beat warna hitam hilang di parkiran.',
-    },
-    {
-      'title': 'Tas Laptop Hilang',
-      'date': '15/9/2024 19:00',
-      'jenisBarang': 'Tas',
-      'status': 'Belum Ditemukan',
-      'description': 'Tas laptop warna hitam hilang di perpustakaan.',
-    },
-    {
-      'title': 'Buku Hilang',
-      'date': '15/9/2024 19:00',
-      'jenisBarang': 'Buku',
-      'status': 'Ditemukan',
-      'description': 'Buku berjudul "Pemrograman Flutter" hilang di ruang kuliah.',
-    },
-  ];
-
+  List<Map<String, String>> _kehilanganList = [];
   List<Map<String, String>> _filteredKehilanganList = [];
   bool _isSearching = false;
   String _searchQuery = '';
@@ -3515,7 +3480,38 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredKehilanganList = _kehilanganList;
+    _fetchKehilanganData();
+  }
+
+  Future<void> _fetchKehilanganData() async {
+    try {
+      final response = await http.get(kehilanganUrl);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          // Convert each value to a String or a default message
+          _kehilanganList = List<Map<String, String>>.from(data.map((item) => {
+            'id_kejadian': (item['id_kejadian'] ?? '').toString(),
+            'judul': (item['judul'] ?? 'Judul tidak tersedia').toString(),
+            'nama' : (item['nama'] ?? 'nama tidak tersedia').toString(),
+            'tanggal': (item['tanggal'] ?? 'Tanggal tidak tersedia').toString(),
+            'jenis_barang': (item['jenis_barang'] ?? 'Jenis tidak tersedia').toString(),
+            'nama_status_kehilangan': (item['nama_status_kehilangan'] ?? 'Status tidak tersedia').toString(),
+            'lokasi': (item['lokasi'] ?? 'lokasi tidak tersedia').toString(),
+            'deskripsi': (item['deskripsi'] ?? 'Deskripsi tidak tersedia').toString(),
+            'lampiran': (item['lampiran'] ?? 'lampiran tidak tersedia').toString(),
+          }));
+
+          _filteredKehilanganList = _kehilanganList;
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
   }
 
   void _startSearch() {
@@ -3536,8 +3532,8 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
     setState(() {
       _searchQuery = newQuery;
       _filteredKehilanganList = _kehilanganList
-        .where((item) => item['title']!.toLowerCase().contains(newQuery.toLowerCase()))
-        .toList();
+          .where((item) => item['judul']!.toLowerCase().contains(newQuery.toLowerCase()))
+          .toList();
     });
   }
 
@@ -3547,7 +3543,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
         _filteredKehilanganList = _kehilanganList;
       } else {
         _filteredKehilanganList = _kehilanganList
-            .where((item) => item['status'] == status)
+            .where((item) => item['nama_status_kehilangan'] == status)
             .toList();
       }
     });
@@ -3573,15 +3569,14 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                 children: [
                   LastUpdateRow(
                     lastUpdateDate: _filteredKehilanganList.isNotEmpty
-                        ? _filteredKehilanganList.first['date'] ?? 'Tanggal tidak tersedia'
-                        : 'Tanggal tidak tersedia',  
+                        ? _filteredKehilanganList.first['tanggal'] ?? 'Tanggal tidak tersedia'
+                        : 'Tanggal tidak tersedia',
                   ),
-                  const SizedBox(height: 10), // Menambahkan sedikit jarak sebelum TabBarContainer
+                  const SizedBox(height: 10),
                   TabBarContainerKehilangan(onStatusChanged: _filterByStatus),
                   Expanded(
                     child: KehilanganList(
-                      kehilanganList: _filteredKehilanganList,
-                    ),
+                        kehilanganList: _filteredKehilanganList),
                   ),
                 ],
               ),
@@ -3691,11 +3686,15 @@ class KehilanganList extends StatelessWidget {
       itemBuilder: (context, index) {
         final kehilangan = kehilanganList[index];
         return KehilanganCard(
-          title: kehilangan['title'] ?? '',
-          date: kehilangan['date'] ?? '',
-          jenisBarang: kehilangan['jenisBarang'] ?? '',
-          status: kehilangan['status'] ?? '',
-          description: kehilangan['description'] ?? '',
+          id_kejadian: kehilangan['id_kejadian'] ?? '',
+          judul: kehilangan['judul'] ?? '',
+          nama: kehilangan['nama'] ?? '',
+          tanggal: kehilangan['tanggal'] ?? '',
+          jenis_barang: kehilangan['jenis_barang'] ?? '',
+          nama_status_kehilangan : kehilangan['nama_status_kehilangan'] ?? '',
+          lokasi: kehilangan['lokasi'] ?? '',
+          deskripsi: kehilangan['deskripsi'] ?? '',
+          lampiran: kehilangan['lampiran'] ?? '',
         );
       },
     );
@@ -3753,35 +3752,47 @@ class _TabBarContainerKehilanganState extends State<TabBarContainerKehilangan> {
 }
 
 class KehilanganCard extends StatelessWidget {
-  final String title;
-  final String date;
-  final String jenisBarang;
-  final String status;
-  final String description;
+  final String id_kejadian;
+  final String judul;
+  final String nama;
+  final String tanggal;
+  final String jenis_barang;
+  final String nama_status_kehilangan;
+  final String lokasi;
+  final String deskripsi;
+  final String lampiran;
 
   const KehilanganCard({
     super.key,
-    required this.title,
-    required this.date,
-    required this.jenisBarang,
-    required this.status,
-    required this.description,
+    required this.id_kejadian,
+    required this.judul,
+    required this.nama,
+    required this.tanggal,
+    required this.jenis_barang,
+    required this.nama_status_kehilangan,
+    required this.lokasi,
+    required this.deskripsi,
+    required this.lampiran,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // Navigasi ke halaman detail Kehilangan dengan data dari card
+        // Navigasi ke halaman detail pengaduan dengan data dari card
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => DetailKehilanganPage(
-              title: title,
-              date: date,
-              jenisBarang: jenisBarang,
-              status: status,
-              description: description,
+              id_kejadian: id_kejadian,
+              judul: judul,
+              nama: nama,
+              tanggal: tanggal,
+              jenis_barang: jenis_barang,
+              nama_status_kehilangan: nama_status_kehilangan,
+              lokasi: lokasi,
+              deskripsi: deskripsi,
+              lampiran: lampiran,
             ),
           ),
         );
@@ -3802,7 +3813,7 @@ class KehilanganCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          title,
+                          judul,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -3811,7 +3822,7 @@ class KehilanganCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          date,
+                          tanggal,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,
@@ -3832,7 +3843,7 @@ class KehilanganCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
-                      jenisBarang,
+                      jenis_barang,
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -3840,11 +3851,11 @@ class KehilanganCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: statusColor(status), // Memanggil fungsi untuk menentukan warna background
+                      color: statusColor(nama_status_kehilangan), // Memanggil fungsi untuk menentukan warna background
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: Text(
-                      status,
+                      nama_status_kehilangan,
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -3852,7 +3863,7 @@ class KehilanganCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                'Deskripsi : $description',
+                'Deskripsi : $deskripsi',
                 style: const TextStyle(color: Colors.grey),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -3880,105 +3891,137 @@ class KehilanganCard extends StatelessWidget {
 }
 
 class DetailKehilanganPage extends StatelessWidget {
-  final String title;
-  final String date;
-  final String jenisBarang;
-  final String status;
-  final String description;
+  final String id_kejadian;
+  final String judul;
+  final String nama;
+  final String tanggal;
+  final String jenis_barang;
+  final String nama_status_kehilangan;
+  final String lokasi;
+  final String deskripsi;
+  final String lampiran;
 
   const DetailKehilanganPage({
     super.key,
-    required this.title,
-    required this.date,
-    required this.jenisBarang,
-    required this.status,
-    required this.description,
+    required this.id_kejadian,
+    required this.judul,
+    required this.nama,
+    required this.tanggal,
+    required this.jenis_barang,
+    required this.nama_status_kehilangan,
+    required this.lokasi,
+    required this.deskripsi,
+    required this.lampiran,
   });
 
   @override
   Widget build(BuildContext context) {
+    _checkAndUpdateStatus(context); // Check and update status if needed
+
     return Scaffold(
-      body: Column(
-        children: [
-          // Custom AppBar mirip dengan PengaduanScreen
-          Container(
-            decoration: const BoxDecoration(
-              color: Color(0xFF060A47),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Custom AppBar similar to PengaduanScreen
+            Container(
+              decoration: const BoxDecoration(
+                color: Color(0xFF060A47),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
+                ),
               ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-            child: SafeArea(
-              child: Row(
-                children: [
-                  // Icon Back di sebelah kiri
-                  IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                  ),
-                  // Expanded untuk menempatkan teks di tengah
-                  const Expanded(
-                    child: Text(
-                      'Detail Kehilangan',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.arrow_back,
                         color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const Expanded(
+                      child: Text(
+                        'Detail Kehilangan',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  // Spacer untuk menggantikan posisi icon notifikasi
-                  const SizedBox(width: 48), // Mengimbangi ukuran ikon yang hilang
-                ],
+                    const SizedBox(width: 48),
+                  ],
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildReadOnlyTextField(label: 'Judul', text: title),
-                  const SizedBox(height: 16),
-                  _buildReadOnlyTextField(label: 'Tanggal', text: date),
-                  const SizedBox(height: 16),
-                  _buildReadOnlyTextField(label: 'Jenis Barang', text: jenisBarang),
-                  const SizedBox(height: 16),
-                  _buildReadOnlyTextField(label: 'Status', text: status),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: TextEditingController(text: description),
-                    enabled: false,
-                    maxLines: 4,
-                    decoration: const InputDecoration(
-                      labelText: 'Deskripsi',
-                      border: OutlineInputBorder(),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildReadOnlyTextField(label: 'Id Kehilangan', text: id_kejadian),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Judul', text: judul),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'User', text: nama),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Tanggal', text: tanggal),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Jenis Barang', text: jenis_barang),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Status', text: nama_status_kehilangan),
+                    const SizedBox(height: 16),
+                    _buildReadOnlyTextField(label: 'Lokasi', text: lokasi),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: TextEditingController(text: deskripsi),
+                      enabled: false,
+                      maxLines: 5,
+                      decoration: const InputDecoration(
+                        labelText: 'Deskripsi',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: _buildActionButtons(context),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Container(
+                      height: 200,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey),
+                      ),
+                      child: lampiran.isNotEmpty
+                          ? Image.network(
+                        '$baseUrl/Back-end/foto-kehilangan/$lampiran',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return const Center(child: Text('Image not available'));
+                        },
+                      )
+                          : const Center(child: Text('No attachment available')),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: _buildActionButtons(context),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  // Membuat TextField yang hanya bisa dilihat (read-only)
   Widget _buildReadOnlyTextField({required String label, required String text}) {
     return TextField(
       controller: TextEditingController(text: text),
@@ -3990,62 +4033,87 @@ class DetailKehilanganPage extends StatelessWidget {
     );
   }
 
-  // Membuat tombol aksi berdasarkan status pengaduan
   List<Widget> _buildActionButtons(BuildContext context) {
-    return [
-      TextButton(
-        style: TextButton.styleFrom(
-          backgroundColor: Colors.red, // Red background
-          foregroundColor: Colors.white, // White text
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    if (nama_status_kehilangan == 'Diajukan') {
+      return [
+        TextButton(
+          onPressed: () {
+            _updateStatus(context, id_kejadian, 'terima');
+          },
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.green,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          child: const Text('Konfirmasi'),
         ),
-        onPressed: () {
-          _showConfirmationDialog(
-            context,
-            title: "Konfirmasi",
-            content: "Apakah Anda yakin ingin menghapus kehilangan ini?",
-            onConfirm: () {
-              Navigator.of(context).pop(); // Tutup dialog
-              Navigator.pop(context); // Kembali ke halaman sebelumnya
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Kehilangan berhasil dihapus')),
-              );
-            },
-          );
-        },
-        child: const Text('Hapus'),
-      ),
-    ]; 
+      ];
+    } else {
+      return [
+        TextButton(
+          onPressed: () {
+            _updateStatus(context, id_kejadian, 'delete');
+          },
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+          ),
+          child: const Text('Hapus'),
+        ),
+      ];
+    }
   }
 
-  // Menampilkan dialog konfirmasi
-  void _showConfirmationDialog(
-    BuildContext context, {
-    required String title,
-    required String content,
-    required VoidCallback onConfirm,
-  }) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(content),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Tutup dialog
-              },
-              child: const Text("Batal"),
-            ),
-            TextButton(
-              onPressed: onConfirm,
-              child: const Text("Ya"),
-            ),
-          ],
-        );
+  void _checkAndUpdateStatus(BuildContext context) async {
+    final DateFormat dateFormat = DateFormat("yyyy-MM-dd");
+    final DateTime currentDate = DateTime.now();
+    final DateTime incidentDate = dateFormat.parse(tanggal);
+
+    final differenceInDays = currentDate.difference(incidentDate).inDays;
+
+    if (differenceInDays >= 90 && nama_status_kehilangan != "Hilang") {
+      await _updateStatus(context, id_kejadian, 'hilang');
+    }
+  }
+
+  Future<void> _updateStatus(BuildContext context, String idKejadian, String action) async {
+    final response = await http.post(
+      Uri.parse('kehilanganUrl'), // Replace with the actual API endpoint
+      headers: {"Content-Type": "application/x-www-form-urlencoded"},
+      body: {
+        'id_kejadian': idKejadian,
+        'action': action,
       },
     );
+
+    if (response.statusCode == 200) {
+      final result = jsonDecode(response.body);
+      if (result['status'] == 'success') {
+        String statusText = (action == 'terima')
+            ? "Belum Ditemukan"
+            : action == 'hilang' ? "Hilang" : "Dihapus";
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Status berhasil diperbarui ke $statusText')),
+        );
+        Navigator.pop(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal memperbarui status')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Terjadi kesalahan')),
+      );
+    }
   }
 }
 // ------------------------------------------------------------------
