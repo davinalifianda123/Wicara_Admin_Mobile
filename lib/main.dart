@@ -5,16 +5,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://3da4-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://2b4a-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
 final mahasiswaUrl = Uri.parse('$baseUrl/api/api_mahasiswa.php');
 final unitLayananUrl = Uri.parse('$baseUrl/api/api_unitLayanan.php');
 final jenisPengaduanUrl = Uri.parse('$baseUrl/api/api_jenisPengaduan.php');
-final profileUrl = Uri.parse('$baseUrl/api/api_profile.php');
 final pengaduanUrl = Uri.parse('$baseUrl/api/api_pengaduan.php');
 final kehilanganUrl = Uri.parse('$baseUrl/api/api_kehilangan.php');
+final ratingUrl = Uri.parse('$baseUrl/api/api_rating.php');
+final profileUrl = Uri.parse('$baseUrl/api/api_profile.php');
 
 void main() {
   runApp(const MyApp());
@@ -1094,31 +1095,7 @@ class RatingScreen extends StatefulWidget {
 }
 
 class _RatingScreenState extends State<RatingScreen> {
-  final List<Map<String, String>> _serviceList = [
-    {
-      'name': 'Poliklinik',
-      'email': 'PIC@gmail.com',
-      'rating': '4',
-      'reviews': '273',
-      'imageUrl': 'images/poliklinik_image.png',
-    },
-    {
-      'name': 'Radiologi',
-      'email': 'PIC@gmail.com',
-      'rating': '4',
-      'reviews': '273',
-      'imageUrl': 'images/poliklinik_image.png',
-    },
-    {
-      'name': 'Makanan',
-      'email': 'PIC@gmail.com',
-      'rating': '4',
-      'reviews': '273',
-      'imageUrl': 'images/poliklinik_image.png',
-    },
-    // Add more services as needed
-  ];
-
+  List<Map<String, String>> _serviceList = [];
   List<Map<String, String>> _filteredServiceList = [];
   bool _isSearching = false;
   String _searchQuery = '';
@@ -1126,7 +1103,35 @@ class _RatingScreenState extends State<RatingScreen> {
   @override
   void initState() {
     super.initState();
-    _filteredServiceList = _serviceList;
+    _fetchRatingData();
+  }
+
+  Future<void> _fetchRatingData() async {
+    try {
+      final response = await http.get(ratingUrl);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+
+        setState(() {
+          // Convert each value to a String or a default message
+          _serviceList = List<Map<String, String>>.from(data.map((item) => {
+            'id_instansi': (item['id_instansi'] ?? '').toString(),
+            'nama_instansi' : (item['nama_instansi'] ?? 'nama tidak tersedia').toString(),
+            'email_pic': (item['email_pic'] ?? 'email tidak tersedia').toString(),
+            'image_instansi': (item['image_instansi'] ?? 'image tidak tersedia').toString(),
+            'average_rating': (item['average_rating'] ?? '-').toString(),
+            'review_count': (item['review_count'] ?? 'review belum ada').toString(),
+          }));
+
+          _filteredServiceList = _serviceList;
+        });
+      } else {
+        throw Exception('Failed to load data');
+      }
+    } catch (e) {
+      print("Error fetching data: $e");
+    }
   }
 
   void _startSearch() {
@@ -1172,11 +1177,12 @@ class _RatingScreenState extends State<RatingScreen> {
                 itemBuilder: (context, index) {
                   final service = _filteredServiceList[index];
                   return ServiceCard(
-                    name: service['name']!,
-                    email: service['email']!,
-                    rating: int.parse(service['rating']!),
-                    reviews: int.parse(service['reviews']!),
-                    imageUrl: service['imageUrl']!,
+                    id_instansi: service['id_instansi']!,
+                    nama_instansi: service['nama_instansi']!,
+                    email_pic: service['email_pic']!,
+                    average_rating: double.parse(service['average_rating']!).round(),
+                    review_count: int.parse(service['review_count']!),
+                    image_instansi: service['image_instansi']!,
                   );
                 },
               ),
@@ -1275,19 +1281,21 @@ class RatingAppBar extends StatelessWidget {
 }
 
 class ServiceCard extends StatelessWidget {
-  final String name;
-  final String email;
-  final int rating;
-  final int reviews;
-  final String imageUrl;
+  final String id_instansi;
+  final String nama_instansi;
+  final String email_pic;
+  final int average_rating;
+  final int review_count;
+  final String image_instansi;
 
   const ServiceCard({
     super.key,
-    required this.name,
-    required this.email,
-    required this.rating,
-    required this.reviews,
-    required this.imageUrl,
+    required this.id_instansi,
+    required this.nama_instansi,
+    required this.email_pic,
+    required this.average_rating,
+    required this.review_count,
+    required this.image_instansi,
   });
 
   @override
@@ -1300,11 +1308,12 @@ class ServiceCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => ServiceDetailPage(
               service: {
-                'name': name,
-                'email': email,
-                'rating': rating.toString(),
-                'reviews': reviews.toString(),
-                'imageUrl': imageUrl,
+                'id_instansi' : id_instansi,
+                'nama_instansi': nama_instansi,
+                'email_pic': email_pic,
+                'average_rating': average_rating.toString(),
+                'review_count': review_count.toString(),
+                'image_instansi': image_instansi,
               },
             ),
           ),
@@ -1319,11 +1328,14 @@ class ServiceCard extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
-              child: Image.asset(
-                imageUrl,
+              child: Image.network(
+                '$baseUrl/$image_instansi',
                 width: double.infinity,
                 height: 150,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return const Center(child: Text('Image not available'));
+                },
               ),
             ),
             Padding(
@@ -1332,14 +1344,14 @@ class ServiceCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    name,
+                    nama_instansi,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    email,
+                    email_pic,
                     style: const TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -1348,7 +1360,7 @@ class ServiceCard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        '$rating/5',
+                        '$average_rating/5',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -1358,7 +1370,7 @@ class ServiceCard extends StatelessWidget {
                       Row(
                         children: List.generate(5, (index) {
                           return Icon(
-                            index < rating ? Icons.star : Icons.star_border,
+                            index < average_rating ? Icons.star : Icons.star_border,
                             color: Colors.orange,
                             size: 20,
                           );
@@ -1366,7 +1378,7 @@ class ServiceCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '$reviews Reviews',
+                        '$review_count Reviews',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -1385,7 +1397,7 @@ class ServiceCard extends StatelessWidget {
 }
 
 class ServiceDetailPage extends StatefulWidget {
-  final Map<String, String> service;
+  final Map<String, dynamic> service;
 
   const ServiceDetailPage({super.key, required this.service});
 
@@ -1395,58 +1407,67 @@ class ServiceDetailPage extends StatefulWidget {
 }
 
 class _ServiceDetailPageState extends State<ServiceDetailPage> {
-  String selectedSort = 'Terbaru'; // Default sort
-  List<Map<String, dynamic>> reviews = [
-    {
-      'name': 'Melia Apriani',
-      'date': DateTime(2023, 4, 15),
-      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
-      'rating': 5,
-      'helpfulCount': 56,
-      'avatar': 'images/Foto_profile.png',
-    },
-    {
-      'name': 'Danu Alamansyah',
-      'date': DateTime(2008, 10, 15),
-      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
-      'rating': 5,
-      'helpfulCount': 56,
-      'avatar': 'images/Foto_profile.png',
-    },
-    {
-      'name': 'Melia Apriani',
-      'date': DateTime(2009, 10, 15),
-      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
-      'rating': 5,
-      'helpfulCount': 56,
-      'avatar': 'images/Foto_profile.png',
-    },
-    {
-      'name': 'Melia Apriani',
-      'date': DateTime(2011, 10, 15),
-      'content': 'Ac nya dingin beuttt...serasa di kutub mungkin lain kali bisa diganti AC nya jadi Angin Cepoi Cepoi xixixixixi',
-      'rating': 5,
-      'helpfulCount': 56,
-      'avatar': 'images/Foto_profile.png',
-    },
-    // Tambahkan contoh data lainnya sesuai kebutuhan
-  ];
+  String selectedSort = 'Terbaru';
+  List<Map<String, dynamic>> reviews = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchReviewsByInstansi(widget.service['id_instansi']);
+  }
+
+  Future<void> fetchReviewsByInstansi(String idInstansi) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/api_ulasan.php?id_instansi=$idInstansi'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        setState(() {
+          reviews = data.map((item) => {
+            'id_kejadian' : item['id_kejadian'],
+            'id_instansi': item['id_instansi'],
+            'nama': item['nama'],
+            'tanggal': DateTime.parse(item['tanggal']),
+            'isi_komentar': item['isi_komentar'],
+            'skala_bintang': int.parse(item['skala_bintang']),
+            'image': item['image'],
+          }).toList();
+          isLoading = false; // Set loading ke false setelah data berhasil diambil
+        });
+      } else {
+        // Jika status code bukan 200, anggap gagal memuat
+        setState(() {
+          isLoading = false;
+        });
+        throw Exception('Failed to load reviews, status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Log error di console dan update `isLoading` agar berhenti loading
+      print('Error fetching reviews: $e');
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Sorting the reviews based on the selected sort option
+    // Sorting reviews based on selected option
     reviews.sort((a, b) {
       if (selectedSort == 'Terbaru') {
-        return b['date'].compareTo(a['date']); // Sort by newest first
+        return b['tanggal'].compareTo(a['tanggal']);
       } else {
-        return a['date'].compareTo(b['date']); // Sort by oldest first
+        return a['tanggal'].compareTo(b['tanggal']);
       }
     });
 
     return Scaffold(
       body: Column(
         children: [
-          // Navbar atas
+          // Navbar
           Container(
             decoration: const BoxDecoration(
               color: Color(0xFF060A47),
@@ -1460,13 +1481,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
               child: Row(
                 children: [
                   IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
                   ),
                   const Expanded(
                     child: Text(
@@ -1479,125 +1495,34 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                       ),
                     ),
                   ),
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const NotificationScreen(),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
+                  IconButton(
+                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    onPressed: () {
+                      // Your notification screen navigation
+                    },
                   ),
                 ],
               ),
             ),
           ),
-          // Area yang bisa digulir di bawah navbar
+          // Main content area
           Expanded(
-            child: SingleChildScrollView(
+            child: isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Detail layanan
-                  Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    elevation: 4,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                            top: Radius.circular(10),
-                          ),
-                          child: Image.asset(
-                            widget.service['imageUrl']!,
-                            width: double.infinity,
-                            height: 150,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.service['name']!,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Row(
-                                children: [
-                                  Text(
-                                    '${widget.service['rating']}/5',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Row(
-                                    children: List.generate(5, (index) {
-                                      return index < int.parse(widget.service['rating']!)
-                                          ? const Icon(
-                                              Icons.star,
-                                              color: Colors.orange,
-                                              size: 20,
-                                            )
-                                          : const Icon(
-                                              Icons.star_border,
-                                              color: Colors.orange,
-                                              size: 20,
-                                            );
-                                    }),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${widget.service['reviews']} Reviews',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  // Dropdown untuk sorting
+                  // Your existing widgets...
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       DropdownButton<String>(
                         value: selectedSort,
                         items: const [
-                          DropdownMenuItem(
-                            value: 'Terbaru',
-                            child: Text('Terbaru'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Terlama',
-                            child: Text('Terlama'),
-                          ),
+                          DropdownMenuItem(value: 'Terbaru', child: Text('Terbaru')),
+                          DropdownMenuItem(value: 'Terlama', child: Text('Terlama')),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -1607,7 +1532,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                       ),
                     ],
                   ),
-                  // Daftar Review
+                  // Display reviews
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -1615,12 +1540,20 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                     itemBuilder: (context, index) {
                       final review = reviews[index];
                       return InkWell(
-                        onTap: () {
-                          Navigator.push(
+                        onTap: () async {
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => DetailRatingPage(
-                                review: reviews[index], // Kirim review sesuai indeks yang dipilih
+                                review: review,
+                                onReviewDeleted: () {
+                                  // Tampilkan pesan berhasil, lalu pop kembali ke halaman sebelumnya
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Review berhasil dihapus')),
+                                  );
+                                  fetchReviewsByInstansi(widget.service['id_instansi']);
+                                  Navigator.pop(context); // Tutup halaman detail setelah berhasil
+                                },
                               ),
                             ),
                           );
@@ -1639,24 +1572,24 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundImage: AssetImage(review['avatar']),
+                                      backgroundImage: review['image'] != null && review['image'].isNotEmpty
+                                          ? NetworkImage('$baseUrl${review['image']}')
+                                          : AssetImage('images/Foto_profile.png'), // Gambar lokal fallback
+                                      onBackgroundImageError: (exception, stackTrace) {
+                                        // Optional: handle error jika gambar tidak ditemukan
+                                      },
                                     ),
                                     const SizedBox(width: 8),
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          review['name'],
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          review['nama'],
+                                          style: const TextStyle(fontWeight: FontWeight.bold),
                                         ),
                                         Text(
-                                          '${review['date'].day}/${review['date'].month}/${review['date'].year}',
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 12,
-                                          ),
+                                          '${review['tanggal'].day}/${review['tanggal'].month}/${review['tanggal'].year}',
+                                          style: const TextStyle(color: Colors.grey, fontSize: 12),
                                         ),
                                       ],
                                     ),
@@ -1667,9 +1600,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                 Row(
                                   children: List.generate(5, (index) {
                                     return Icon(
-                                      index < review['rating']
-                                          ? Icons.star
-                                          : Icons.star_border,
+                                      index < review['skala_bintang'] ? Icons.star : Icons.star_border,
                                       color: Colors.orange,
                                       size: 16,
                                     );
@@ -1677,21 +1608,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  review['content'],
+                                  review['isi_komentar'],
                                   style: const TextStyle(fontSize: 14),
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '${review['helpfulCount']} orang merasa ulasan ini berguna',
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
                                 ),
                               ],
                             ),
@@ -1712,18 +1630,42 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
 
 class DetailRatingPage extends StatelessWidget {
   final Map<String, dynamic> review;
+  final VoidCallback onReviewDeleted;
 
-  const DetailRatingPage({super.key, required this.review});
+  const DetailRatingPage({
+    Key? key,
+    required this.review,
+    required this.onReviewDeleted,
+  }) : super(key: key);
+
+  Future<void> deleteReview(BuildContext context, String id_kejadian) async {
+    final url = '$baseUrl/api/api_ulasan.php?id_kejadian=$id_kejadian&action=delete';
+    final response = await http.delete(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      if (data['status'] == 'success') {
+        onReviewDeleted(); // Memanggil callback setelah penghapusan berhasil
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal menghapus review')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Terjadi kesalahan saat menghubungi server')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     // Data yang akan ditampilkan berdasarkan review yang diterima
-    final name = review['name'] as String;
-    final date = review['date'] as DateTime;
-    final content = review['content'] as String;
-    final rating = review['rating'] as int;
-    final helpfulCount = review['helpfulCount'] as int;
-    final avatar = review['avatar'] as String;
+    final id_kejadian = review['id_kejadian'] as String;
+    final name = review['nama'] as String;
+    final date = review['tanggal'] as DateTime;
+    final content = review['isi_komentar'] as String;
+    final rating = review['skala_bintang'] as int;
 
     return Scaffold(
       body: Column(
@@ -1778,8 +1720,12 @@ class DetailRatingPage extends StatelessWidget {
                   Row(
                     children: [
                       CircleAvatar(
-                        backgroundImage: AssetImage(avatar),
-                        radius: 30,
+                        backgroundImage: review['image'] != null && review['image'].isNotEmpty
+                            ? NetworkImage('$baseUrl${review['image']}')
+                            : AssetImage('images/Foto_profile.png'), // Gambar lokal fallback
+                        onBackgroundImageError: (exception, stackTrace) {
+                          // Optional: handle error jika gambar tidak ditemukan
+                        },
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -1823,15 +1769,6 @@ class DetailRatingPage extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    initialValue: '$helpfulCount orang merasa ulasan ini berguna',
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Jumlah yang Menilai Bermanfaat',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -1857,10 +1794,8 @@ class DetailRatingPage extends StatelessWidget {
                                   TextButton(
                                     onPressed: () {
                                       Navigator.of(context).pop();
-                                      Navigator.pop(context);
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Review berhasil dihapus')),
-                                      );
+                                      // Memanggil fungsi deleteReview untuk menghapus ulasan
+                                      deleteReview(context, id_kejadian);
                                     },
                                     child: const Text("Hapus"),
                                   ),
