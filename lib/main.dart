@@ -1369,11 +1369,25 @@ class ServiceCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Row(
                         children: List.generate(5, (index) {
-                          return Icon(
-                            index < average_rating.floor() ? Icons.star : Icons.star_border,
-                            color: Colors.orange,
-                            size: 20,
-                          );
+                          if (index < average_rating.floor()) {
+                            return const Icon(
+                              Icons.star,
+                              color: Colors.orange,
+                              size: 20,
+                            );
+                          } else if (index == average_rating.floor() && average_rating % 1 != 0) {
+                            return const Icon(
+                              Icons.star_half,
+                              color: Colors.orange,
+                              size: 20,
+                            );
+                          } else {
+                            return const Icon(
+                              Icons.star_border,
+                              color: Colors.orange,
+                              size: 20,
+                            );
+                          }
                         }),
                       ),
                       const SizedBox(width: 4),
@@ -4020,7 +4034,7 @@ class DetailKehilanganPage extends StatelessWidget {
 
   Future<void> _updateStatus(BuildContext context, String idKejadian, String action) async {
     final response = await http.post(
-      Uri.parse('kehilanganUrl'), // Replace with the actual API endpoint
+      kehilanganUrl, // Replace with the actual API endpoint
       headers: {"Content-Type": "application/x-www-form-urlencoded"},
       body: {
         'id_kejadian': idKejadian,
