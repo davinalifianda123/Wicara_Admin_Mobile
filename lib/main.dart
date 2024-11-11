@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://2b4a-66-96-225-150.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://3630-103-214-229-137.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -1180,7 +1180,7 @@ class _RatingScreenState extends State<RatingScreen> {
                     id_instansi: service['id_instansi']!,
                     nama_instansi: service['nama_instansi']!,
                     email_pic: service['email_pic']!,
-                    average_rating: double.parse(service['average_rating']!).round(),
+                    average_rating: double.parse(service['average_rating']!),
                     review_count: int.parse(service['review_count']!),
                     image_instansi: service['image_instansi']!,
                   );
@@ -1284,7 +1284,7 @@ class ServiceCard extends StatelessWidget {
   final String id_instansi;
   final String nama_instansi;
   final String email_pic;
-  final int average_rating;
+  final double average_rating;
   final int review_count;
   final String image_instansi;
 
@@ -1370,7 +1370,7 @@ class ServiceCard extends StatelessWidget {
                       Row(
                         children: List.generate(5, (index) {
                           return Icon(
-                            index < average_rating ? Icons.star : Icons.star_border,
+                            index < average_rating.floor() ? Icons.star : Icons.star_border,
                             color: Colors.orange,
                             size: 20,
                           );
