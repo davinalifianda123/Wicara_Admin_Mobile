@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://3630-103-214-229-137.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://1bcb-114-79-17-30.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -4077,12 +4077,13 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Controllers to get the input values
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  bool _isEditing = false; // State untuk menentukan mode edit atau tidak
   String? _imageUrl;
+  String? _idUser; // Tambahkan variabel untuk idUser
 
   @override
   void initState() {
@@ -4093,6 +4094,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
+      _idUser = prefs.getString('id_user'); // Ambil idUser dari SharedPreferences
       _emailController.text = prefs.getString('email') ?? '';
       _namaController.text = prefs.getString('nama') ?? '';
       _passwordController.text = prefs.getString('password') ?? ''; // opsional
@@ -4101,17 +4103,58 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
+  Future<void> _saveUserData(String nama, String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('email', email);
+    await prefs.setString('nama', nama);
+  }
+
+  Future<void> editProfile({
+    required String idUser,
+    required String nama,
+    required String email,
+    String? password, // Password bersifat opsional
+  }) async {
+    final Uri url = profileUrl; // Ganti dengan URL API Anda
+
+    final Map<String, dynamic> data = {
+      'id_user': idUser,
+      'nama': nama,
+      'email': email,
+      'password': password ?? '', // Kirimkan string kosong jika password tidak diedit
+    };
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseBody = json.decode(response.body);
+        if (responseBody['success'] == true) {
+          print("Profil berhasil diperbarui.");
+        } else {
+          print("Gagal memperbarui profil: ${responseBody['message']}");
+        }
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error: $error');
+    }
+  }
+
   @override
   void dispose() {
-    // Membersihkan controller setelah widget dihapus
     _emailController.dispose();
     _namaController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // Fungsi untuk membangun TextField profil
-  Widget _buildProfileField(String label, TextEditingController controller) {
+  Widget _buildProfileField(String label, TextEditingController controller, {bool obscureText = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -4119,40 +4162,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
         const SizedBox(height: 5),
         TextField(
           controller: controller,
-          enabled: false, // Nonaktifkan pengeditan
+          enabled: _isEditing, // Aktifkan edit hanya jika dalam mode editing
+          obscureText: label == "Password" ? !_isPasswordVisible : obscureText,
           decoration: InputDecoration(
             hintText: "Masukkan $label",
             hintStyle: const TextStyle(color: Colors.grey),
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Fungsi untuk membangun TextField password
-  Widget _buildPasswordField(String label, TextEditingController controller) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 16, color: Colors.black)),
-        const SizedBox(height: 5),
-        TextField(
-          controller: controller,
-          obscureText: !_isPasswordVisible,
-          enabled: false, // Nonaktifkan pengeditan
-          decoration: InputDecoration(
-            hintText: "Masukkan $label",
-            hintStyle: const TextStyle(color: Colors.grey),
-            suffixIcon: IconButton(
+            suffixIcon: label == "Password" && _isEditing
+                ? IconButton(
               icon: Icon(
                 _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                color: Colors.grey,
               ),
               onPressed: () {
                 setState(() {
                   _isPasswordVisible = !_isPasswordVisible;
                 });
               },
-            ),
+            )
+                : null,
           ),
         ),
       ],
@@ -4182,7 +4209,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color(0xFF060A47),
                     ),
                     onPressed: () {
-                      // Tambahkan logika kembali
+                      Navigator.pop(context); // Kembali ke layar sebelumnya
                     },
                   ),
                   const Expanded(
@@ -4196,18 +4223,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  Stack(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          // Tambahkan logika notifikasi
-                        },
-                      ),
-                    ],
+                  IconButton(
+                    icon: const Icon(
+                      Icons.notifications,
+                      color: Colors.white,
+                    ),
+                    onPressed: () {
+                      // Tambahkan logika notifikasi
+                    },
                   ),
                 ],
               ),
@@ -4225,7 +4248,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: Colors.grey,
                       backgroundImage: _imageUrl != null
                           ? NetworkImage(_imageUrl!)
-                          : null, // Menampilkan avatar jika ada
+                          : null,
                       child: _imageUrl == null
                           ? const Icon(
                         Icons.person,
@@ -4269,8 +4292,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const SizedBox(height: 20),
                           _buildProfileField("Email", _emailController),
                           const SizedBox(height: 20),
-                          _buildPasswordField("Password", _passwordController),
+                          _buildProfileField("Password", _passwordController, obscureText: true),
                         ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (_idUser == null) {
+                            print("ID user tidak ditemukan. Harap login kembali.");
+                            return;
+                          }
+
+                          if (_isEditing) {
+                            // Kirim data yang sudah diedit ke API
+                            await editProfile(
+                              idUser: _idUser ?? '',
+                              nama: _namaController.text,
+                              email: _emailController.text,
+                              password: _passwordController.text.isNotEmpty ? _passwordController.text : null, // Hanya kirim password jika ada
+                            );
+
+                            setState(() {
+                              _isEditing = false; // Nonaktifkan mode edit setelah simpan
+                            });
+                          } else {
+                            setState(() {
+                              _isEditing = true; // Aktifkan mode edit
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isEditing ? Colors.green : Colors.blue,
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: Text(
+                          _isEditing ? "Simpan" : "Edit",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 10),
