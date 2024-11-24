@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://1bcb-114-79-17-30.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://9dc0-66-96-225-96.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -16,6 +16,7 @@ final pengaduanUrl = Uri.parse('$baseUrl/api/api_pengaduan.php');
 final kehilanganUrl = Uri.parse('$baseUrl/api/api_kehilangan.php');
 final ratingUrl = Uri.parse('$baseUrl/api/api_rating.php');
 final profileUrl = Uri.parse('$baseUrl/api/api_profile.php');
+final notifUrl = Uri.parse('$baseUrl/api/api_notification.php');
 
 void main() {
   runApp(const MyApp());
@@ -4103,12 +4104,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
   }
 
-  Future<void> _saveUserData(String nama, String email) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('email', email);
-    await prefs.setString('nama', nama);
-  }
-
   Future<void> editProfile({
     required String idUser,
     required String nama,
@@ -4209,7 +4204,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Color(0xFF060A47),
                     ),
                     onPressed: () {
-                      Navigator.pop(context); // Kembali ke layar sebelumnya
                     },
                   ),
                   const Expanded(
@@ -4256,21 +4250,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         color: Colors.white,
                       )
                           : null,
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Ubah Avatar ditekan!")),
-                        );
-                      },
-                      child: const Text(
-                        "Ubah Avatar",
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
                     const SizedBox(height: 20),
                     Container(
@@ -4384,112 +4363,61 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 // ----------------------------NOTIFIKASI--------------------------------
 class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+  const NotificationScreen({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
-  _NotificationScreenState createState() => _NotificationScreenState();
+  State<NotificationScreen> createState() => _NotificationScreenState();
 }
 
 class _NotificationScreenState extends State<NotificationScreen> {
   String filter = 'Semua';
+  List<Map<String, dynamic>> notifications = [];
 
-  void _showDeleteConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Hapus Notifikasi'),
-          content:
-              const Text('Apakah Anda yakin ingin menghapus notifikasi ini?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Batal', style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Hapus', style: TextStyle(color: Colors.green)),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Logika penghapusan notifikasi di sini
-              },
-            ),
-          ],
-        );
-      },
-    );
+  @override
+  void initState() {
+    super.initState();
+    fetchNotifications();
   }
 
-  // ignore: unused_element
-  void _showActionConfirmation(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Konfirmasi Aksi'),
-          content: const Text('Apakah Anda yakin?'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Tidak', style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Ya', style: TextStyle(color: Colors.green)),
-              onPressed: () {
-                Navigator.of(context).pop();
-                // Logika aksi di sini
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+  Future<void> fetchNotifications() async {
+    try {
+      final response = await http.get(
+        notifUrl,
+      );
 
-  List<Map<String, dynamic>> notifications = [
-    {
-      'title': 'Kamar mandi Kotor',
-      'category': 'Pengaduan',
-      'time': '2h ago',
-      'description': 'Pengaduan',
-    },
-    {
-      'title': 'Admin PBM Judes',
-      'category': 'Pengaduan',
-      'time': '2h ago',
-      'description': 'Pengaduan',
-    },
-    {
-      'title': 'Dosen suka bolos',
-      'category': 'Pengaduan',
-      'time': '2h ago',
-      'description': 'Pengaduan',
-    },
-    {
-      'title': 'Poliklinik',
-      'category': 'Rating',
-      'time': '2h ago',
-      'description': 'Rating',
-      'rating': 4 // Rating dari 5
-    },
-    {
-      'title': 'Pacar ku Hilang',
-      'category': 'Kehilangan',
-      'time': '2h ago',
-      'description': 'Kehilangan',
-    },
-  ];
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            notifications = List<Map<String, dynamic>>.from(
+              data['data'].map((notif) {
+                return {
+                  'id': notif['id'] ?? '',
+                  'title': notif['title'] ?? 'Tidak ada judul',
+                  'category': notif['category'] ?? 'Tidak diketahui',
+                  'time': notif['time'] ?? 'Tidak ada waktu',
+                  'description': notif['description'] ?? 'Tidak ada deskripsi',
+                  'rating': int.tryParse('${notif['rating']}') ?? 0,
+                  'status_notif': int.tryParse('${notif['status_notif']}') ?? 0,
+                  'nama_user': notif['nama_user'] ?? 'tidak ada user',
+                };
+              }),
+            );
+          });
+        }
+      } else {
+        throw Exception('Failed to load notifications');
+      }
+    } catch (e) {
+      print('Error fetching notifications: $e');
+    }
+  }
 
   List<Map<String, dynamic>> getFilteredNotifications() {
     if (filter == 'Semua') {
       return notifications;
     } else {
-      return notifications
-          .where((notif) => notif['category'] == filter)
+      return notifications.where((notif) => notif['category'] == filter)
           .toList();
     }
   }
@@ -4498,36 +4426,34 @@ class _NotificationScreenState extends State<NotificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: const Text(
           'Notifikasi',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
+          style: TextStyle(color: Colors.white), // Warna teks putih
         ),
         backgroundColor: const Color(0xFF060A47),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(
-            bottom: Radius.circular(30),
-          ),
-        ),
         iconTheme: const IconThemeData(
-          color: Colors.white,
-        ),
+            color: Colors.white), // Warna ikon back putih
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: ['Semua', 'Pengaduan', 'Kehilangan', 'Rating']
-                  .map((category) => Padding(
+          // Filter kategori
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            // Tambahkan padding untuk seluruh filter
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  'Semua',
+                  'Laporan Pengaduan',
+                  'Laporan Kehilangan',
+                  'Ulasan'
+                ]
+                    .map(
+                      (category) =>
+                      Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        // Tambahkan jarak antar kategori
                         child: ChoiceChip(
                           label: Text(category),
                           selected: filter == category,
@@ -4537,63 +4463,73 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             });
                           },
                         ),
-                      ))
-                  .toList(),
+                      ),
+                )
+                    .toList(),
+              ),
             ),
           ),
+          // Daftar notifikasi
           Expanded(
             child: ListView.builder(
-              padding: const EdgeInsets.all(16),
               itemCount: getFilteredNotifications().length,
               itemBuilder: (context, index) {
                 var notif = getFilteredNotifications()[index];
-                return Card(
-                    child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Colors.blueAccent,
-                    child: Text(
-                      notif['title'][0],
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  title: Text(notif['title']),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('${notif['time']} - ${notif['category']}'),
-                      if (notif['category'] == 'Rating')
-                        Row(
-                          children: List.generate(5, (starIndex) {
-                            return Icon(
-                              starIndex < notif['rating']
-                                  ? Icons.star
-                                  : Icons.star_border,
-                              color: Colors.amber,
-                              size: 16,
-                            );
-                          }),
-                        ),
-                    ],
-                  ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.more_vert),
-                    onPressed: () => _showDeleteConfirmation(context),
-                  ),
-                  onTap: () {
-                    // Navigasi ke halaman detail sesuai kategori
-                    // Contoh: Navigator.pushNamed(context, '/detail_pengaduan');
-                    if (notif['title'] == 'Poliklinik' &&
-                        notif['category'] == 'Rating') {
-                      // Buat instance Service dengan data yang relevan untuk navigasi
+                bool isUnread = notif['status_notif'] == 0;
 
-                      // Navigasi ke halaman detail Service
-                    }
-                    // Navigasi ke halaman detail lain sesuai kategori (jika diperlukan)
-                    // Contoh:
-                    // else if (notif['category'] == 'Pengaduan') { ... }
-                  },
-                  isThreeLine: true,
-                ));
+                return Card(
+                  color: isUnread ? Colors.lightBlue.shade50 : Colors.white,
+                  // Warna background berbeda
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: isUnread ? Colors.blue : Colors.grey,
+                      child: Text(
+                        notif['category'] == 'Ulasan'
+                            ? notif['nama_user'][0] // Huruf pertama nama user
+                            : notif['title'][0], // Huruf pertama judul
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    title: Text(
+                      notif['category'] == 'Ulasan'
+                          ? notif['nama_user'] // Nama user untuk kategori Rating
+                          : notif['title'], // Judul untuk kategori lainnya
+                      style: TextStyle(
+                        fontWeight: isUnread ? FontWeight.bold : FontWeight
+                            .normal, // Bold jika belum terbaca
+                      ),
+                    ),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('${notif['time']} - ${notif['category']}'),
+                        if (notif['category'] == 'Ulasan' &&
+                            notif['rating'] != 0)
+                          Row(
+                            children: List.generate(5, (starIndex) {
+                              return Icon(
+                                starIndex < (notif['rating'] ?? 0)
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.amber,
+                                size: 16,
+                              );
+                            }),
+                          ),
+                      ],
+                    ),
+                    onTap: () {
+                      // Navigasi atau tindakan untuk notifikasi
+                      print("Tapped on ${notif['title']}");
+
+                      // Simulasi: ubah status_notif jadi terbaca
+                      setState(() {
+                        notif['status_notif'] = 1; // Perbarui secara lokal
+                      });
+                    },
+                    isThreeLine: true,
+                  ),
+                );
               },
             ),
           ),
@@ -4602,4 +4538,5 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 }
+
 // ---------------------------------------------------------------------
