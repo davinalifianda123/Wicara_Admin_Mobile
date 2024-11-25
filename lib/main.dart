@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://9dc0-66-96-225-96.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://46ec-103-214-229-137.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -4130,6 +4130,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final Map<String, dynamic> responseBody = json.decode(response.body);
         if (responseBody['success'] == true) {
           print("Profil berhasil diperbarui.");
+
+          // Simpan data terbaru ke SharedPreferences
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('nama', nama);
+          await prefs.setString('email', email);
+          if (password != null) {
+            await prefs.setString('password', password); // Jika password diedit
+          }
+
+          // Perbarui state agar UI langsung menampilkan data terbaru
+          setState(() {
+            _namaController.text = nama;
+            _emailController.text = email;
+            if (password != null) {
+              _passwordController.text = password;
+            }
+          });
         } else {
           print("Gagal memperbarui profil: ${responseBody['message']}");
         }
@@ -4223,7 +4240,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.white,
                     ),
                     onPressed: () {
-                      // Tambahkan logika notifikasi
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const NotificationScreen()),
+                      );
                     },
                   ),
                 ],
@@ -4381,35 +4401,45 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> fetchNotifications() async {
     try {
-      final response = await http.get(
-        notifUrl,
-      );
+      final response = await http.get(notifUrl);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         if (data['success']) {
           setState(() {
-            notifications = List<Map<String, dynamic>>.from(
-              data['data'].map((notif) {
-                return {
-                  'id': notif['id'] ?? '',
-                  'title': notif['title'] ?? 'Tidak ada judul',
-                  'category': notif['category'] ?? 'Tidak diketahui',
-                  'time': notif['time'] ?? 'Tidak ada waktu',
-                  'description': notif['description'] ?? 'Tidak ada deskripsi',
-                  'rating': int.tryParse('${notif['rating']}') ?? 0,
-                  'status_notif': int.tryParse('${notif['status_notif']}') ?? 0,
-                  'nama_user': notif['nama_user'] ?? 'tidak ada user',
-                };
-              }),
-            );
+            notifications = List<Map<String, dynamic>>.from(data['data']);
           });
+        } else {
+          print('Error fetching notifications: ${data['message']}');
         }
       } else {
-        throw Exception('Failed to load notifications');
+        print('HTTP Error: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching notifications: $e');
+    }
+  }
+
+  Future<bool> updateNotificationStatus(int id) async {
+    try {
+      final response = await http.post(
+        notifUrl,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'id': id}),
+      );
+
+      final responseBody = jsonDecode(response.body);
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200 && responseBody['success'] == true) {
+        return true;
+      } else {
+        print('Error: ${responseBody['message']}');
+        return false;
+      }
+    } catch (e) {
+      print('Exception: $e');
+      return false;
     }
   }
 
@@ -4518,14 +4548,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           ),
                       ],
                     ),
-                    onTap: () {
-                      // Navigasi atau tindakan untuk notifikasi
-                      print("Tapped on ${notif['title']}");
-
-                      // Simulasi: ubah status_notif jadi terbaca
-                      setState(() {
-                        notif['status_notif'] = 1; // Perbarui secara lokal
-                      });
+                    onTap: () async {
+                      try {
+                        final success = await updateNotificationStatus(notif['id']); // Pastikan 'id' adalah int
+                        if (success) {
+                          setState(() {
+                            notif['status_notif'] = 1; // Pastikan 'status_notif' adalah int
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Gagal memperbarui status notifikasi")),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Terjadi kesalahan, coba lagi")),
+                        );
+                      }
                     },
                     isThreeLine: true,
                   ),
