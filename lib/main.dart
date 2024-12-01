@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://46ec-103-214-229-137.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://5850-103-47-133-89.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -422,11 +422,13 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   List<Map<String, String>> _filteredPengaduanList = [];
   bool _isSearching = false;
   String _searchQuery = '';
+  int _unreadCount = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchPengaduanData();
+    _fetchUnreadCount();
   }
 
   Future<void> _fetchPengaduanData() async {
@@ -458,6 +460,25 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
       }
     } catch (e) {
       print("Error fetching data: $e");
+    }
+  }
+
+  Future<void> _fetchUnreadCount() async {
+    try {
+      final response = await http.get(notifUrl); // Gunakan URL notifikasi
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            _unreadCount = List<Map<String, dynamic>>.from(data['data'])
+                .where((notif) => notif['status_notif'] == 0)
+                .length;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching unread notifications: $e");
     }
   }
 
@@ -507,6 +528,12 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
             onSearchStart: _startSearch,
             onSearchStop: _stopSearch,
             onSearchQueryChanged: _updateSearchQuery,
+            unreadCount: _unreadCount,
+            onUnreadCountChanged: (count) {
+              setState(() {
+                _unreadCount = count; // Update jumlah badge
+              });
+            },
           ),
           Expanded(
             child: Padding(
@@ -541,6 +568,8 @@ class PengaduanAppBar extends StatelessWidget {
   final VoidCallback onSearchStart;
   final VoidCallback onSearchStop;
   final ValueChanged<String> onSearchQueryChanged;
+  final int unreadCount;
+  final ValueChanged<int> onUnreadCountChanged;
 
   const PengaduanAppBar({
     super.key,
@@ -549,6 +578,8 @@ class PengaduanAppBar extends StatelessWidget {
     required this.onSearchStart,
     required this.onSearchStop,
     required this.onSearchQueryChanged,
+    required this.unreadCount,
+    required this.onUnreadCountChanged,
   });
 
   @override
@@ -597,14 +628,53 @@ class PengaduanAppBar extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.notifications, color: Colors.white, size: 25,),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                        );
-                      },
+                    // Badge pada ikon notifikasi
+                    Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NotificationScreen(
+                                  onUnreadCountChanged: onUnreadCountChanged,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 6,
+                            top: 6,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 16,
+                                minHeight: 16,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  unreadCount.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),
@@ -1100,11 +1170,13 @@ class _RatingScreenState extends State<RatingScreen> {
   List<Map<String, String>> _filteredServiceList = [];
   bool _isSearching = false;
   String _searchQuery = '';
+  int _unreadCount = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchRatingData();
+    _fetchUnreadCount();
   }
 
   Future<void> _fetchRatingData() async {
@@ -1132,6 +1204,25 @@ class _RatingScreenState extends State<RatingScreen> {
       }
     } catch (e) {
       print("Error fetching data: $e");
+    }
+  }
+
+  Future<void> _fetchUnreadCount() async {
+    try {
+      final response = await http.get(notifUrl); // Gunakan URL notifikasi
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            _unreadCount = List<Map<String, dynamic>>.from(data['data'])
+                .where((notif) => notif['status_notif'] == 0)
+                .length;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching unread notifications: $e");
     }
   }
 
@@ -1169,6 +1260,12 @@ class _RatingScreenState extends State<RatingScreen> {
             onSearchStart: _startSearch,
             onSearchStop: _stopSearch,
             onSearchQueryChanged: _updateSearchQuery,
+            unreadCount: _unreadCount,
+            onUnreadCountChanged: (count) {
+              setState(() {
+                _unreadCount = count; // Update jumlah badge
+              });
+            },
           ),
           Expanded(
             child: Padding(
@@ -1201,6 +1298,8 @@ class RatingAppBar extends StatelessWidget {
   final VoidCallback onSearchStart;
   final VoidCallback onSearchStop;
   final ValueChanged<String> onSearchQueryChanged;
+  final int unreadCount;
+  final ValueChanged<int> onUnreadCountChanged;
 
   const RatingAppBar({
     super.key,
@@ -1209,6 +1308,8 @@ class RatingAppBar extends StatelessWidget {
     required this.onSearchStart,
     required this.onSearchStop,
     required this.onSearchQueryChanged,
+    required this.unreadCount,
+    required this.onUnreadCountChanged,
   });
 
   @override
@@ -1257,14 +1358,52 @@ class RatingAppBar extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.notifications, color: Colors.white, size: 25),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                        );
-                      },
+                    Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NotificationScreen(
+                                  onUnreadCountChanged: onUnreadCountChanged,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 6,
+                            top: 6,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 16,
+                                minHeight: 16,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  unreadCount.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),
@@ -1864,8 +2003,40 @@ class BerandaService {
   }
 }
 
-class BerandaScreen extends StatelessWidget {
-  const BerandaScreen({super.key});
+class BerandaScreen extends StatefulWidget {
+  const BerandaScreen({Key? key}) : super(key: key);
+
+  @override
+  _BerandaScreenState createState() => _BerandaScreenState();
+}
+
+class _BerandaScreenState extends State<BerandaScreen> {
+  int unreadCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUnreadCount(); // Ambil jumlah notifikasi belum dibaca
+  }
+
+  Future<void> _fetchUnreadCount() async {
+    try {
+      final response = await http.get(notifUrl); // Gunakan URL notifikasi
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            unreadCount = List<Map<String, dynamic>>.from(data['data'])
+                .where((notif) => notif['status_notif'] == 0)
+                .length;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching unread notifications: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1965,17 +2136,45 @@ class BerandaScreen extends StatelessWidget {
           Positioned(
             top: 28,
             right: 20,
-            child: IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.white, size: 25),
-              onPressed: () {
-                // Implementasikan fungsionalitas notifikasi di sini
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const NotificationScreen(),
+            child: Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.notifications, color: Colors.white, size: 25),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NotificationScreen(
+                          onUnreadCountChanged: (count) {
+                            setState(() {
+                              unreadCount = count; // Perbarui jumlah badge
+                            });
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                if (unreadCount > 0)
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        unreadCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
+                      ),
+                    ),
                   ),
-                );
-              },
+              ],
             ),
           ),
         ],
@@ -3426,11 +3625,13 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
   List<Map<String, String>> _filteredKehilanganList = [];
   bool _isSearching = false;
   String _searchQuery = '';
+  int _unreadCount = 0;
 
   @override
   void initState() {
     super.initState();
     _fetchKehilanganData();
+    _fetchUnreadCount();
   }
 
   Future<void> _fetchKehilanganData() async {
@@ -3461,6 +3662,25 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
       }
     } catch (e) {
       print("Error fetching data: $e");
+    }
+  }
+
+  Future<void> _fetchUnreadCount() async {
+    try {
+      final response = await http.get(notifUrl); // Gunakan URL notifikasi
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            _unreadCount = List<Map<String, dynamic>>.from(data['data'])
+                .where((notif) => notif['status_notif'] == 0)
+                .length;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching unread notifications: $e");
     }
   }
 
@@ -3510,6 +3730,12 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
             onSearchStart: _startSearch,
             onSearchStop: _stopSearch,
             onSearchQueryChanged: _updateSearchQuery,
+            unreadCount: _unreadCount,
+            onUnreadCountChanged: (count) {
+              setState(() {
+                _unreadCount = count; // Update jumlah badge
+              });
+            },
           ),
           Expanded(
             child: Padding(
@@ -3544,6 +3770,8 @@ class KehilanganAppBar extends StatelessWidget {
   final VoidCallback onSearchStart;
   final VoidCallback onSearchStop;
   final ValueChanged<String> onSearchQueryChanged;
+  final int unreadCount;
+  final ValueChanged<int> onUnreadCountChanged;
 
   const KehilanganAppBar({
     super.key,
@@ -3552,6 +3780,8 @@ class KehilanganAppBar extends StatelessWidget {
     required this.onSearchStart,
     required this.onSearchStop,
     required this.onSearchQueryChanged,
+    required this.unreadCount,
+    required this.onUnreadCountChanged,
   });
 
   @override
@@ -3600,14 +3830,52 @@ class KehilanganAppBar extends StatelessWidget {
                       ),
                     ),
                     const Spacer(),
-                    IconButton(
-                      icon: const Icon(Icons.notifications, color: Colors.white, size: 25,),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                        );
-                      },
+                    Stack(
+                      children: [
+                        IconButton(
+                          icon: const Icon(
+                            Icons.notifications,
+                            color: Colors.white,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NotificationScreen(
+                                  onUnreadCountChanged: onUnreadCountChanged,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 6,
+                            top: 6,
+                            child: Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 16,
+                                minHeight: 16,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  unreadCount.toString(),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
                     ),
                   ],
                 ),
@@ -4084,12 +4352,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool _isPasswordVisible = false;
   bool _isEditing = false; // State untuk menentukan mode edit atau tidak
   String? _imageUrl;
-  String? _idUser; // Tambahkan variabel untuk idUser
+  String? _idUser;
+  int unreadCount = 0;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _fetchUnreadCount();
   }
 
   Future<void> _loadUserData() async {
@@ -4102,6 +4372,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final imagePath = prefs.getString('image');
       _imageUrl = imagePath != null ? '$baseUrl$imagePath' : null;
     });
+  }
+
+  Future<void> _fetchUnreadCount() async {
+    try {
+      final response = await http.get(notifUrl); // Gunakan URL notifikasi
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        if (data['success']) {
+          setState(() {
+            unreadCount = List<Map<String, dynamic>>.from(data['data'])
+                .where((notif) => notif['status_notif'] == 0)
+                .length;
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching unread notifications: $e");
+    }
   }
 
   Future<void> editProfile({
@@ -4234,17 +4523,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.notifications,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                      );
-                    },
+                  Stack(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NotificationScreen(
+                                onUnreadCountChanged: (count) {
+                                  setState(() {
+                                    unreadCount = count;
+                                  });
+                                },
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      if (unreadCount > 0)
+                        Positioned(
+                          right: 6,
+                          top: 6,
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: const BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              unreadCount.toString(),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -4383,7 +4700,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
 // ----------------------------NOTIFIKASI--------------------------------
 class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({Key? key}) : super(key: key);
+  final ValueChanged<int> onUnreadCountChanged; // Callback untuk mengirim jumlah belum dibaca
+
+  const NotificationScreen({Key? key, required this.onUnreadCountChanged})
+      : super(key: key);
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -4399,6 +4719,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
     fetchNotifications();
   }
 
+  int unreadCount = 0;
+
   Future<void> fetchNotifications() async {
     try {
       final response = await http.get(notifUrl);
@@ -4408,6 +4730,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
         if (data['success']) {
           setState(() {
             notifications = List<Map<String, dynamic>>.from(data['data']);
+            // Hitung jumlah notifikasi belum dibaca
+            unreadCount = notifications
+                .where((notif) => notif['status_notif'] == 0)
+                .length;
+
+            widget.onUnreadCountChanged(unreadCount);
           });
         } else {
           print('Error fetching notifications: ${data['message']}');
@@ -4550,11 +4878,62 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                     onTap: () async {
                       try {
-                        final success = await updateNotificationStatus(notif['id']); // Pastikan 'id' adalah int
+                        final success = await updateNotificationStatus(notif['id']);
                         if (success) {
                           setState(() {
-                            notif['status_notif'] = 1; // Pastikan 'status_notif' adalah int
+                            if (notif['status_notif'] == 0) {
+                              unreadCount -= 1; // Kurangi jumlah notifikasi belum dibaca
+                            }
+                            notif['status_notif'] = 1; // Perbarui status notifikasi
                           });
+
+                          // Navigasi ke screen berdasarkan kategori
+                          if (notif['category'] == 'Ulasan') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => RatingScreen()), // Ganti dengan screen Ulasan Anda
+                            );
+                          } else if (notif['category'] == 'Laporan Pengaduan') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailPengaduanPage(
+                                  id_kejadian: notif['id'].toString(),
+                                  judul: notif['title'],
+                                  nama: notif['nama_user'],
+                                  tanggal: notif['tanggal'],
+                                  nama_jenis_pengaduan: notif['jenis_pengaduan'],
+                                  nama_status_pengaduan: notif['status_pengaduan'],
+                                  lokasi: notif['location'],
+                                  nama_instansi: notif['instansi'],
+                                  deskripsi: notif['description'],
+                                  lampiran: notif['lampiran'],
+                                ),
+                              ), // Ganti dengan screen Laporan Pengaduan Anda
+                            );
+                          } else if (notif['category'] == 'Laporan Kehilangan') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DetailKehilanganPage(
+                                  id_kejadian: notif['id'].toString(),
+                                  judul: notif['title'],
+                                  nama: notif['nama_user'],
+                                  tanggal: notif['tanggal'],
+                                  jenis_barang: notif['jenis_barang'],
+                                  nama_status_kehilangan: notif['status_kehilangan'],
+                                  lokasi: notif['location'],
+                                  deskripsi: notif['description'],
+                                  lampiran: notif['lampiran'],
+                                ),
+                              ), // Ganti dengan screen Laporan Kehilangan Anda
+                            );
+                          } else {
+                            // Kategori default (jika diperlukan)
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Kategori tidak dikenali")),
+                            );
+                          }
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text("Gagal memperbarui status notifikasi")),
