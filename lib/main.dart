@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://5850-103-47-133-89.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://99ce-66-96-225-128.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -910,7 +910,7 @@ class PengaduanCard extends StatelessWidget {
       case 'Ditolak':
         return Colors.red.withOpacity(1);
       case 'Dibatalkan':
-        return Colors.orange.withOpacity(1);
+        return Colors.red.withOpacity(1);
       default:
         return Colors.grey.withOpacity(1);
     }
@@ -3929,6 +3929,7 @@ class TabBarContainerKehilangan extends StatefulWidget {
     'Belum Ditemukan',
     'Ditemukan',
     'Hilang'
+    'Dibatalkan'
   ];
 
   @override
@@ -4097,10 +4098,12 @@ class KehilanganCard extends StatelessWidget {
   Color statusColor(String status) {
     switch (status) {
       case 'Belum Ditemukan':
-        return Colors.grey.withOpacity(1);
+        return Colors.orange.withOpacity(1);
       case 'Ditemukan':
         return Colors.green.withOpacity(1);
       case 'Hilang':
+        return Colors.red.withOpacity(1);
+      case 'Dibatalkan':
         return Colors.red.withOpacity(1);
       default:
         return Colors.grey.withOpacity(1);
