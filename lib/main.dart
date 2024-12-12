@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://99ce-66-96-225-128.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://71d8-66-96-225-128.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -423,6 +423,7 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   bool _isSearching = false;
   String _searchQuery = '';
   int _unreadCount = 0;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -432,6 +433,10 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   }
 
   Future<void> _fetchPengaduanData() async {
+    setState(() {
+      _isLoading = true; // Set loading state to true before fetching data
+    });
+
     try {
       final response = await http.get(pengaduanUrl);
 
@@ -454,12 +459,16 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
           }));
 
           _filteredPengaduanList = _pengaduanList;
+          _isLoading = false;
         });
       } else {
         throw Exception('Failed to load data');
       }
     } catch (e) {
       print("Error fetching data: $e");
+      setState(() {
+        _isLoading = false; // Set loading state to false even on error
+      });
     }
   }
 
@@ -549,8 +558,11 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
                   const SizedBox(height: 10),
                   TabBarContainerPengaduan(onStatusChanged: _filterByStatus),
                   Expanded(
-                    child: PengaduanList(
-                      pengaduanList: _filteredPengaduanList),
+                    child: _isLoading
+                        ? Center(child: CircularProgressIndicator()) // Show progress indicator while loading
+                        : PengaduanList(
+                      pengaduanList: _filteredPengaduanList,
+                    ),
                   ),
                 ],
               ),
@@ -1171,6 +1183,7 @@ class _RatingScreenState extends State<RatingScreen> {
   bool _isSearching = false;
   String _searchQuery = '';
   int _unreadCount = 0;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -1180,6 +1193,10 @@ class _RatingScreenState extends State<RatingScreen> {
   }
 
   Future<void> _fetchRatingData() async {
+    setState(() {
+      _isLoading = true; // Set loading state to true before fetching data
+    });
+
     try {
       final response = await http.get(ratingUrl);
 
@@ -1198,12 +1215,16 @@ class _RatingScreenState extends State<RatingScreen> {
           }));
 
           _filteredServiceList = _serviceList;
+          _isLoading = false;
         });
       } else {
         throw Exception('Failed to load data');
       }
     } catch (e) {
       print("Error fetching data: $e");
+      setState(() {
+        _isLoading = false; // Set loading state to false even on error
+      });
     }
   }
 
@@ -1270,20 +1291,22 @@ class _RatingScreenState extends State<RatingScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
-              child: ListView.builder(
-                itemCount: _filteredServiceList.length,
-                itemBuilder: (context, index) {
-                  final service = _filteredServiceList[index];
-                  return ServiceCard(
-                    id_instansi: service['id_instansi']!,
-                    nama_instansi: service['nama_instansi']!,
-                    email_pic: service['email_pic']!,
-                    average_rating: double.parse(service['average_rating']!),
-                    review_count: int.parse(service['review_count']!),
-                    image_instansi: service['image_instansi']!,
-                  );
-                },
-              ),
+              child: _isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: _filteredServiceList.length,
+                      itemBuilder: (context, index) {
+                        final service = _filteredServiceList[index];
+                        return ServiceCard(
+                          id_instansi: service['id_instansi']!,
+                          nama_instansi: service['nama_instansi']!,
+                          email_pic: service['email_pic']!,
+                          average_rating: double.parse(service['average_rating']!),
+                          review_count: int.parse(service['review_count']!),
+                          image_instansi: service['image_instansi']!,
+                        );
+                      },
+                  ),
             ),
           ),
         ],
@@ -3626,6 +3649,7 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
   bool _isSearching = false;
   String _searchQuery = '';
   int _unreadCount = 0;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -3635,6 +3659,10 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
   }
 
   Future<void> _fetchKehilanganData() async {
+    setState(() {
+      _isLoading = true; // Set loading state to true before fetching data
+    });
+
     try {
       final response = await http.get(kehilanganUrl);
 
@@ -3656,12 +3684,16 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
           }));
 
           _filteredKehilanganList = _kehilanganList;
+          _isLoading = false;
         });
       } else {
         throw Exception('Failed to load data');
       }
     } catch (e) {
       print("Error fetching data: $e");
+      setState(() {
+        _isLoading = false; // Set loading state to false even on error
+      });
     }
   }
 
@@ -3751,7 +3783,9 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
                   const SizedBox(height: 10),
                   TabBarContainerKehilangan(onStatusChanged: _filterByStatus),
                   Expanded(
-                    child: KehilanganList(
+                    child: _isLoading
+                        ? Center(child: CircularProgressIndicator())
+                        : KehilanganList(
                         kehilanganList: _filteredKehilanganList),
                   ),
                 ],
