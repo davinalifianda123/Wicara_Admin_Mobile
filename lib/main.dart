@@ -722,14 +722,6 @@ class PengaduanList extends StatelessWidget {
               height: 200,
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Tidak ada data pengaduan',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey,
-              ),
-            ),
           ],
         ),
       );
@@ -755,7 +747,6 @@ class PengaduanList extends StatelessWidget {
     );
   }
 }
-
 
 class TabBarContainerPengaduan extends StatefulWidget {
   final Function(String) onStatusChanged;
@@ -1067,7 +1058,7 @@ class DetailPengaduanPage extends StatelessWidget {
                       child: lampiran.isNotEmpty
                           ? Image.network(
                         '$baseUrl/Back-end/foto-pengaduan/$lampiran',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(child: Text('Image not available'));
                         },
@@ -1318,21 +1309,34 @@ class _RatingScreenState extends State<RatingScreen> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
               child: _isLoading
-                  ? Center(child: CircularProgressIndicator())
+                  ? const Center(child: CircularProgressIndicator())
+                  : _filteredServiceList.isEmpty
+                  ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'images/Belum_ada_data.png',
+                      height: 200,
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              )
                   : ListView.builder(
-                      itemCount: _filteredServiceList.length,
-                      itemBuilder: (context, index) {
-                        final service = _filteredServiceList[index];
-                        return ServiceCard(
-                          id_instansi: service['id_instansi']!,
-                          nama_instansi: service['nama_instansi']!,
-                          email_pic: service['email_pic']!,
-                          average_rating: double.parse(service['average_rating']!),
-                          review_count: int.parse(service['review_count']!),
-                          image_instansi: service['image_instansi']!,
-                        );
-                      },
-                  ),
+                itemCount: _filteredServiceList.length,
+                itemBuilder: (context, index) {
+                  final service = _filteredServiceList[index];
+                  return ServiceCard(
+                    id_instansi: service['id_instansi']!,
+                    nama_instansi: service['nama_instansi']!,
+                    email_pic: service['email_pic']!,
+                    average_rating: double.tryParse(service['average_rating']!) ?? 0.0,
+                    review_count: int.tryParse(service['review_count']!) ?? 0,
+                    image_instansi: service['image_instansi']!,
+                  );
+                },
+              ),
             ),
           ),
         ],
@@ -2490,12 +2494,21 @@ class _DosenScreenState extends State<DosenScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
+      body: filteredList.isEmpty
+          ? Center(
+        child: Text(
+          dosenList.isEmpty
+              ? "Tidak ada data dosen tersedia" // Jika data kosong
+              : "Pencarian tidak menemukan hasil", // Jika pencarian kosong
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      )
+          : ListView.builder(
         itemCount: filteredList.length,
         itemBuilder: (context, index) {
           final dosen = filteredList[index];
           return ListTile(
-            leading: const Icon(Icons.person, color: Color(0xFF060A47)), // Ikon dosen
+            leading: const Icon(Icons.person, color: Color(0xFF060A47)),
             title: Text(dosen['nama'] ?? 'Unknown'),
             onTap: () {
               Navigator.push(
@@ -2808,12 +2821,21 @@ class _MahasiswaScreenState extends State<MahasiswaScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
+      body: filteredList.isEmpty
+          ? Center(
+        child: Text(
+          mahasiswaList.isEmpty
+              ? "Tidak ada data mahasiswa tersedia" // Jika data kosong
+              : "Pencarian tidak menemukan hasil", // Jika pencarian kosong
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      )
+          : ListView.builder(
         itemCount: filteredList.length,
         itemBuilder: (context, index) {
           final mahasiswa = filteredList[index];
           return ListTile(
-            leading: const Icon(Icons.school, color: Color(0xFF060A47)), // Ikon dosen
+            leading: const Icon(Icons.school, color: Color(0xFF060A47)),
             title: Text(mahasiswa['nama'] ?? 'Unknown'),
             onTap: () {
               Navigator.push(
@@ -3126,12 +3148,21 @@ class _UnitLayananScreenState extends State<UnitLayananScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
+      body: filteredList.isEmpty
+          ? Center(
+        child: Text(
+          unitLayananList.isEmpty
+              ? "Tidak ada data unit layanan tersedia" // Jika data kosong
+              : "Pencarian tidak menemukan hasil", // Jika pencarian kosong
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      )
+          : ListView.builder(
         itemCount: filteredList.length,
         itemBuilder: (context, index) {
           final unitLayanan = filteredList[index];
           return ListTile(
-            leading: const Icon(Icons.business, color: Color(0xFF060A47)), // Ikon dosen
+            leading: const Icon(Icons.business, color: Color(0xFF060A47)),
             title: Text(unitLayanan['nama_instansi'] ?? 'Unknown'),
             onTap: () {
               Navigator.push(
@@ -3451,12 +3482,21 @@ class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
           ),
         ],
       ),
-      body: ListView.builder(
+      body: filteredList.isEmpty
+          ? Center(
+        child: Text(
+          jenisPengaduanList.isEmpty
+              ? "Tidak ada data jenis pengaduan tersedia" // Jika data kosong
+              : "Pencarian tidak menemukan hasil", // Jika pencarian kosong
+          style: const TextStyle(fontSize: 16, color: Colors.grey),
+        ),
+      )
+          : ListView.builder(
         itemCount: filteredList.length,
         itemBuilder: (context, index) {
           final jenisPengaduan = filteredList[index];
           return ListTile(
-            leading: const Icon(Icons.category, color: Color(0xFF060A47)), // Ikon dosen
+            leading: const Icon(Icons.category, color: Color(0xFF060A47)),
             title: Text(jenisPengaduan['nama_jenis_pengaduan'] ?? 'Unknown'),
             onTap: () {
               Navigator.push(
@@ -3959,6 +3999,22 @@ class KehilanganList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kehilanganList.isEmpty) {
+      // Menampilkan gambar jika tidak ada data pengaduan
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'images/Belum_ada_data.png',
+              width: 200,
+              height: 200,
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      );
+    }
     return ListView.builder(
       itemCount: kehilanganList.length,
       itemBuilder: (context, index) {
@@ -4281,7 +4337,7 @@ class DetailKehilanganPage extends StatelessWidget {
                       child: lampiran.isNotEmpty
                           ? Image.network(
                         '$baseUrl/Back-end/foto-kehilangan/$lampiran',
-                        fit: BoxFit.cover,
+                        fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(child: Text('Image not available'));
                         },
