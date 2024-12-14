@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://71d8-66-96-225-128.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://e6b4-103-214-229-136.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -710,6 +710,31 @@ class PengaduanList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (pengaduanList.isEmpty) {
+      // Menampilkan gambar jika tidak ada data pengaduan
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'images/Belum_ada_data.png',
+              width: 200,
+              height: 200,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Tidak ada data pengaduan',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return ListView.builder(
       itemCount: pengaduanList.length,
       itemBuilder: (context, index) {
@@ -720,7 +745,7 @@ class PengaduanList extends StatelessWidget {
           nama: pengaduan['nama'] ?? '',
           tanggal: pengaduan['tanggal'] ?? '',
           nama_jenis_pengaduan: pengaduan['nama_jenis_pengaduan'] ?? '',
-          nama_status_pengaduan : pengaduan['nama_status_pengaduan'] ?? '',
+          nama_status_pengaduan: pengaduan['nama_status_pengaduan'] ?? '',
           lokasi: pengaduan['lokasi'] ?? '',
           nama_instansi: pengaduan['nama_instansi'] ?? '',
           deskripsi: pengaduan['deskripsi'] ?? '',
@@ -730,6 +755,7 @@ class PengaduanList extends StatelessWidget {
     );
   }
 }
+
 
 class TabBarContainerPengaduan extends StatefulWidget {
   final Function(String) onStatusChanged;
