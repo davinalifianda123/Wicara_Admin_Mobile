@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://e6b4-103-214-229-136.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://17cc-182-253-109-204.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -76,7 +76,7 @@ class _LoginState extends State<Login> {
         await prefs.setString('email', data['email']);
         await prefs.setString('nama', data['nama']);
         await prefs.setString('password', data['password']);
-        await prefs.setString('image', data['image']);
+        await prefs.setString('profile', data['profile']);
 
         Navigator.pushReplacement(
           context,
@@ -3739,10 +3739,9 @@ class _KehilanganScreenState extends State<KehilanganScreen> {
           // Convert each value to a String or a default message
           _kehilanganList = List<Map<String, String>>.from(data.map((item) => {
             'id_kejadian': (item['id_kejadian'] ?? '').toString(),
-            'judul': (item['judul'] ?? 'Judul tidak tersedia').toString(),
             'nama' : (item['nama'] ?? 'nama tidak tersedia').toString(),
+            'nama_barang': (item['nama_barang'] ?? 'barang tidak tersedia').toString(),
             'tanggal': (item['tanggal'] ?? 'Tanggal tidak tersedia').toString(),
-            'jenis_barang': (item['jenis_barang'] ?? 'Jenis tidak tersedia').toString(),
             'nama_status_kehilangan': (item['nama_status_kehilangan'] ?? 'Status tidak tersedia').toString(),
             'lokasi': (item['lokasi'] ?? 'lokasi tidak tersedia').toString(),
             'deskripsi': (item['deskripsi'] ?? 'Deskripsi tidak tersedia').toString(),
@@ -4021,10 +4020,9 @@ class KehilanganList extends StatelessWidget {
         final kehilangan = kehilanganList[index];
         return KehilanganCard(
           id_kejadian: kehilangan['id_kejadian'] ?? '',
-          judul: kehilangan['judul'] ?? '',
           nama: kehilangan['nama'] ?? '',
+          nama_barang: kehilangan['nama_barang'] ?? '',
           tanggal: kehilangan['tanggal'] ?? '',
-          jenis_barang: kehilangan['jenis_barang'] ?? '',
           nama_status_kehilangan : kehilangan['nama_status_kehilangan'] ?? '',
           lokasi: kehilangan['lokasi'] ?? '',
           deskripsi: kehilangan['deskripsi'] ?? '',
@@ -4044,7 +4042,6 @@ class TabBarContainerKehilangan extends StatefulWidget {
     'Semua',
     'Belum Ditemukan',
     'Ditemukan',
-    'Hilang'
     'Dibatalkan'
   ];
 
@@ -4088,10 +4085,9 @@ class _TabBarContainerKehilanganState extends State<TabBarContainerKehilangan> {
 
 class KehilanganCard extends StatelessWidget {
   final String id_kejadian;
-  final String judul;
   final String nama;
+  final String nama_barang;
   final String tanggal;
-  final String jenis_barang;
   final String nama_status_kehilangan;
   final String lokasi;
   final String deskripsi;
@@ -4100,10 +4096,9 @@ class KehilanganCard extends StatelessWidget {
   const KehilanganCard({
     super.key,
     required this.id_kejadian,
-    required this.judul,
     required this.nama,
+    required this.nama_barang,
     required this.tanggal,
-    required this.jenis_barang,
     required this.nama_status_kehilangan,
     required this.lokasi,
     required this.deskripsi,
@@ -4120,10 +4115,9 @@ class KehilanganCard extends StatelessWidget {
           MaterialPageRoute(
             builder: (context) => DetailKehilanganPage(
               id_kejadian: id_kejadian,
-              judul: judul,
               nama: nama,
+              nama_barang: nama_barang,
               tanggal: tanggal,
-              jenis_barang: jenis_barang,
               nama_status_kehilangan: nama_status_kehilangan,
               lokasi: lokasi,
               deskripsi: deskripsi,
@@ -4148,7 +4142,7 @@ class KehilanganCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          judul,
+                          nama_barang,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -4171,18 +4165,6 @@ class KehilanganCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.blue[900],
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Text(
-                      jenis_barang,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
@@ -4217,8 +4199,6 @@ class KehilanganCard extends StatelessWidget {
         return Colors.orange.withOpacity(1);
       case 'Ditemukan':
         return Colors.green.withOpacity(1);
-      case 'Hilang':
-        return Colors.red.withOpacity(1);
       case 'Dibatalkan':
         return Colors.red.withOpacity(1);
       default:
@@ -4229,10 +4209,9 @@ class KehilanganCard extends StatelessWidget {
 
 class DetailKehilanganPage extends StatelessWidget {
   final String id_kejadian;
-  final String judul;
   final String nama;
+  final String nama_barang;
   final String tanggal;
-  final String jenis_barang;
   final String nama_status_kehilangan;
   final String lokasi;
   final String deskripsi;
@@ -4241,10 +4220,9 @@ class DetailKehilanganPage extends StatelessWidget {
   const DetailKehilanganPage({
     super.key,
     required this.id_kejadian,
-    required this.judul,
     required this.nama,
+    required this.nama_barang,
     required this.tanggal,
-    required this.jenis_barang,
     required this.nama_status_kehilangan,
     required this.lokasi,
     required this.deskripsi,
@@ -4305,13 +4283,11 @@ class DetailKehilanganPage extends StatelessWidget {
                   children: [
                     _buildReadOnlyTextField(label: 'Id Kehilangan', text: id_kejadian),
                     const SizedBox(height: 16),
-                    _buildReadOnlyTextField(label: 'Judul', text: judul),
+                    _buildReadOnlyTextField(label: 'Nama Barang', text: nama_barang),
                     const SizedBox(height: 16),
                     _buildReadOnlyTextField(label: 'User', text: nama),
                     const SizedBox(height: 16),
                     _buildReadOnlyTextField(label: 'Tanggal', text: tanggal),
-                    const SizedBox(height: 16),
-                    _buildReadOnlyTextField(label: 'Jenis Barang', text: jenis_barang),
                     const SizedBox(height: 16),
                     _buildReadOnlyTextField(label: 'Status', text: nama_status_kehilangan),
                     const SizedBox(height: 16),
@@ -4488,7 +4464,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _emailController.text = prefs.getString('email') ?? '';
       _namaController.text = prefs.getString('nama') ?? '';
       _passwordController.text = prefs.getString('password') ?? ''; // opsional
-      final imagePath = prefs.getString('image');
+      final imagePath = prefs.getString('profile');
       _imageUrl = imagePath != null ? '$baseUrl$imagePath' : null;
     });
   }
@@ -4968,12 +4944,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       ),
                     ),
                     title: Text(
-                      notif['category'] == 'Ulasan'
-                          ? notif['nama_user'] // Nama user untuk kategori Rating
-                          : notif['title'], // Judul untuk kategori lainnya
+                      notif['category'] == 'Laporan Kehilangan'
+                      ? notif['nama_barang'] // Nama barang untuk kategori Kehilangan
+                          : (notif['category'] == 'Ulasan'
+                      ? notif['nama_user'] // Nama user untuk kategori Ulasan
+                          : notif['title']), // Judul untuk kategori lainnya
                       style: TextStyle(
-                        fontWeight: isUnread ? FontWeight.bold : FontWeight
-                            .normal, // Bold jika belum terbaca
+                      fontWeight: isUnread ? FontWeight.bold : FontWeight.normal, // Bold jika belum terbaca
                       ),
                     ),
                     subtitle: Column(
@@ -5036,10 +5013,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               MaterialPageRoute(
                                 builder: (context) => DetailKehilanganPage(
                                   id_kejadian: notif['id'].toString(),
-                                  judul: notif['title'],
                                   nama: notif['nama_user'],
+                                  nama_barang: notif['nama_barang'],
                                   tanggal: notif['tanggal'],
-                                  jenis_barang: notif['jenis_barang'],
                                   nama_status_kehilangan: notif['status_kehilangan'],
                                   lokasi: notif['location'],
                                   deskripsi: notif['description'],
