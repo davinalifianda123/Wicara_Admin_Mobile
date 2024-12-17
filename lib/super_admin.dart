@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 // variabel api url
-const String baseUrl = 'https://17cc-182-253-109-204.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://6535-66-96-225-128.ngrok-free.app/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -1042,6 +1042,7 @@ class DetailPengaduanPage extends StatelessWidget {
                       controller: TextEditingController(text: deskripsi),
                       enabled: false,
                       maxLines: 5,
+                      style: TextStyle(color: Colors.black),
                       decoration: const InputDecoration(
                         labelText: 'Deskripsi',
                         border: OutlineInputBorder(),
@@ -1084,6 +1085,7 @@ class DetailPengaduanPage extends StatelessWidget {
     return TextField(
       controller: TextEditingController(text: text),
       enabled: false,
+      style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
@@ -1640,7 +1642,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
             'tanggal': DateTime.parse(item['tanggal']),
             'isi_komentar': item['isi_komentar'],
             'skala_bintang': int.parse(item['skala_bintang']),
-            'image': item['image'],
+            'profile': item['profile'],
           }).toList();
           isLoading = false; // Set loading ke false setelah data berhasil diambil
         });
@@ -1703,8 +1705,9 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.notifications, color: Colors.white),
+                    icon: const Icon(Icons.notifications, color: Color(0xFF060A47)),
                     onPressed: () {
+
                       // Your notification screen navigation
                     },
                   ),
@@ -1723,8 +1726,15 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                 children: [
                   // Your existing widgets...
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      Text(
+                        'Total Reviews: ${reviews.length}',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       DropdownButton<String>(
                         value: selectedSort,
                         items: const [
@@ -1779,8 +1789,8 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      backgroundImage: review['image'] != null && review['image'].isNotEmpty
-                                          ? NetworkImage('$baseUrl${review['image']}')
+                                      backgroundImage: review['profile'] != null && review['profile'].isNotEmpty
+                                          ? NetworkImage('$baseUrl/Back-end${review['profile']}')
                                           : AssetImage('images/Foto_profile.png'), // Gambar lokal fallback
                                       onBackgroundImageError: (exception, stackTrace) {
                                         // Optional: handle error jika gambar tidak ditemukan
@@ -2468,6 +2478,125 @@ class _DosenScreenState extends State<DosenScreen> {
     }
   }
 
+  void addDosen(String nama, String nim, String noTelepon, String email) async {
+    final url = dosenUrl;
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "nama": nama,
+          "nim": nim,
+          "no_telepon": noTelepon,
+          "email": email,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        if (responseData['success'] == true) {
+          setState(() {
+            dosenList.add({
+              "nama": nama,
+              "nomor_induk": nim,
+              "nomor_telepon": noTelepon,
+              "email": email,
+            });
+            filteredList = dosenList;
+          });
+
+          // Tutup form dan tampilkan notifikasi sukses
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'])),
+          );
+        } else {
+          // Tampilkan pesan error dari API
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'])),
+          );
+        }
+      } else {
+        throw Exception("Failed to connect to the server");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  void showAddMahasiswaForm() {
+    final TextEditingController namaController = TextEditingController();
+    final TextEditingController nimController = TextEditingController();
+    final TextEditingController noTeleponController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Tambah Dosen Baru"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: namaController,
+                  decoration: const InputDecoration(labelText: "Nama"),
+                ),
+                TextField(
+                  controller: nimController,
+                  decoration: const InputDecoration(labelText: "NIP"),
+                ),
+                TextField(
+                  controller: noTeleponController,
+                  decoration: const InputDecoration(labelText: "Nomor Telepon"),
+                  keyboardType: TextInputType.phone,
+                ),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: "Email"),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Menutup form tanpa menambah data
+              },
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (namaController.text.isNotEmpty &&
+                    nimController.text.isNotEmpty &&
+                    noTeleponController.text.isNotEmpty &&
+                    emailController.text.isNotEmpty) {
+                  addDosen(
+                    namaController.text,
+                    nimController.text,
+                    noTeleponController.text,
+                    emailController.text,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Mohon lengkapi semua field")),
+                  );
+                }
+              },
+              child: const Text("Tambah"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -2520,6 +2649,11 @@ class _DosenScreenState extends State<DosenScreen> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF060A47),
+        onPressed: showAddMahasiswaForm,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -2639,7 +2773,10 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
     final response = await http.post(
       dosenUrl,
       headers: {"Content-Type": "application/json"},
-      body: json.encode({"id_user": idDosen}),
+      body: json.encode({
+        "id_user": idDosen,
+        "action": "reset_password",
+      }),
     );
 
     if (response.statusCode == 200) {
@@ -2658,6 +2795,64 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Gagal menghubungi server")),
       );
+    }
+  }
+
+  void deleteAccount() async {
+    final idDosen = idUserController.text; // Ambil ID dosen dari controller
+
+    // Konfirmasi sebelum menghapus akun
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi"),
+          content: const Text("Apakah Anda yakin ingin menghapus akun ini?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Tidak menghapus
+              },
+              child: const Text("Batal"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Menghapus
+              },
+              child: const Text("Hapus"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      final response = await http.post(
+        dosenUrl, // Gantilah dengan URL yang sesuai untuk menghapus akun
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "id_user": idDosen,
+          "action": "delete_account",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data["success"]) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal menghubungi server")),
+        );
+      }
     }
   }
 
@@ -2685,6 +2880,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
               const SizedBox(height: 20),
               TextField(
                 controller: namaController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Nama",
                   border: OutlineInputBorder(),
@@ -2694,6 +2890,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: nomorIndukController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Nomor Induk",
                   border: OutlineInputBorder(),
@@ -2703,6 +2900,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: noTelpController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "No. Telp",
                   border: OutlineInputBorder(),
@@ -2712,6 +2910,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: emailController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Email",
                   border: OutlineInputBorder(),
@@ -2722,6 +2921,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
               TextField(
                 controller: passwordController,
                 obscureText: true,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Password",
                   border: OutlineInputBorder(),
@@ -2731,6 +2931,7 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: roleController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Role",
                   border: OutlineInputBorder(),
@@ -2738,13 +2939,26 @@ class _DosenDetailScreenState extends State<DosenDetailScreen> {
                 enabled: false,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF060A47),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                onPressed: resetPassword,
-                child: const Text("Reset Password", style: TextStyle(color: Colors.white)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Align buttons horizontally
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF060A47),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    onPressed: resetPassword,
+                    child: const Text("Reset Password", style: TextStyle(color: Colors.white)),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // Red color for delete button
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    onPressed: deleteAccount, // Add your delete account functionality
+                    child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                  ),
+                ],
               ),
             ],
           ),
@@ -2793,6 +3007,125 @@ class _MahasiswaScreenState extends State<MahasiswaScreen> {
     } catch (e) {
       print("Error fetching data: $e");
     }
+  }
+
+  void addMahasiswa(String nama, String nim, String noTelepon, String email) async {
+    final url = mahasiswaUrl;
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "nama": nama,
+          "nim": nim,
+          "no_telepon": noTelepon,
+          "email": email,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        if (responseData['success'] == true) {
+          setState(() {
+            mahasiswaList.add({
+              "nama": nama,
+              "nomor_induk": nim,
+              "nomor_telepon": noTelepon,
+              "email": email,
+            });
+            filteredList = mahasiswaList;
+          });
+
+          // Tutup form dan tampilkan notifikasi sukses
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'])),
+          );
+        } else {
+          // Tampilkan pesan error dari API
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'])),
+          );
+        }
+      } else {
+        throw Exception("Failed to connect to the server");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  void showAddMahasiswaForm() {
+    final TextEditingController namaController = TextEditingController();
+    final TextEditingController nimController = TextEditingController();
+    final TextEditingController noTeleponController = TextEditingController();
+    final TextEditingController emailController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Tambah Mahasiswa Baru"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: namaController,
+                  decoration: const InputDecoration(labelText: "Nama"),
+                ),
+                TextField(
+                  controller: nimController,
+                  decoration: const InputDecoration(labelText: "NIM"),
+                ),
+                TextField(
+                  controller: noTeleponController,
+                  decoration: const InputDecoration(labelText: "Nomor Telepon"),
+                  keyboardType: TextInputType.phone,
+                ),
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(labelText: "Email"),
+                  keyboardType: TextInputType.emailAddress,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Menutup form tanpa menambah data
+              },
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (namaController.text.isNotEmpty &&
+                    nimController.text.isNotEmpty &&
+                    noTeleponController.text.isNotEmpty &&
+                    emailController.text.isNotEmpty) {
+                  addMahasiswa(
+                    namaController.text,
+                    nimController.text,
+                    noTeleponController.text,
+                    emailController.text,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Mohon lengkapi semua field")),
+                  );
+                }
+              },
+              child: const Text("Tambah"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -2847,6 +3180,11 @@ class _MahasiswaScreenState extends State<MahasiswaScreen> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF060A47),
+        onPressed: showAddMahasiswaForm,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -2966,7 +3304,10 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
     final response = await http.post(
       mahasiswaUrl,
       headers: {"Content-Type": "application/json"},
-      body: json.encode({"id_user": idMahasiswa}),
+      body: json.encode({
+        "id_user": idMahasiswa,
+        "action": "reset_password",
+      }),
     );
 
     if (response.statusCode == 200) {
@@ -2985,6 +3326,64 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Gagal menghubungi server")),
       );
+    }
+  }
+
+  void deleteAccount() async {
+    final idMahasiswa = idUserController.text; // Ambil ID Mahasiswa dari controller
+
+    // Konfirmasi sebelum menghapus akun
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi"),
+          content: const Text("Apakah Anda yakin ingin menghapus akun ini?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Tidak menghapus
+              },
+              child: const Text("Batal"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Menghapus
+              },
+              child: const Text("Hapus"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      final response = await http.post(
+        mahasiswaUrl, // Gantilah dengan URL yang sesuai untuk menghapus akun
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "id_user": idMahasiswa,
+          "action": "delete_account",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data["success"]) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal menghubungi server")),
+        );
+      }
     }
   }
 
@@ -3012,6 +3411,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
               const SizedBox(height: 20),
               TextField(
                 controller: namaController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Nama",
                   border: OutlineInputBorder(),
@@ -3021,6 +3421,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: nomorIndukController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Nomor Induk",
                   border: OutlineInputBorder(),
@@ -3030,6 +3431,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: noTelpController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "No. Telp",
                   border: OutlineInputBorder(),
@@ -3039,6 +3441,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: emailController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Email",
                   border: OutlineInputBorder(),
@@ -3049,6 +3452,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
               TextField(
                 controller: passwordController,
                 obscureText: true,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Password",
                   border: OutlineInputBorder(),
@@ -3058,6 +3462,7 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: roleController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Role",
                   border: OutlineInputBorder(),
@@ -3065,13 +3470,26 @@ class _MahasiswaDetailScreenState extends State<MahasiswaDetailScreen> {
                 enabled: false,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF060A47),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                onPressed: resetPassword,
-                child: const Text("Reset Password", style: TextStyle(color: Colors.white)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Align buttons horizontally
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF060A47),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    onPressed: resetPassword,
+                    child: const Text("Reset Password", style: TextStyle(color: Colors.white)),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red, // Red color for delete button
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    onPressed: deleteAccount, // Add your delete account functionality
+                    child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                  ),
+                ],
               ),
             ],
           ),
@@ -3302,6 +3720,7 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
         "nama_instansi": namaInstansiController.text,
         "email_pic": emailPicController.text,
         "password": passwordController.text,
+        "action": "edit",
       }),
     );
 
@@ -3314,6 +3733,7 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
         setState(() {
           isEditMode = false;
         });
+        Navigator.of(context).pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Gagal menyimpan data: ${result['message']}")),
@@ -3323,6 +3743,64 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Terjadi kesalahan pada server")),
       );
+    }
+  }
+
+  void deleteData() async {
+    final idUnitLayanan = idInstansiController.text; // Ambil ID Instansi dari controller
+
+    // Konfirmasi sebelum menghapus akun
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi"),
+          content: const Text("Apakah Anda yakin ingin menghapus akun ini?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Tidak menghapus
+              },
+              child: const Text("Batal"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Menghapus
+              },
+              child: const Text("Hapus"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      final response = await http.post(
+        unitLayananUrl, // Gantilah dengan URL yang sesuai untuk menghapus akun
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "unit_id": idUnitLayanan,
+          "action": "delete",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data["success"]) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal menghubungi server")),
+        );
+      }
     }
   }
 
@@ -3348,6 +3826,7 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
               const SizedBox(height: 20),
               TextField(
                 controller: namaInstansiController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Nama",
                   border: OutlineInputBorder(),
@@ -3357,6 +3836,7 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: emailPicController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Email",
                   border: OutlineInputBorder(),
@@ -3366,6 +3846,7 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
               const SizedBox(height: 10),
               TextField(
                 controller: passwordController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
                   labelText: "Password",
                   border: OutlineInputBorder(),
@@ -3391,22 +3872,42 @@ class _UnitLayananDetailScreenState extends State<UnitLayananDetailScreen> {
                   ],
                 ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF060A47),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                onPressed: () {
-                  if (isEditMode) {
-                    saveChanges();
-                  } else {
-                    setState(() {
-                      isEditMode = true;
-                    });
-                  }
-                },
-                child: Text(isEditMode ? "Simpan" : "Edit", style: const TextStyle(color: Colors.white)),
-              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Tombol Delete
+                  if (!isEditMode) // Tombol Delete hanya muncul saat tidak dalam mode Edit
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // Red color for delete button
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      ),
+                      onPressed: deleteData, // Add your delete account functionality
+                      child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                    ),
+                  const SizedBox(width: 10),
+                  // Tombol Edit/Simpan
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF060A47),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    onPressed: () {
+                      if (isEditMode) {
+                        saveChanges(); // Simpan perubahan
+                      } else {
+                        setState(() {
+                          isEditMode = true; // Aktifkan mode Edit
+                        });
+                      }
+                    },
+                    child: Text(
+                      isEditMode ? "Simpan" : "Edit",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -3454,6 +3955,97 @@ class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
     } catch (e) {
       print("Error fetching data: $e");
     }
+  }
+
+  void addJenisPengaduan(String nama) async {
+    final url = jenisPengaduanUrl;
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "nama_jenis_pengaduan": nama,
+          "action": "add",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+
+        if (responseData['success'] == true) {
+          setState(() {
+            jenisPengaduanList.add({
+              "nama_jenis_pengaduan": nama,
+            });
+            filteredList = jenisPengaduanList;
+          });
+
+          // Tutup form dan tampilkan notifikasi sukses
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'])),
+          );
+        } else {
+          // Tampilkan pesan error dari API
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(responseData['message'])),
+          );
+        }
+      } else {
+        throw Exception("Failed to connect to the server");
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
+
+  void showAddMahasiswaForm() {
+    final TextEditingController namaController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Tambah Jenis Pengaduan Baru"),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: namaController,
+                  decoration: const InputDecoration(labelText: "Nama Jenis Pengaduan"),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // Menutup form tanpa menambah data
+              },
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (namaController.text.isNotEmpty) {
+                  addJenisPengaduan(
+                    namaController.text,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Mohon lengkapi semua field")),
+                  );
+                }
+              },
+              child: const Text("Tambah"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -3508,6 +4100,11 @@ class _JenisPengaduanScreenState extends State<JenisPengaduanScreen> {
             },
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFF060A47),
+        onPressed: showAddMahasiswaForm,
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -3631,6 +4228,7 @@ class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen>
         setState(() {
           isEditMode = false;
         });
+        Navigator.of(context).pop();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Gagal menyimpan data: ${result['message']}")),
@@ -3640,6 +4238,64 @@ class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Terjadi kesalahan pada server")),
       );
+    }
+  }
+
+  void deleteData() async {
+    final idJenisPengaduan = idJenisPengaduanController.text; // Ambil ID Instansi dari controller
+
+    // Konfirmasi sebelum menghapus akun
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi"),
+          content: const Text("Apakah Anda yakin ingin menghapus akun ini?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Tidak menghapus
+              },
+              child: const Text("Batal"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Menghapus
+              },
+              child: const Text("Hapus"),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete == true) {
+      final response = await http.post(
+        jenisPengaduanUrl, // Gantilah dengan URL yang sesuai untuk menghapus akun
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({
+          "id_jenis_pengaduan": idJenisPengaduan,
+          "action": "delete",
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (data["success"]) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+          Navigator.of(context).pop();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data["message"])),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal menghubungi server")),
+        );
+      }
     }
   }
 
@@ -3667,29 +4323,52 @@ class _JenisPengaduanDetailScreenState extends State<JenisPengaduanDetailScreen>
               const SizedBox(height: 20),
               TextField(
                 controller: namaJenisPengaduanController,
+                style: TextStyle(color: Colors.black),
                 decoration: const InputDecoration(
-                  labelText: "Nama Unit Layanan",
+                  labelText: "Nama Jenis Pengaduan",
                   border: OutlineInputBorder(),
                 ),
                 enabled: isEditMode,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF060A47),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                ),
-                onPressed: () {
-                  if (isEditMode) {
-                    saveChanges();
-                  } else {
-                    setState(() {
-                      isEditMode = true;
-                    });
-                  }
-                },
-                child: Text(isEditMode ? "Simpan" : "Edit", style: const TextStyle(color: Colors.white)),
-              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Tombol Delete
+                  if (!isEditMode) // Tombol Delete hanya muncul saat tidak dalam mode Edit
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red, // Red color for delete button
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      ),
+                      onPressed: deleteData, // Add your delete account functionality
+                      child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                    ),
+
+                  const SizedBox(width: 10), // Spasi antara tombol Delete dan Edit
+
+                  // Tombol Edit/Simpan
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF060A47),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    ),
+                    onPressed: () {
+                      if (isEditMode) {
+                        saveChanges(); // Simpan perubahan
+                      } else {
+                        setState(() {
+                          isEditMode = true; // Aktifkan mode Edit
+                        });
+                      }
+                    },
+                    child: Text(
+                      isEditMode ? "Simpan" : "Edit",
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
@@ -4297,6 +4976,7 @@ class DetailKehilanganPage extends StatelessWidget {
                       controller: TextEditingController(text: deskripsi),
                       enabled: false,
                       maxLines: 5,
+                      style: TextStyle(color: Colors.black),
                       decoration: const InputDecoration(
                         labelText: 'Deskripsi',
                         border: OutlineInputBorder(),
@@ -4339,6 +5019,7 @@ class DetailKehilanganPage extends StatelessWidget {
     return TextField(
       controller: TextEditingController(text: text),
       enabled: false,
+      style: TextStyle(color: Colors.black),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
