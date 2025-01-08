@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'login.dart';
 
 // variabel api url
-const String baseUrl = 'https://6535-66-96-225-128.ngrok-free.app/Wicara_Admin_Web';
+const String baseUrl = 'https://6135-66-96-225-100.ngrok-free.app/Wicara/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login_instansi.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final pengaduanUrl = Uri.parse('$baseUrl/api/api_pengaduan.php');
@@ -26,280 +27,19 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Login(),
+      home: const MyHomePageAdminInstansi(),
     );
   }
 }
 
-class Login extends StatefulWidget {
-  const Login({super.key});
+class MyHomePageAdminInstansi extends StatefulWidget {
+  const MyHomePageAdminInstansi({super.key});
 
   @override
-  _LoginState createState() => _LoginState();
+  State<MyHomePageAdminInstansi> createState() => _MyHomePageState();
 }
 
-class _LoginState extends State<Login> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  void login() async {
-    String email = emailController.text.trim();
-    String password = passwordController.text.trim();
-
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Email dan password tidak boleh kosong')),
-      );
-      return;
-    }
-
-    final response = await http.post(
-      loginUrl,
-      body: {
-        'email': email,
-        'password': password,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      var data = json.decode(response.body);
-      if (data['success']) {
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('id_instansi', data['id_instansi'].toString());
-        await prefs.setString('email_pic', data['email_pic']);
-        await prefs.setString('nama_instansi', data['nama_instansi']);
-        await prefs.setString('password', data['password']);
-        await prefs.setString('gambar_instansi', data['gambar_instansi']);
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MyHomePage()),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(data['message'])),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Terjadi kesalahan, coba lagi nanti')),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              height: 285,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-                image: DecorationImage(
-                  image: AssetImage('images/Login_Image.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      height: 36,
-                      width: 120,
-                      margin: const EdgeInsets.only(top: 16),
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(50)),
-                        color: Colors.white,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Image.asset("images/Polines.png"),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 24.0),
-                      child: Text(
-                        'WICARA',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 32.0,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        ),
-                      ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 2),
-                      child: SizedBox(
-                        width: 200,
-                        child: Text(
-                          'Wadah Informasi Catatan Aspirasi & Rating Akademik',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20.0,
-                            fontWeight: FontWeight.w500,
-                            fontFamily: 'Poppins',
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding:
-              const EdgeInsets.symmetric(vertical: 50.0, horizontal: 40.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Login',
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 48.0,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins'),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4),
-                    child: Text(
-                      'Selamat Datang Di Platform Aspirasi Dan Rating Akademik',
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          fontFamily: 'Poppins'),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 30),
-                    child: TextField(
-                      controller: emailController,
-                      decoration: const InputDecoration(
-                        hintText: 'Email',
-                        border: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.all(Radius.circular(50.0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.all(Radius.circular(50.0)),
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.only(left: 20),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 16),
-                    child: TextField(
-                      controller: passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        hintText: 'Password',
-                        border: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.all(Radius.circular(50.0)),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                          BorderRadius.all(Radius.circular(50.0)),
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: EdgeInsets.only(left: 20),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(top: 25, bottom: 15),
-                    width: double.infinity,
-                    height: 0.5,
-                    color: Colors.grey,
-                  ),
-                  Center(
-                    child: SizedBox(
-                      width: 110,
-                      child: ElevatedButton(
-                        onPressed: login,
-                        style: ElevatedButton.styleFrom(
-                          elevation: 5,
-                          backgroundColor: Colors.amber[600],
-                        ),
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(right: 5),
-                          child: Text(
-                            'Lupa Password?',
-                            style: TextStyle(
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Text(
-                            'Klik Disini',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.indigo,
-                              decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key});
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePageAdminInstansi> {
   int _currentIndex = 0; // Default tampilan awal di Beranda
 
   final List<Widget> _screens = [
@@ -541,7 +281,7 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
                   TabBarContainerPengaduan(onStatusChanged: _filterByStatus),
                   Expanded(
                     child: _isLoading
-                        ? Center(child: CircularProgressIndicator()) // Show progress indicator while loading
+                        ? const Center(child: CircularProgressIndicator()) // Show progress indicator while loading
                         : PengaduanList(
                       pengaduanList: _filteredPengaduanList,
                     ),
@@ -1170,7 +910,7 @@ class BerandaService {
 }
 
 class BerandaScreen extends StatefulWidget {
-  const BerandaScreen({Key? key}) : super(key: key);
+  const BerandaScreen({super.key});
 
   @override
   _BerandaScreenState createState() => _BerandaScreenState();
@@ -1498,7 +1238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _namaInstansiController.text = prefs.getString('nama_instansi') ?? '';
       _passwordController.text = prefs.getString('password') ?? ''; // opsional
       final imagePath = prefs.getString('gambar_instansi');
-      _imageUrl = imagePath != null ? '$baseUrl/Back-end$imagePath' : null;
+      _imageUrl = imagePath != null ? '$baseUrl/../Wicara_User_Web/assets/images/instansi/$imagePath' : null;
     });
   }
 
@@ -1707,14 +1447,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       backgroundColor: Colors.grey,
                       backgroundImage: _imageUrl != null
                           ? NetworkImage(_imageUrl!)
-                          : null,
+                          : null, // Jika _imageUrl null, tidak ada gambar
                       child: _imageUrl == null
                           ? const Icon(
                         Icons.person,
                         size: 50,
                         color: Colors.white,
                       )
-                          : null,
+                          : null, // Menampilkan ikon jika _imageUrl null
                     ),
                     const SizedBox(height: 20),
                     Container(
@@ -1830,8 +1570,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 class NotificationScreen extends StatefulWidget {
   final ValueChanged<int> onUnreadCountChanged; // Callback untuk mengirim jumlah belum dibaca
 
-  const NotificationScreen({Key? key, required this.onUnreadCountChanged})
-      : super(key: key);
+  const NotificationScreen({super.key, required this.onUnreadCountChanged});
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
