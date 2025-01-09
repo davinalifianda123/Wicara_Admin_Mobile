@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'super_admin.dart'; // Import halaman super admin
 import 'admin_instansi.dart'; // Import halaman admin instansi
 
-const String baseUrl = 'https://6135-66-96-225-100.ngrok-free.app/Wicara/Wicara_Admin_Web';
+const String baseUrl = 'https://toucan-outgoing-moderately.ngrok-free.app/WICARA_FIX/Wicara_Admin_Web';
 final superAdminLoginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final adminInstansiLoginUrl = Uri.parse('$baseUrl/api/api_login_instansi.php');
 
