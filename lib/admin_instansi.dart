@@ -776,7 +776,7 @@ class DetailPengaduanPage extends StatelessWidget {
                       ),
                       child: lampiran.isNotEmpty
                           ? Image.network(
-                        '$baseUrl/Back-end/foto-pengaduan/$lampiran',
+                        '$baseUrl/../Wicara_User_Web/backend/aduan/$lampiran',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(child: Text('Image not available'));

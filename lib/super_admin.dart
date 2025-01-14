@@ -1383,6 +1383,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
             'isi_komentar': item['isi_komentar'],
             'skala_bintang': int.parse(item['skala_bintang']),
             'profile': item['profile'],
+            'lampiran': item['lampiran'],
           }).toList();
           isLoading = false; // Set loading ke false setelah data berhasil diambil
         });
@@ -1531,10 +1532,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                     CircleAvatar(
                                       backgroundImage: review['profile'] != null && review['profile'].isNotEmpty
                                           ? NetworkImage('$baseUrl/../Wicara_User_Web/backend/profile/${review['profile']}')
-                                          : const AssetImage('images/Foto_profile.png'), // Gambar lokal fallback
-                                      onBackgroundImageError: (exception, stackTrace) {
-                                        // Optional: handle error jika gambar tidak ditemukan
-                                      },
+                                          : const AssetImage('images/Foto_profile.png') as ImageProvider,
                                     ),
                                     const SizedBox(width: 8),
                                     Column(
@@ -1568,6 +1566,19 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                   review['isi_komentar'],
                                   style: const TextStyle(fontSize: 14),
                                 ),
+                                const SizedBox(height: 8),
+                                // Tampilkan gambar jika ada lampiran
+                                if (review['lampiran'] != null && review['lampiran'].isNotEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Image.network(
+                                      '$baseUrl/../Wicara_User_Web/backend/rating/${review['lampiran']}',
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return const Text('Gambar tidak tersedia.');
+                                      },
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -1623,6 +1634,7 @@ class DetailRatingPage extends StatelessWidget {
     final date = review['tanggal'] as DateTime;
     final content = review['isi_komentar'] as String;
     final rating = review['skala_bintang'] as int;
+    final imageUrl = review['lampiran'] as String?; // URL gambar tambahan
 
     return Scaffold(
       body: Column(
@@ -1680,9 +1692,6 @@ class DetailRatingPage extends StatelessWidget {
                         backgroundImage: review['profile'] != null && review['profile'].isNotEmpty
                             ? NetworkImage('$baseUrl/../Wicara_User_Web/backend/profile/${review['profile']}')
                             : const AssetImage('images/Foto_profile.png'), // Gambar lokal fallback
-                        onBackgroundImageError: (exception, stackTrace) {
-                          // Optional: handle error jika gambar tidak ditemukan
-                        },
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -1726,6 +1735,27 @@ class DetailRatingPage extends StatelessWidget {
                       border: OutlineInputBorder(),
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  if (imageUrl != null && imageUrl.isNotEmpty)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Gambar:',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Image.network(
+                          '$baseUrl/../Wicara_User_Web/backend/rating/$imageUrl',
+                          errorBuilder: (context, error, stackTrace) {
+                            return const Text('Gambar tidak dapat dimuat.');
+                          },
+                        ),
+                      ],
+                    ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
@@ -1779,6 +1809,7 @@ class DetailRatingPage extends StatelessWidget {
     );
   }
 }
+
 // -------------------------------------------------------------------
 
 
@@ -4885,8 +4916,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _emailController.text = prefs.getString('email') ?? '';
       _namaController.text = prefs.getString('nama') ?? '';
       _passwordController.text = prefs.getString('password') ?? ''; // opsional
+
+      // Ambil dan format path gambar
       final imagePath = prefs.getString('profile');
-      _imageUrl = imagePath != null ? '$baseUrl/../Wicara_User_Web/backend/profile/$imagePath' : null;
+      if (imagePath != null) {
+        // Pastikan path relatif diubah menjadi URL absolut
+        final relativePath = imagePath.replaceFirst('../', '');
+        _imageUrl = '$baseUrl/$relativePath';
+      } else {
+        _imageUrl = null;
+      }
     });
   }
 
