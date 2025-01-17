@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'login.dart';
 
 // variabel api url
-const String baseUrl = 'https://toucan-outgoing-moderately.ngrok-free.app/WICARA_FIX/Wicara_Admin_Web';
+const String baseUrl = 'https://wicara.xyz/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final dosenUrl = Uri.parse('$baseUrl/api/api_dosen.php');
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Demo Bottom Navigation Bar',
+      title: 'Wicara Admin',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -798,7 +798,7 @@ class DetailPengaduanPage extends StatelessWidget {
                       ),
                       child: lampiran.isNotEmpty
                           ? Image.network(
-                        '$baseUrl/../Wicara_User_Web/backend/aduan/$lampiran',
+                        '$baseUrl/../backend/aduan/$lampiran',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(child: Text('Image not available'));
@@ -1531,7 +1531,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                   children: [
                                     CircleAvatar(
                                       backgroundImage: review['profile'] != null && review['profile'].isNotEmpty
-                                          ? NetworkImage('$baseUrl/../Wicara_User_Web/backend/profile/${review['profile']}')
+                                          ? NetworkImage('$baseUrl/../backend/profile/${review['profile']}')
                                           : const AssetImage('images/Foto_profile.png') as ImageProvider,
                                     ),
                                     const SizedBox(width: 8),
@@ -1572,7 +1572,7 @@ class _ServiceDetailPageState extends State<ServiceDetailPage> {
                                   Padding(
                                     padding: const EdgeInsets.only(top: 8.0),
                                     child: Image.network(
-                                      '$baseUrl/../Wicara_User_Web/backend/rating/${review['lampiran']}',
+                                      '$baseUrl/../backend/rating/${review['lampiran']}',
                                       fit: BoxFit.cover,
                                       errorBuilder: (context, error, stackTrace) {
                                         return const Text('Gambar tidak tersedia.');
@@ -1690,7 +1690,7 @@ class DetailRatingPage extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         backgroundImage: review['profile'] != null && review['profile'].isNotEmpty
-                            ? NetworkImage('$baseUrl/../Wicara_User_Web/backend/profile/${review['profile']}')
+                            ? NetworkImage('$baseUrl/../backend/profile/${review['profile']}')
                             : const AssetImage('images/Foto_profile.png'), // Gambar lokal fallback
                       ),
                       const SizedBox(width: 10),
@@ -1749,7 +1749,7 @@ class DetailRatingPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         Image.network(
-                          '$baseUrl/../Wicara_User_Web/backend/rating/$imageUrl',
+                          '$baseUrl/../backend/rating/$imageUrl',
                           errorBuilder: (context, error, stackTrace) {
                             return const Text('Gambar tidak dapat dimuat.');
                           },
@@ -4763,7 +4763,7 @@ class DetailKehilanganPage extends StatelessWidget {
                       ),
                       child: lampiran.isNotEmpty
                           ? Image.network(
-                        '$baseUrl/../Wicara_User_Web/backend/kehilangan/$lampiran',
+                        '$baseUrl/../backend/kehilangan/$lampiran',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(child: Text('Image not available'));

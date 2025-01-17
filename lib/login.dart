@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'super_admin.dart'; // Import halaman super admin
 import 'admin_instansi.dart'; // Import halaman admin instansi
 
-const String baseUrl = 'https://toucan-outgoing-moderately.ngrok-free.app/WICARA_FIX/Wicara_Admin_Web';
+const String baseUrl = 'https://wicara.xyz/Wicara_Admin_Web';
 final superAdminLoginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final adminInstansiLoginUrl = Uri.parse('$baseUrl/api/api_login_instansi.php');
 
@@ -49,6 +49,7 @@ class _LoginState extends State<Login> {
         await prefs.setString('email', superAdminData['email']);
         await prefs.setString('nama', superAdminData['nama']);
         await prefs.setString('profile', superAdminData['profile']);
+        await prefs.setString('password', superAdminData['password']);
 
         Navigator.pushReplacement(
           context,
@@ -76,6 +77,7 @@ class _LoginState extends State<Login> {
         await prefs.setString('nama_instansi', adminInstansiData['nama_instansi']);
         await prefs.setString('email_pic', adminInstansiData['email_pic']);
         await prefs.setString('gambar_instansi', adminInstansiData['gambar_instansi']);
+        await prefs.setString('password', adminInstansiData['password']);
 
         Navigator.pushReplacement(
           context,

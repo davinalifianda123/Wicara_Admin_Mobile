@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'login.dart';
 
 // variabel api url
-const String baseUrl = 'https://toucan-outgoing-moderately.ngrok-free.app/WICARA_FIX/Wicara_Admin_Web';
+const String baseUrl = 'https://wicara.xyz/Wicara_Admin_Web';
 final loginUrl = Uri.parse('$baseUrl/api/api_login_instansi.php');
 final berandaUrl = Uri.parse('$baseUrl/api/api_beranda.php');
 final pengaduanUrl = Uri.parse('$baseUrl/api/api_pengaduan.php');
@@ -776,7 +776,7 @@ class DetailPengaduanPage extends StatelessWidget {
                       ),
                       child: lampiran.isNotEmpty
                           ? Image.network(
-                        '$baseUrl/../Wicara_User_Web/backend/aduan/$lampiran',
+                        '$baseUrl/../backend/aduan/$lampiran',
                         fit: BoxFit.contain,
                         errorBuilder: (context, error, stackTrace) {
                           return const Center(child: Text('Image not available'));
@@ -1238,7 +1238,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _namaInstansiController.text = prefs.getString('nama_instansi') ?? '';
       _passwordController.text = prefs.getString('password') ?? ''; // opsional
       final imagePath = prefs.getString('gambar_instansi');
-      _imageUrl = imagePath != null ? '$baseUrl/../Wicara_User_Web/assets/images/instansi/$imagePath' : null;
+      _imageUrl = imagePath != null ? '$baseUrl/../assets/images/instansi/$imagePath' : null;
     });
   }
 
