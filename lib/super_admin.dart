@@ -269,46 +269,49 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          PengaduanAppBar(
-            isSearching: _isSearching,
-            searchQuery: _searchQuery,
-            onSearchStart: _startSearch,
-            onSearchStop: _stopSearch,
-            onSearchQueryChanged: _updateSearchQuery,
-            unreadCount: _unreadCount,
-            onUnreadCountChanged: (count) {
-              setState(() {
-                _unreadCount = count; // Update jumlah badge
-              });
-            },
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LastUpdateRow(
-                    lastUpdateDate: _filteredPengaduanList.isNotEmpty
-                        ? _filteredPengaduanList.first['tanggal'] ?? 'Tanggal tidak tersedia'
-                        : 'Tanggal tidak tersedia',
-                  ),
-                  const SizedBox(height: 10),
-                  TabBarContainerPengaduan(onStatusChanged: _filterByStatus),
-                  Expanded(
-                    child: _isLoading
-                        ? const Center(child: CircularProgressIndicator()) // Show progress indicator while loading
-                        : PengaduanList(
-                      pengaduanList: _filteredPengaduanList,
+      body: RefreshIndicator(
+        onRefresh: _fetchPengaduanData,
+        child: Column(
+          children: [
+            PengaduanAppBar(
+              isSearching: _isSearching,
+              searchQuery: _searchQuery,
+              onSearchStart: _startSearch,
+              onSearchStop: _stopSearch,
+              onSearchQueryChanged: _updateSearchQuery,
+              unreadCount: _unreadCount,
+              onUnreadCountChanged: (count) {
+                setState(() {
+                  _unreadCount = count; // Update jumlah badge
+                });
+              },
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LastUpdateRow(
+                      lastUpdateDate: _filteredPengaduanList.isNotEmpty
+                          ? _filteredPengaduanList.first['tanggal'] ?? 'Tanggal tidak tersedia'
+                          : 'Tanggal tidak tersedia',
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    TabBarContainerPengaduan(onStatusChanged: _filterByStatus),
+                    Expanded(
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator()) // Show progress indicator while loading
+                          : PengaduanList(
+                        pengaduanList: _filteredPengaduanList,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -468,6 +471,7 @@ class PengaduanList extends StatelessWidget {
     }
 
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       itemCount: pengaduanList.length,
       itemBuilder: (context, index) {
         final pengaduan = pengaduanList[index];
