@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'login.dart';
+import 'splash_screen.dart';
 
 // variabel api url
 const String baseUrl = 'https://wicara.xyz/Wicara_Admin_Web';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePageAdminInstansi(),
+      home: const SplashScreen(),
     );
   }
 }
@@ -251,46 +252,49 @@ class _PengaduanScreenState extends State<PengaduanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          PengaduanAppBar(
-            isSearching: _isSearching,
-            searchQuery: _searchQuery,
-            onSearchStart: _startSearch,
-            onSearchStop: _stopSearch,
-            onSearchQueryChanged: _updateSearchQuery,
-            unreadCount: _unreadCount,
-            onUnreadCountChanged: (count) {
-              setState(() {
-                _unreadCount = count; // Update jumlah badge
-              });
-            },
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LastUpdateRow(
-                    lastUpdateDate: _filteredPengaduanList.isNotEmpty
-                        ? _filteredPengaduanList.first['tanggal'] ?? 'Tanggal tidak tersedia'
-                        : 'Tanggal tidak tersedia',
-                  ),
-                  const SizedBox(height: 10),
-                  TabBarContainerPengaduan(onStatusChanged: _filterByStatus),
-                  Expanded(
-                    child: _isLoading
-                        ? const Center(child: CircularProgressIndicator()) // Show progress indicator while loading
-                        : PengaduanList(
-                      pengaduanList: _filteredPengaduanList,
+      body: RefreshIndicator(
+        onRefresh: _fetchPengaduanData,
+        child: Column(
+          children: [
+            PengaduanAppBar(
+              isSearching: _isSearching,
+              searchQuery: _searchQuery,
+              onSearchStart: _startSearch,
+              onSearchStop: _stopSearch,
+              onSearchQueryChanged: _updateSearchQuery,
+              unreadCount: _unreadCount,
+              onUnreadCountChanged: (count) {
+                setState(() {
+                  _unreadCount = count; // Update jumlah badge
+                });
+              },
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    LastUpdateRow(
+                      lastUpdateDate: _filteredPengaduanList.isNotEmpty
+                          ? _filteredPengaduanList.first['tanggal'] ?? 'Tanggal tidak tersedia'
+                          : 'Tanggal tidak tersedia',
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    TabBarContainerPengaduan(onStatusChanged: _filterByStatus),
+                    Expanded(
+                      child: _isLoading
+                          ? const Center(child: CircularProgressIndicator()) // Show progress indicator while loading
+                          : PengaduanList(
+                        pengaduanList: _filteredPengaduanList,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -450,6 +454,7 @@ class PengaduanList extends StatelessWidget {
     }
 
     return ListView.builder(
+      physics: const AlwaysScrollableScrollPhysics(),
       itemCount: pengaduanList.length,
       itemBuilder: (context, index) {
         final pengaduan = pengaduanList[index];
@@ -1323,6 +1328,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  void logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Hapus semua data yang tersimpan
+
+    // Arahkan kembali ke halaman login
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Login()),
+    );
+  }
+
+
   Widget _buildProfileField(String label, TextEditingController controller, {bool obscureText = false}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1530,11 +1547,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Logika logout
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Login()),
-                          );
+                          logout(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(231, 217, 37, 13),

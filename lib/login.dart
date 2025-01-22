@@ -9,6 +9,7 @@ const String baseUrl = 'https://wicara.xyz/Wicara_Admin_Web';
 final superAdminLoginUrl = Uri.parse('$baseUrl/api/api_login.php');
 final adminInstansiLoginUrl = Uri.parse('$baseUrl/api/api_login_instansi.php');
 
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -50,6 +51,8 @@ class _LoginState extends State<Login> {
         await prefs.setString('nama', superAdminData['nama']);
         await prefs.setString('profile', superAdminData['profile']);
         await prefs.setString('password', superAdminData['password']);
+        await prefs.setBool('isLoggedIn', true);
+
 
         Navigator.pushReplacement(
           context,
@@ -78,6 +81,8 @@ class _LoginState extends State<Login> {
         await prefs.setString('email_pic', adminInstansiData['email_pic']);
         await prefs.setString('gambar_instansi', adminInstansiData['gambar_instansi']);
         await prefs.setString('password', adminInstansiData['password']);
+        await prefs.setBool('isLoggedIn', true);
+
 
         Navigator.pushReplacement(
           context,

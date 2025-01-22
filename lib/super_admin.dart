@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'login.dart';
+import 'splash_screen.dart';
 
 // variabel api url
 const String baseUrl = 'https://wicara.xyz/Wicara_Admin_Web';
@@ -34,7 +35,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const Login(),
+      home: const SplashScreen(),
     );
   }
 }
@@ -5006,6 +5007,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Hapus semua data yang tersimpan
+
+    // Arahkan kembali ke halaman login
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const Login()),
+    );
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -5221,11 +5233,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          // Logika logout
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Login()),
-                          );
+                          logout(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(231, 217, 37, 13),
